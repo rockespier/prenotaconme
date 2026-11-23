@@ -47,6 +47,7 @@ try
     app.UseExceptionHandler();
     app.UseStatusCodePages();
     app.UseSerilogRequestLogging();
+    app.UseSpaStaticFiles();
     app.UseCors();
 
     app.MapOpenApi();
@@ -67,6 +68,8 @@ try
         .WithTags("System");
 
     api.MapModules(ModuleCatalog.All);
+
+    app.MapSpaFallback();
 
     await app.RunAsync();
 }

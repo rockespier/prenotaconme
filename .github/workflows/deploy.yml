@@ -1,5 +1,7 @@
 name: Deploy staging
 
+# Builds API + Angular into one package and installs it on the Windows Server (IIS) over SSH.
+
 on:
   workflow_run:
     workflows: [CI]
@@ -9,7 +11,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   deploy:
@@ -17,48 +18,50 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     env:
-      OWNER: ${{ github.repository_owner }}
       # Deploy exactly the commit that passed CI.
-      TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.TAG }}
+          ref: ${{ env.SHA }}
 
-      - uses: docker/login-action@v3
+      - uses: actions/setup-dotnet@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          global-json-file: global.json
 
-      - name: Build and push images
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/frontend/prenotaconme-web/package-lock.json
+
+      - name: Build Angular
+        working-directory: src/frontend/prenotaconme-web
+        run: npm ci && npx ng build
+
+      - name: Publish API (framework-dependent, win-x64) with Angular in wwwroot
         run: |
-          owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
-          for app in api web; do
-            docker build -f deploy/$app.Dockerfile -t ghcr.io/$owner/prenotaconme-$app:$TAG -t ghcr.io/$owner/prenotaconme-$app:latest .
-            docker push --all-tags ghcr.io/$owner/prenotaconme-$app
-          done
+          dotnet publish src/backend/PrenotaConMe.Api -c Release -r win-x64 --self-contained false \
+            -p:OpenApiGenerateDocuments=false -o out
+          mkdir -p out/wwwroot
+          cp -r src/frontend/prenotaconme-web/dist/prenotaconme-web/browser/. out/wwwroot/
+          (cd out && zip -qr ../release.zip .)
 
-      - name: Copy compose file
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          source: deploy/docker-compose.yml
-          target: /opt/prenotaconme
-          strip_components: 1
+      - name: Upload and install
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          HOST: ${{ secrets.VPS_HOST }}
+          USER: ${{ secrets.VPS_USER }}
+        run: |
+          install -m 600 /dev/null key && printf '%s\n' "$SSH_KEY" > key
+          SSH_OPTS="-i key -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
+          VERSION="$(date -u +%Y%m%d%H%M%S)-${SHA::7}"
 
-      - name: Deploy
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          envs: TAG
-          script: |
-            cd /opt/prenotaconme
-            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$TAG/" .env
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
+          scp $SSH_OPTS release.zip deploy/windows/deploy.ps1 "$USER@$HOST:C:/prenotaconme/incoming/"
+          ssh $SSH_OPTS "$USER@$HOST" \
+            "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\prenotaconme\\incoming\\deploy.ps1 -Package C:\\prenotaconme\\incoming\\release.zip -Version $VERSION"
+
+          rm -f key
+
+      - name: Smoke test
+        run: curl --fail --retry 5 --retry-delay 5 "https://${{ vars.SITE_DOMAIN }}/health"

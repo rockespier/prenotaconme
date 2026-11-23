@@ -1,7 +1,7 @@
 # PrenotaConMe — Stack tecnológico recomendado
 
 ## Context
-Clon de Reservio: SaaS multi-tenant de reservas para barberías, peluquerías, centros estéticos, etc. Base: `idea_iniziale.md`. Decisiones del usuario: .NET 10 Minimal API + Angular PWA (cerrado), multi-tenant, VPS + Docker, PostgreSQL, WhatsApp Meta Cloud API, OpenAI (GPT + Whisper), Firebase Auth (Google SSO), Angular Material, <50 negocios el primer año, un solo dev full-stack. MVP incluye: i18n, Web Push, página pública por negocio, sincronización bidireccional con GCal.
+Clon de Reservio: SaaS multi-tenant de reservas para barberías, peluquerías, centros estéticos, etc. Base: `idea_iniziale.md`. Decisiones del usuario: .NET 10 Minimal API + Angular PWA (cerrado), multi-tenant, VPS Windows Server 2022 + IIS, PostgreSQL, WhatsApp Meta Cloud API, OpenAI (GPT + Whisper), Firebase Auth (Google SSO), Angular Material, <50 negocios el primer año, un solo dev full-stack. MVP incluye: i18n, Web Push, página pública por negocio, sincronización bidireccional con GCal.
 
 ## Arquitectura
 **Monolito modular** (un solo deployable, módulos por dominio con vertical slices). Sin microservicios.
@@ -56,11 +56,13 @@ Recordatorios: plantillas aprobadas por Meta (utility), programadas con Hangfire
 - Ojo: si el número está activo en la app de WhatsApp, usar la modalidad **coexistence** (WhatsApp Business app + Cloud API) o liberarlo de la app antes de registrarlo en Cloud API.
 
 ## Infraestructura
-- VPS UE (Hetzner, 4 vCPU/8 GB basta).
-- **PostgreSQL nativo** en el VPS (repo oficial PGDG, misma versión mayor que en dev/CI), `listen_addresses` limitado a localhost/bridge Docker, `pg_hba.conf` restringido, nunca expuesto a internet.
-- **Docker Compose** solo para la app: `caddy` (TLS automático, reverse proxy), `api`, `web` (estáticos Angular servidos por Caddy), `seq`.
-- Backups: pgBackRest (full + WAL) → almacenamiento S3-compatible (Hetzner Storage Box / Backblaze), con prueba de restore periódica.
-- CI/CD: GitHub Actions → build + tests → imágenes en GHCR → deploy por SSH (`docker compose pull && up -d`).
+- VPS **Windows Server 2022** (sin Docker). Guía: `deploy/README.md`.
+- **IIS** + ASP.NET Core Hosting Bundle (in-process): un único sitio; la API sirve también la PWA de Angular desde `wwwroot` (mismo origen, sin ARR ni proxy).
+- TLS: win-acme (Let's Encrypt) con renovación automática.
+- **PostgreSQL 18 nativo** en el mismo servidor, `listen_addresses = 'localhost'`, puerto 5432 cerrado.
+- Seq nativo (MSI) en localhost:5341.
+- Backups: pgBackRest (o `pg_dump` programado) → almacenamiento S3-compatible, con prueba de restore periódica (F5-06).
+- CI/CD: GitHub Actions → build + tests → `dotnet publish win-x64` + `ng build` en un zip → SCP/SSH (OpenSSH Server de Windows) → `deploy/windows/deploy.ps1` (releases + junction `current` + reciclado del app pool).
 - Monitoreo: Uptime Kuma.
 - GDPR: datos en UE, DPA con OpenAI y Meta, consentimiento opt-in para WhatsApp.
 
@@ -71,7 +73,7 @@ Recordatorios: plantillas aprobadas por Meta (utility), programadas con Hangfire
 /src/backend/PrenotaConMe.Shared
 /src/frontend/prenotaconme-web         (Angular)
 /tests/...
-/deploy/docker-compose.yml, Caddyfile
+/deploy/README.md, deploy/windows/deploy.ps1
 ```
 
 ## Verificación (al implementar)
