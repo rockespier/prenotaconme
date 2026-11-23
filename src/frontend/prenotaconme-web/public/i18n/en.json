@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PrenotaConMe"
+  },
+  "common": {
+    "language": "Language",
+    "menu": "Menu"
+  },
+  "languages": {
+    "it": "Italiano",
+    "es": "Español",
+    "en": "English"
+  },
+  "nav": {
+    "dashboard": "Dashboard"
+  },
+  "home": {
+    "title": "Book your appointment",
+    "subtitle": "Hairdressers, barbers, beauty salons and more.",
+    "apiStatus": "API status",
+    "status": {
+      "checking": "checking…",
+      "online": "online",
+      "offline": "unreachable"
+    }
+  },
+  "booking": {
+    "title": "Booking",
+    "comingSoon": "Booking for “{{slug}}” is coming soon."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  }
+}

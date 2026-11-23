@@ -1,0 +1,57 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "PrenotaConMe.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/info": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "operationId": "GetAppInfo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppInfo": {
+        "required": [
+          "name",
+          "version",
+          "environment"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "System"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PrenotaConMe"
+  },
+  "common": {
+    "language": "Lingua",
+    "menu": "Menu"
+  },
+  "languages": {
+    "it": "Italiano",
+    "es": "Español",
+    "en": "English"
+  },
+  "nav": {
+    "dashboard": "Pannello"
+  },
+  "home": {
+    "title": "Prenota il tuo appuntamento",
+    "subtitle": "Parrucchieri, barbieri, centri estetici e altro.",
+    "apiStatus": "Stato API",
+    "status": {
+      "checking": "verifica…",
+      "online": "online",
+      "offline": "non raggiungibile"
+    }
+  },
+  "booking": {
+    "title": "Prenotazione",
+    "comingSoon": "La prenotazione per «{{slug}}» arriverà presto."
+  },
+  "notFound": {
+    "title": "Pagina non trovata",
+    "back": "Torna alla home"
+  }
+}

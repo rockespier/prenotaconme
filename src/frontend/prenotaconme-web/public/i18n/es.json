@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PrenotaConMe"
+  },
+  "common": {
+    "language": "Idioma",
+    "menu": "Menú"
+  },
+  "languages": {
+    "it": "Italiano",
+    "es": "Español",
+    "en": "English"
+  },
+  "nav": {
+    "dashboard": "Panel"
+  },
+  "home": {
+    "title": "Reserva tu cita",
+    "subtitle": "Peluquerías, barberías, centros de estética y más.",
+    "apiStatus": "Estado de la API",
+    "status": {
+      "checking": "comprobando…",
+      "online": "en línea",
+      "offline": "no disponible"
+    }
+  },
+  "booking": {
+    "title": "Reserva",
+    "comingSoon": "La reserva para «{{slug}}» estará disponible pronto."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "back": "Volver al inicio"
+  }
+}

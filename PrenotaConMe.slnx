@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/backend/PrenotaConMe.Api/PrenotaConMe.Api.csproj" />
+    <Project Path="src/backend/PrenotaConMe.Infrastructure/PrenotaConMe.Infrastructure.csproj" />
+    <Project Path="src/backend/PrenotaConMe.Shared/PrenotaConMe.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PrenotaConMe.IntegrationTests/PrenotaConMe.IntegrationTests.csproj" />
+    <Project Path="tests/PrenotaConMe.UnitTests/PrenotaConMe.UnitTests.csproj" />
+  </Folder>
+</Solution>
