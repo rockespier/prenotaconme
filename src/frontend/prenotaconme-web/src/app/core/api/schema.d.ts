@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/jobs/dashboard-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["OpenJobsDashboard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/tenants": {
         parameters: {
             query?: never;
@@ -666,6 +682,7 @@ export interface components {
             photoUrl: null | string;
             phoneNumber: null | string;
             memberships: components["schemas"]["MembershipDto"][];
+            isPlatformAdmin: boolean;
         };
         MembershipDto: {
             /** Format: uuid */
@@ -891,6 +908,24 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AppInfo"];
                 };
+            };
+        };
+    };
+    OpenJobsDashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

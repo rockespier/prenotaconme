@@ -33,7 +33,7 @@ npx ng build
 npm run api:generate       # regenerate typed API client from openapi/prenotaconme-api.json
 ```
 
-Secrets for local dev (SMTP password, `Notifications:StaffEmail`) live in user-secrets, never in `appsettings.Development.json` (the repo is public): `dotnet user-secrets set Smtp:Password <value> --project src/backend/PrenotaConMe.Api`.
+Secrets for local dev (SMTP password, `Notifications:StaffEmail`, `Platform:AdminEmails:0`) live in user-secrets, never in `appsettings.Development.json` (the repo is public): `dotnet user-secrets set Smtp:Password <value> --project src/backend/PrenotaConMe.Api`.
 
 Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconme`, user/password `prenota`/`prenota`, Seq optional at `localhost:5341`. `deploy/docker-compose.dev.yml` is the Docker alternative.
 
@@ -52,6 +52,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
   - `ITenantInitializer`: starter data when a business registers. It is ordered: Locations (10) seeds the default location, then Catalog (20) seeds the sample services, reading the staged location through `DbSet.Local`.
   - `IUserSignInHook`: runs from `GET /api/users/me`. Staff uses it to link invitations by verified e-mail.
   - `IUserDirectory`: read-only contact details (name, e-mail, phone) of local users.
+  - `PlatformAdmins`: platform super-admins (role P) from `Platform:AdminEmails`.
 
 **Shared scheduling helpers:** `TimeZones.IsValidIana` and `WeeklyIntervals` (validate order, granularity and overlap; coverage within opening hours). All weekly hours are local to the location. Location opening hours use 30-minute steps; staff working hours use 1-hour blocks and must fall inside the opening hours.
 
@@ -66,7 +67,9 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - **Deleting referenced data:** appointments reference location, service and staff with `ON DELETE RESTRICT`. The delete endpoints map that to 409 `*.inUse` ("deactivate instead").
 - **Constraint errors:** use `DbErrors.IsUniqueViolation/IsForeignKeyViolation/IsExclusionViolation`, which cover both SaveChanges and ExecuteDelete. RESTRICT raises SQLSTATE 23001, not 23503.
 
-**Notifications (e-mail, F1-11).** After a booking commits, Scheduling builds an `AppointmentNotice` (Shared) and calls `IAppointmentNotifier.Booked`, which only enqueues it in memory; `AppointmentEmailWorker` (Notifications module) sends the client and staff e-mails with an `.ics` attachment through MailKit, in the business's default language. Queued messages are lost on restart until Hangfire (F2-01). Without `Smtp:Host`, `LoggingEmailSender` only logs. `Notifications:StaffEmail` (dev) redirects every staff e-mail to one address. Integration tests replace `IEmailSender` with `CapturingEmailSender` (`ApiFactory.Emails`).
+**Background jobs (Hangfire, F2-01).** `AddJobs` (Infrastructure/Jobs) uses Hangfire with Postgres storage in the `hangfire` schema of the app DB (created at startup, not an EF migration); `EnableLongPolling` (LISTEN/NOTIFY) picks up new jobs at once. Inject `IBackgroundJobClient`: it is scoped (`TenantBackgroundJobClient`) and stamps the current tenant as job parameter `TenantId`; `TenantJobActivator` opens one DI scope per job and restores it on `TenantContext`, so job code reads tenant data like a request does. Job methods must be public, take serializable args and `CancellationToken.None` as a placeholder. `Jobs:Server=false` disables processing in a process. Dashboard: `/hangfire`, only for platform super-admins (`Platform:AdminEmails`, verified e-mail, `PlatformAdmins` in Shared, `MeDto.IsPlatformAdmin`); the SPA calls `POST /api/jobs/dashboard-session` (bearer) which sets a 1 h cookie scoped to `/hangfire`, then opens the page. Hangfire.Core pulls a vulnerable Newtonsoft.Json, pinned to 13.x in Infrastructure.
+
+**Notifications (e-mail, F1-11).** After a booking commits, Scheduling builds an `AppointmentNotice` (Shared) and calls `IAppointmentNotifier.Booked`, which enqueues one `AppointmentEmailJob` per recipient (client, staff; retried 5 times, so one failure never re-sends the other); the job sends the e-mail with an `.ics` attachment through MailKit, in the business's default language. Without `Smtp:Host`, `LoggingEmailSender` only logs. `Notifications:StaffEmail` (dev) redirects every staff e-mail to one address. Integration tests replace `IEmailSender` with `CapturingEmailSender` (`ApiFactory.Emails`).
 
 **Multi-tenancy (row-level, fail-closed).** These rules hold for every tenant-owned entity:
 - Tenant data derives from `TenantEntity` / `ITenantOwned`.

@@ -47,66 +47,79 @@ internal static class AppointmentEmails
             "E-mail sent automatically by PrenotaConMe."),
     };
 
-    public static IReadOnlyList<EmailMessage> Build(AppointmentNotice n, string? staffEmailOverride, DateTimeOffset now)
+    public static IReadOnlyList<EmailMessage> Build(AppointmentNotice n, string? staffEmailOverride, DateTimeOffset now) =>
+        new[] { ForClient(n, now), ForStaff(n, staffEmailOverride, now) }.OfType<EmailMessage>().ToList();
+
+    /// <summary>Null when the client has no e-mail (e.g. a walk-in entered in the calendar).</summary>
+    public static EmailMessage? ForClient(AppointmentNotice n, DateTimeOffset now)
+    {
+        if (string.IsNullOrWhiteSpace(n.ClientEmail))
+        {
+            return null;
+        }
+
+        var (t, culture, date, time, place, price, uid) = Prepare(n);
+
+        var rows = new List<(string, string)>
+        {
+            (t.Service, n.ServiceName),
+            (t.When, $"{date}, {time}"),
+            (t.With, n.StaffName),
+            (t.Where, place),
+            (t.Price, $"{price} ({t.PayOnSite})"),
+        };
+        if (!string.IsNullOrWhiteSpace(n.LocationPhone))
+        {
+            rows.Add(("☎", n.LocationPhone));
+        }
+
+        var ics = IcsCalendar.Build(uid, now, n.StartsAt, n.EndsAt,
+            $"{n.ServiceName} – {n.BusinessName}", place, $"{t.With}: {n.StaffName}");
+        return Compose(
+            n.ClientEmail, n.ClientName, n.BusinessName,
+            Format(culture, t.ClientSubject, n.ServiceName, date, time),
+            Greeting(t, n.ClientName), Format(culture, t.ClientIntro, n.BusinessName), rows, t, ics);
+    }
+
+    /// <summary>Null when the staff member has no e-mail and there is no override.</summary>
+    public static EmailMessage? ForStaff(AppointmentNotice n, string? staffEmailOverride, DateTimeOffset now)
+    {
+        var staffEmail = string.IsNullOrWhiteSpace(staffEmailOverride) ? n.StaffEmail : staffEmailOverride;
+        if (string.IsNullOrWhiteSpace(staffEmail))
+        {
+            return null;
+        }
+
+        var (t, culture, date, time, place, price, uid) = Prepare(n);
+
+        var client = string.Join(" ", new[] { n.ClientName, string.IsNullOrWhiteSpace(n.ClientEmail) ? null : $"<{n.ClientEmail}>" }
+            .Where(x => !string.IsNullOrWhiteSpace(x)));
+        var rows = new List<(string, string)>
+        {
+            (t.Service, n.ServiceName),
+            (t.When, $"{date}, {time}"),
+            (t.Client, client),
+            (t.Where, place),
+            (t.Price, price),
+        };
+
+        var ics = IcsCalendar.Build(uid, now, n.StartsAt, n.EndsAt,
+            $"{n.ServiceName} – {n.ClientName ?? n.ClientEmail}", place, $"{t.Client}: {client}");
+        return Compose(
+            staffEmail, n.StaffName, n.BusinessName,
+            Format(culture, t.StaffSubject, n.ServiceName, date, time),
+            Greeting(t, n.StaffName), t.StaffIntro, rows, t, ics);
+    }
+
+    private static (Texts T, CultureInfo Culture, string Date, string Time, string Place, string Price, string Uid) Prepare(AppointmentNotice n)
     {
         var t = ByLanguage.GetValueOrDefault(n.Language) ?? ByLanguage["it"];
         var culture = CultureInfo.GetCultureInfo(t.Culture);
         var tz = TimeZoneInfo.FindSystemTimeZoneById(n.TimeZone);
         var local = TimeZoneInfo.ConvertTime(n.StartsAt, tz);
-        var date = local.ToString("dddd d MMMM yyyy", culture);
-        var time = local.ToString("HH:mm", culture);
         var place = string.Join(", ", new[] { n.LocationName, n.LocationAddress, n.LocationCity }.Where(x => !string.IsNullOrWhiteSpace(x)));
-        var price = FormatPrice(n.Price, culture);
-        var uid = $"{n.AppointmentId}@prenotaconme";
-
-        var messages = new List<EmailMessage>(2);
-
-        if (!string.IsNullOrWhiteSpace(n.ClientEmail))
-        {
-            var rows = new List<(string, string)>
-            {
-                (t.Service, n.ServiceName),
-                (t.When, $"{date}, {time}"),
-                (t.With, n.StaffName),
-                (t.Where, place),
-                (t.Price, $"{price} ({t.PayOnSite})"),
-            };
-            if (!string.IsNullOrWhiteSpace(n.LocationPhone))
-            {
-                rows.Add(("☎", n.LocationPhone));
-            }
-
-            var ics = IcsCalendar.Build(uid, now, n.StartsAt, n.EndsAt,
-                $"{n.ServiceName} – {n.BusinessName}", place, $"{t.With}: {n.StaffName}");
-            messages.Add(Compose(
-                n.ClientEmail, n.ClientName, n.BusinessName,
-                Format(culture, t.ClientSubject, n.ServiceName, date, time),
-                Greeting(t, n.ClientName), Format(culture, t.ClientIntro, n.BusinessName), rows, t, ics));
-        }
-
-        var staffEmail = string.IsNullOrWhiteSpace(staffEmailOverride) ? n.StaffEmail : staffEmailOverride;
-        if (!string.IsNullOrWhiteSpace(staffEmail))
-        {
-            var client = string.Join(" ", new[] { n.ClientName, string.IsNullOrWhiteSpace(n.ClientEmail) ? null : $"<{n.ClientEmail}>" }
-                .Where(x => !string.IsNullOrWhiteSpace(x)));
-            var rows = new List<(string, string)>
-            {
-                (t.Service, n.ServiceName),
-                (t.When, $"{date}, {time}"),
-                (t.Client, client),
-                (t.Where, place),
-                (t.Price, price),
-            };
-
-            var ics = IcsCalendar.Build(uid, now, n.StartsAt, n.EndsAt,
-                $"{n.ServiceName} – {n.ClientName ?? n.ClientEmail}", place, $"{t.Client}: {client}");
-            messages.Add(Compose(
-                staffEmail, n.StaffName, n.BusinessName,
-                Format(culture, t.StaffSubject, n.ServiceName, date, time),
-                Greeting(t, n.StaffName), t.StaffIntro, rows, t, ics));
-        }
-
-        return messages;
+        return (t, culture, local.ToString("dddd d MMMM yyyy", culture), local.ToString("HH:mm", culture), place,
+            FormatPrice(n.Price, culture), $"{n.AppointmentId}@prenotaconme");
     }
 
     private static EmailMessage Compose(

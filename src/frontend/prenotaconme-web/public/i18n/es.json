@@ -228,6 +228,7 @@
     }
   },
   "backoffice": {
+    "jobs": "Tareas en segundo plano",
     "newBusiness": "Nuevo negocio",
     "account": "Cuenta",
     "signOut": "Cerrar sesión"

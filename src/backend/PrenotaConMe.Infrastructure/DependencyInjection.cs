@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PrenotaConMe.Infrastructure.Jobs;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Shared.Tenancy;
 
@@ -26,6 +27,7 @@ public static class DependencyInjection
             options.AddInterceptors(sp.GetRequiredService<AuditingInterceptor>());
         });
 
+        services.AddJobs(configuration, connectionString);
         return services;
     }
 

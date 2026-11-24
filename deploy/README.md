@@ -44,6 +44,12 @@ New-WebAppPool -Name prenotaconme.rtres.net
 Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name managedRuntimeVersion -Value ''   # "No managed code"
 New-Website -Name prenotaconme.rtres.net -PhysicalPath $site -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'prenotaconme.rtres.net'
 
+# Hangfire (F2-01) corre dentro de la app: el pool no debe pararse por inactividad
+Install-WindowsFeature Web-AppInit
+Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name startMode -Value AlwaysRunning
+Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name processModel.idleTimeout -Value ([TimeSpan]::Zero)
+Set-ItemProperty IIS:\Sites\prenotaconme.rtres.net -Name applicationDefaults.preloadEnabled -Value True
+
 # El app pool necesita leer los archivos del sitio
 icacls $site /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
 ```
@@ -54,7 +60,9 @@ Si existe, detén o elimina el *Default Web Site* para liberar el puerto 80.
 
 ## 3. Configuración de producción (fuera de las releases)
 
-Copia `deploy/windows/appsettings.Production.example.json` a `C:\prenotaconme\shared\appsettings.Production.json` y rellena la contraseña de la BD, el dominio y la sección `Smtp` (emails de confirmación; sin `Smtp:Host` no se envían, solo se registran en el log). `deploy.ps1` lo copia en cada release.
+Copia `deploy/windows/appsettings.Production.example.json` a `C:\prenotaconme\shared\appsettings.Production.json` y rellena la contraseña de la BD, el dominio y la sección `Smtp` (emails de confirmación; sin `Smtp:Host` no se envían, solo se registran en el log) y `Platform:AdminEmails` (emails Google verificados que pueden abrir el panel de jobs `/hangfire`, desde el menú de la cuenta en el backoffice). `deploy.ps1` lo copia en cada release.
+
+Hangfire crea sus tablas en el esquema `hangfire` de la misma BD al arrancar (el rol `prenota` es dueño de la BD, así que tiene permiso).
 
 ## 4. PostgreSQL 18
 

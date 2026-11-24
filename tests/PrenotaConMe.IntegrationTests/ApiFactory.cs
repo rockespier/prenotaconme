@@ -24,6 +24,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private string? _localDatabase;
     private string _connectionString = string.Empty;
 
+    /// <summary>Uid whose test e-mail (uid@test.local) is configured as platform super-admin.</summary>
+    public const string PlatformAdminUid = "platform-root";
+    private const string PlatformAdminEmail = PlatformAdminUid + "@test.local";
+
     /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
     public CapturingEmailSender Emails { get; } = new();
 
@@ -48,6 +52,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Database", _connectionString);
         builder.UseSetting("Database:MigrateOnStartup", "true");
+        builder.UseSetting("Platform:AdminEmails:0", PlatformAdminEmail);
 
         builder.ConfigureTestServices(services =>
         {

@@ -14,7 +14,8 @@ namespace PrenotaConMe.Modules.Users;
 public sealed record MembershipDto(Guid TenantId, string TenantSlug, string TenantName, TenantRole Role);
 
 public sealed record MeDto(
-    Guid Id, string? Email, string? DisplayName, string? PhotoUrl, string? PhoneNumber, IReadOnlyList<MembershipDto> Memberships);
+    Guid Id, string? Email, string? DisplayName, string? PhotoUrl, string? PhoneNumber, IReadOnlyList<MembershipDto> Memberships,
+    bool IsPlatformAdmin);
 
 public sealed record SetPhoneRequest(string PhoneNumber);
 
@@ -54,6 +55,7 @@ internal static class UsersEndpoints
         AppDbContext db,
         ITenantDirectory tenants,
         IEnumerable<IUserSignInHook> signInHooks,
+        PlatformAdmins platformAdmins,
         CancellationToken cancellationToken)
     {
         var userId = await currentUser.GetUserIdAsync(cancellationToken);
@@ -89,6 +91,6 @@ internal static class UsersEndpoints
             .ThenBy(m => m.Role)
             .ToList();
 
-        return TypedResults.Ok(new MeDto(user.Id, user.Email, user.DisplayName, user.PhotoUrl, user.PhoneNumber, dtos));
+        return TypedResults.Ok(new MeDto(user.Id, user.Email, user.DisplayName, user.PhotoUrl, user.PhoneNumber, dtos, platformAdmins.IsAdmin(currentUser)));
     }
 }

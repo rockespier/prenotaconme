@@ -228,6 +228,7 @@
     }
   },
   "backoffice": {
+    "jobs": "Background jobs",
     "newBusiness": "New business",
     "account": "Account",
     "signOut": "Sign out"
