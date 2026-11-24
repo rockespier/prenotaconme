@@ -1389,6 +1389,71 @@
           }
         }
       }
+    },
+    "/api/scheduling/clients": {
+      "get": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "ListClients",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduling/clients/detail": {
+      "get": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "GetClient",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1618,7 +1683,8 @@
           "clientName",
           "clientEmail",
           "clientPhone",
-          "isGuest"
+          "isGuest",
+          "clientKey"
         ],
         "type": "object",
         "properties": {
@@ -1676,6 +1742,9 @@
           },
           "isGuest": {
             "type": "boolean"
+          },
+          "clientKey": {
+            "type": "string"
           }
         }
       },
@@ -1737,6 +1806,138 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "ClientAppointmentDto": {
+        "required": [
+          "id",
+          "startsAt",
+          "endsAt",
+          "serviceName",
+          "price",
+          "staffName",
+          "locationName",
+          "timeZone",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "locationName": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AppointmentStatus"
+          }
+        }
+      },
+      "ClientDetailDto": {
+        "required": [
+          "client",
+          "appointments"
+        ],
+        "type": "object",
+        "properties": {
+          "client": {
+            "$ref": "#/components/schemas/ClientSummaryDto"
+          },
+          "appointments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientAppointmentDto"
+            }
+          }
+        }
+      },
+      "ClientSummaryDto": {
+        "required": [
+          "key",
+          "name",
+          "email",
+          "phone",
+          "isGuest",
+          "visits",
+          "cancelled",
+          "spent",
+          "lastVisit",
+          "nextAppointment"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isGuest": {
+            "type": "boolean"
+          },
+          "visits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cancelled": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "spent": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastVisit": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "nextAppointment": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },

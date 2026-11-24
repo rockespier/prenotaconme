@@ -24,7 +24,8 @@
     "locations": "Sedi",
     "services": "Servizi",
     "staff": "Collaboratori",
-    "calendar": "Calendario"
+    "calendar": "Calendario",
+    "clients": "Clienti"
   },
   "home": {
     "title": "Le prenotazioni del tuo salone, online",
@@ -287,6 +288,25 @@
     "cancelAppointment": "Annulla appuntamento",
     "confirmCancel": "Confermi l'annullamento?",
     "dragHint": "Per cambiare orario trascina l'appuntamento nel calendario."
+  },
+  "clients": {
+    "search": "Cerca per nome, telefono o email",
+    "noName": "Cliente senza nome",
+    "visits": "Visite",
+    "lastVisit": "Ultima visita",
+    "next": "Prossimo",
+    "spent": "Speso",
+    "cancelled": "Disdette",
+    "history": "Storico appuntamenti",
+    "loading": "Caricamento…",
+    "empty": "Ancora nessun cliente: compariranno qui dopo la prima prenotazione.",
+    "noMatch": "Nessun cliente trovato.",
+    "notFound": "Cliente non trovato.",
+    "open": "Scheda cliente",
+    "status": {
+      "upcoming": "In programma",
+      "done": "Svolto"
+    }
   },
   "days": {
     "Monday": "Lunedì",

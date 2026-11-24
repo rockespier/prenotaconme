@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,6 +41,11 @@ export interface AppointmentDialogData {
             }
             @if (a.clientEmail) {
               <br /><a [href]="'mailto:' + a.clientEmail">{{ a.clientEmail }}</a>
+            }
+            @if (data.canEdit) {
+              <br /><button mat-button class="card-link" (click)="openClient()">
+                <mat-icon>contact_page</mat-icon>{{ 'clients.open' | transloco }}
+              </button>
             }
           </dd>
         </div>
@@ -94,6 +100,7 @@ export interface AppointmentDialogData {
     mat-form-field { width: 100%; }
     .hint { margin: 0; font: var(--mat-sys-body-small); }
     .danger { color: var(--mat-sys-error); }
+    .card-link { margin-left: calc(-1 * var(--space-3)); }
     .spacer { flex: 1; }
   `,
 })
@@ -102,6 +109,7 @@ export class AppointmentDialog {
   private readonly notifier = inject(Notifier);
   private readonly transloco = inject(TranslocoService);
   private readonly ref = inject(MatDialogRef<AppointmentDialog, boolean>);
+  private readonly router = inject(Router);
   protected readonly data = inject<AppointmentDialogData>(MAT_DIALOG_DATA);
   protected readonly a = this.data.appointment;
 
@@ -129,6 +137,11 @@ export class AppointmentDialog {
   });
 
   protected readonly price = computed(() => new Intl.NumberFormat(this.lang(), { style: 'currency', currency: 'EUR' }).format(this.a.price));
+
+  protected openClient(): void {
+    this.ref.close(false);
+    void this.router.navigate(['/admin/clienti/scheda'], { queryParams: { key: this.a.clientKey } });
+  }
 
   protected async save(): Promise<void> {
     this.busy.set(true);

@@ -24,7 +24,8 @@
     "locations": "Locations",
     "services": "Services",
     "staff": "Staff",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "clients": "Clients"
   },
   "home": {
     "title": "Your salon's bookings, online",
@@ -287,6 +288,25 @@
     "cancelAppointment": "Cancel appointment",
     "confirmCancel": "Confirm cancellation?",
     "dragHint": "To change the time, drag the appointment in the calendar."
+  },
+  "clients": {
+    "search": "Search by name, phone or e-mail",
+    "noName": "Unnamed client",
+    "visits": "Visits",
+    "lastVisit": "Last visit",
+    "next": "Next",
+    "spent": "Spent",
+    "cancelled": "Cancellations",
+    "history": "Appointment history",
+    "loading": "Loading…",
+    "empty": "No clients yet: they will show up here after the first booking.",
+    "noMatch": "No clients found.",
+    "notFound": "Client not found.",
+    "open": "Client card",
+    "status": {
+      "upcoming": "Upcoming",
+      "done": "Done"
+    }
   },
   "days": {
     "Monday": "Monday",
