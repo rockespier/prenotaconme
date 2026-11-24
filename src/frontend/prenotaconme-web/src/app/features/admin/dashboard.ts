@@ -15,7 +15,7 @@ import { SessionService } from '../../core/session/session.service';
           <mat-card-subtitle>{{ 'dashboard.publicLink' | transloco }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <a [href]="'/b/' + business.slug" target="_blank" rel="noopener">{{ origin }}/b/{{ business.slug }}</a>
+          <a [href]="'/' + business.slug" target="_blank" rel="noopener">{{ origin }}/{{ business.slug }}</a>
         </mat-card-content>
       </mat-card>
     }

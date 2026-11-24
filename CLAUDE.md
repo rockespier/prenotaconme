@@ -70,7 +70,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 
 **Frontend (Angular 21):**
 - Standalone components with signals and zoneless change detection. Files use the new naming (`home.ts`, no `.component` suffix).
-- All routes are lazy (`app.routes.ts`): the public layout serves `/` and `/b/:slug` (per-business booking page), the backoffice layout serves `/admin`.
+- All routes are lazy (`app.routes.ts`): the public layout serves `/`, `/login`, `/registra-attivita` and `/:slug` (per-business booking page at the site root, declared last), and the backoffice layout serves `/admin`. Every fixed top-level route must also be listed in `TenantRules.ReservedSlugs` (backend), so that no business can register its name as a slug.
 - Route params bind to component inputs (`withComponentInputBinding`).
 - i18n uses Transloco at runtime. JSON files live in `public/i18n/{it,es,en}.json`, the default language is `it`, and every UI string goes through the `transloco` pipe.
 - In production the Angular build is copied into the API's `wwwroot` and served by the API itself (`Hosting/SpaHostingExtensions.cs`): same origin (`apiUrl: ''`), and a fallback to `index.html` for every path except `/api*` and `/health*`. `index.html`/`ngsw*` are served `no-cache`.

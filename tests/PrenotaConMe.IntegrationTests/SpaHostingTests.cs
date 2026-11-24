@@ -33,7 +33,7 @@ public sealed class SpaHostingTests(ApiFactory factory) : IClassFixture<ApiFacto
     [Theory]
     [InlineData("/")]
     [InlineData("/admin")]
-    [InlineData("/b/barberia-mario")]
+    [InlineData("/barberia-mario")]
     public async Task Client_routes_fall_back_to_index_html(string path)
     {
         var body = await CreateClient().GetStringAsync(new Uri(path, UriKind.Relative));

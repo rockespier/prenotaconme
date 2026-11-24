@@ -22,6 +22,17 @@ public sealed class TenantRulesTests
     public void ValidateSlug_rejects_invalid_slugs(string slug, string expected) =>
         Assert.Equal(expected, TenantRules.ValidateSlug(slug));
 
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("login")]
+    [InlineData("registra-attivita")]
+    [InlineData("api")]
+    [InlineData("health")]
+    [InlineData("openapi")]
+    [InlineData("scalar")]
+    public void App_routes_are_reserved_because_business_pages_live_at_the_root(string route) =>
+        Assert.Equal("slug.reserved", TenantRules.ValidateSlug(route));
+
     [Fact]
     public void ValidateSlug_rejects_too_long() =>
         Assert.Equal("slug.length", TenantRules.ValidateSlug(new string('a', TenantRules.SlugMaxLength + 1)));

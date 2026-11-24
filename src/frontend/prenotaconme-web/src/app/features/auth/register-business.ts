@@ -36,13 +36,12 @@ type SlugState = 'idle' | 'checking' | 'available' | string; // string = error c
 
           <mat-form-field>
             <mat-label>{{ 'register.slug' | transloco }}</mat-label>
-            <span matTextPrefix>/b/</span>
             <input matInput formControlName="slug" maxlength="50" required (input)="onSlugInput()" />
             <mat-hint>
               @switch (slugState()) {
                 @case ('idle') { {{ 'register.slugHint' | transloco }} }
                 @case ('checking') { {{ 'register.slugChecking' | transloco }} }
-                @case ('available') { ✓ {{ 'register.slugAvailable' | transloco }} }
+                @case ('available') { ✓ {{ 'register.slugAvailable' | transloco }}: {{ host }}/{{ form.controls.slug.value }} }
                 @default { <span class="error">{{ 'errors.' + slugState() | transloco }}</span> }
               }
             </mat-hint>
@@ -92,6 +91,7 @@ export class RegisterBusiness {
   private readonly transloco = inject(TranslocoService);
 
   protected readonly langs = AVAILABLE_LANGS;
+  protected readonly host = globalThis.location?.host ?? '';
   protected readonly timeZones = supportedTimeZones();
 
   protected readonly form = new FormGroup({
