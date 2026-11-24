@@ -28,3 +28,9 @@ export const backofficeGuard: CanActivateFn = async (_route, state) => {
   await session.load();
   return session.businesses().length > 0 ? true : router.createUrlTree(['/registra-attivita']);
 };
+
+/** Setup pages (locations, services, staff): Admin of the selected business. Runs after backofficeGuard. */
+export const adminGuard: CanActivateFn = () => {
+  const session = inject(SessionService);
+  return session.isAdmin() ? true : inject(Router).createUrlTree(['/admin']);
+};

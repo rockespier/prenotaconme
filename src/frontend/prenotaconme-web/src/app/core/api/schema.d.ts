@@ -282,7 +282,7 @@ export interface components {
             type?: null | string;
             title?: null | string;
             /** Format: int32 */
-            status?: null | number | string;
+            status?: null | number;
             detail?: null | string;
             instance?: null | string;
             errors?: {
@@ -347,9 +347,9 @@ export interface components {
             name: string;
             description: null | string;
             /** Format: int32 */
-            durationMinutes: number | string;
+            durationMinutes: number;
             /** Format: double */
-            price: number | string;
+            price: number;
             isActive: boolean;
             locationIds: null | string[];
         };
@@ -366,9 +366,9 @@ export interface components {
             name: string;
             description: null | string;
             /** Format: int32 */
-            durationMinutes: number | string;
+            durationMinutes: number;
             /** Format: double */
-            price: number | string;
+            price: number;
             isActive: boolean;
             locationIds: string[];
         };
