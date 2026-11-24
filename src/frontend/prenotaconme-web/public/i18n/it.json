@@ -23,7 +23,8 @@
     "dashboard": "Panoramica",
     "locations": "Sedi",
     "services": "Servizi",
-    "staff": "Collaboratori"
+    "staff": "Collaboratori",
+    "calendar": "Calendario"
   },
   "home": {
     "title": "Le prenotazioni del tuo salone, online",
@@ -216,6 +217,13 @@
     },
     "cancellationNotice": {
       "range": "Valore non valido (da 0 a 720 ore)."
+    },
+    "clientName": {
+      "required": "Inserisci il nome del cliente.",
+      "length": "Nome troppo lungo."
+    },
+    "range": {
+      "invalid": "Intervallo di date non valido."
     }
   },
   "backoffice": {
@@ -259,6 +267,26 @@
       "anytime": "Sempre, fino all'inizio",
       "hours": "{{hours}} ore prima"
     }
+  },
+  "calendar": {
+    "new": "Nuovo appuntamento",
+    "location": "Sede",
+    "staff": "Collaboratore",
+    "service": "Servizio",
+    "all": "Tutti",
+    "date": "Data",
+    "time": "Ora",
+    "clientName": "Nome del cliente",
+    "clientPhone": "Telefono (facoltativo)",
+    "noStaffForService": "Nessun collaboratore esegue questo servizio in questa sede.",
+    "notLinked": "Il tuo account non è ancora collegato a un collaboratore: chiedi al titolare di aggiungerti con la tua email.",
+    "guest": "senza account",
+    "noName": "Cliente",
+    "with": "Con",
+    "close": "Chiudi",
+    "cancelAppointment": "Annulla appuntamento",
+    "confirmCancel": "Confermi l'annullamento?",
+    "dragHint": "Per cambiare orario trascina l'appuntamento nel calendario."
   },
   "days": {
     "Monday": "Lunedì",

@@ -388,6 +388,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/scheduling/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetCalendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/calendar/appointments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateCalendarAppointment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/calendar/appointments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["MoveCalendarAppointment"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/calendar/appointments/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelCalendarAppointment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -454,6 +518,53 @@ export interface components {
             services: components["schemas"]["PublicServiceDto"][];
             staff: components["schemas"]["PublicStaffDto"][];
         };
+        CalendarAppointmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            locationId: string;
+            /** Format: uuid */
+            serviceId: string;
+            serviceName: string;
+            /** Format: double */
+            price: number;
+            /** Format: uuid */
+            staffMemberId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            status: components["schemas"]["AppointmentStatus"];
+            clientName: null | string;
+            clientEmail: null | string;
+            clientPhone: null | string;
+            isGuest: boolean;
+        };
+        CalendarDto: {
+            canEdit: boolean;
+            staff: components["schemas"]["CalendarStaffDto"][];
+            appointments: components["schemas"]["CalendarAppointmentDto"][];
+        };
+        CalendarStaffDto: {
+            /** Format: uuid */
+            id: string;
+            displayName: string;
+            isActive: boolean;
+            locationIds: string[];
+            serviceIds: string[];
+        };
+        CreateCalendarAppointmentRequest: {
+            /** Format: uuid */
+            locationId: string;
+            /** Format: uuid */
+            serviceId: string;
+            /** Format: uuid */
+            staffId: string;
+            /** Format: date-time */
+            startsAt: string;
+            clientName: string;
+            clientPhone: null | string;
+        };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
         HttpValidationProblemDetails: {
@@ -493,6 +604,12 @@ export interface components {
             tenantSlug: string;
             tenantName: string;
             role: components["schemas"]["TenantRole"];
+        };
+        MoveCalendarAppointmentRequest: {
+            /** Format: uuid */
+            staffId: string;
+            /** Format: date-time */
+            startsAt: string;
         };
         MyAppointmentDto: {
             /** Format: uuid */
@@ -1659,6 +1776,145 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetCalendar: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+                locationId?: string;
+                staffId?: string;
+                includeCancelled?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateCalendarAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCalendarAppointmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarAppointmentDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    MoveCalendarAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveCalendarAppointmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarAppointmentDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CancelCalendarAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarAppointmentDto"];
                 };
             };
             /** @description Not Found */

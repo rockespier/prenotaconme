@@ -51,6 +51,9 @@ internal static class SchedulingEndpoints
 
         // F1-12: the client's own appointments (list, cancel, reschedule).
         MyAppointmentsEndpoints.Map(group);
+
+        // F1-13: backoffice calendar.
+        CalendarEndpoints.Map(group);
     }
 
     /// <param name="rescheduling">

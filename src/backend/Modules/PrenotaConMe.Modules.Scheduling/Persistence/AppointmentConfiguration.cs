@@ -14,10 +14,16 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
 
     public void Configure(EntityTypeBuilder<Appointment> builder)
     {
-        builder.ToTable("appointments", t => t.HasCheckConstraint("ck_appointments_ends_after_start", "ends_at > starts_at"));
+        builder.ToTable("appointments", t =>
+        {
+            t.HasCheckConstraint("ck_appointments_ends_after_start", "ends_at > starts_at");
+            t.HasCheckConstraint("ck_appointments_has_client", "client_user_id IS NOT NULL OR client_name IS NOT NULL");
+        });
         builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(16);
         builder.Property(a => a.ServiceName).HasMaxLength(100).IsRequired();
         builder.Property(a => a.Price).HasPrecision(10, 2);
+        builder.Property(a => a.ClientName).HasMaxLength(Appointment.ClientNameMaxLength);
+        builder.Property(a => a.ClientPhone).HasMaxLength(Appointment.ClientPhoneMaxLength);
 
         builder.HasIndex(a => new { a.StaffMemberId, a.StartsAt });
         builder.HasIndex(a => new { a.LocationId, a.StartsAt });

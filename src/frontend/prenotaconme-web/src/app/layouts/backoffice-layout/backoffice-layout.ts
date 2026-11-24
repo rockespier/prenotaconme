@@ -176,6 +176,7 @@ export class BackofficeLayout {
 
   protected readonly nav = computed<NavItem[]>(() => [
     { path: '/admin', icon: 'dashboard', label: 'nav.dashboard' },
+    { path: '/admin/calendario', icon: 'calendar_month', label: 'nav.calendar' },
     ...(this.session.isAdmin()
       ? [
           { path: '/admin/sedi', icon: 'storefront', label: 'nav.locations' },

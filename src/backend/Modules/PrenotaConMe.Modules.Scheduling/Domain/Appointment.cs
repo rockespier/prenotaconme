@@ -26,8 +26,16 @@ public sealed class Appointment : TenantEntity
 
     public Guid StaffMemberId { get; private set; }
 
-    /// <summary>Local user id of the client.</summary>
-    public Guid ClientUserId { get; private set; }
+    public const int ClientNameMaxLength = 100;
+    public const int ClientPhoneMaxLength = 32;
+
+    /// <summary>Local user id of the client; null when the business entered the appointment for a client without an account.</summary>
+    public Guid? ClientUserId { get; private set; }
+
+    /// <summary>Client entered by the business (phone or walk-in booking), when there is no <see cref="ClientUserId"/>.</summary>
+    public string? ClientName { get; private set; }
+
+    public string? ClientPhone { get; private set; }
 
     public DateTimeOffset StartsAt { get; private set; }
 
@@ -55,6 +63,18 @@ public sealed class Appointment : TenantEntity
         StartsAt = startsAt.ToUniversalTime(),
         EndsAt = startsAt.ToUniversalTime().AddMinutes(durationMinutes),
     };
+
+    /// <summary>Created from the backoffice for a client without an account (phone or walk-in).</summary>
+    public static Appointment BookForGuest(
+        Guid locationId, Guid serviceId, string serviceName, decimal price, Guid staffMemberId,
+        string clientName, string? clientPhone, DateTimeOffset startsAt, int durationMinutes)
+    {
+        var appointment = Book(locationId, serviceId, serviceName, price, staffMemberId, Guid.Empty, startsAt, durationMinutes);
+        appointment.ClientUserId = null;
+        appointment.ClientName = clientName.Trim();
+        appointment.ClientPhone = string.IsNullOrWhiteSpace(clientPhone) ? null : clientPhone.Trim();
+        return appointment;
+    }
 
     /// <summary>
     /// Latest instant at which the client may still cancel or reschedule, given the business notice.

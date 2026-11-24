@@ -23,7 +23,8 @@
     "dashboard": "Dashboard",
     "locations": "Locations",
     "services": "Services",
-    "staff": "Staff"
+    "staff": "Staff",
+    "calendar": "Calendar"
   },
   "home": {
     "title": "Your salon's bookings, online",
@@ -216,6 +217,13 @@
     },
     "cancellationNotice": {
       "range": "Invalid value (0 to 720 hours)."
+    },
+    "clientName": {
+      "required": "Enter the client name.",
+      "length": "Name too long."
+    },
+    "range": {
+      "invalid": "Invalid date range."
     }
   },
   "backoffice": {
@@ -259,6 +267,26 @@
       "anytime": "Any time before it starts",
       "hours": "{{hours}} hours before"
     }
+  },
+  "calendar": {
+    "new": "New appointment",
+    "location": "Location",
+    "staff": "Staff member",
+    "service": "Service",
+    "all": "All",
+    "date": "Date",
+    "time": "Time",
+    "clientName": "Client name",
+    "clientPhone": "Phone (optional)",
+    "noStaffForService": "Nobody performs this service at this location.",
+    "notLinked": "Your account is not linked to a staff member yet: ask the owner to add you with your e-mail.",
+    "guest": "no account",
+    "noName": "Client",
+    "with": "With",
+    "close": "Close",
+    "cancelAppointment": "Cancel appointment",
+    "confirmCancel": "Confirm cancellation?",
+    "dragHint": "To change the time, drag the appointment in the calendar."
   },
   "days": {
     "Monday": "Monday",

@@ -17,6 +17,7 @@ public sealed class UsersModule : IModule
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IMembershipWriter, MembershipWriter>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<IAuthorizationHandler, TenantRoleHandler>();
     }
 
