@@ -1,15 +1,19 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using PrenotaConMe.Api.Hosting;
 using PrenotaConMe.Infrastructure;
 using PrenotaConMe.Infrastructure.Persistence;
+using PrenotaConMe.Modules.Tenancy;
 using Scalar.AspNetCore;
 using Serilog;
 
+// Startup/fatal logger only. Not a bootstrap (reloadable) logger: those can be frozen once per process,
+// which breaks multiple WebApplicationFactory hosts in the integration tests.
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-    .CreateBootstrapLogger();
+    .CreateLogger();
 
 try
 {
@@ -22,6 +26,8 @@ try
 
     builder.Services.AddObservability(builder.Configuration);
     builder.Services.AddProblemDetails();
+    builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    builder.Services.AddFirebaseAuthentication(builder.Configuration);
     builder.Services.AddOpenApi();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddModules(builder.Configuration, ModuleCatalog.All);
@@ -49,6 +55,9 @@ try
     app.UseSerilogRequestLogging();
     app.UseSpaStaticFiles();
     app.UseCors();
+    app.UseAuthentication();
+    app.UseTenantResolution();
+    app.UseAuthorization();
 
     app.MapOpenApi();
     if (app.Environment.IsDevelopment())

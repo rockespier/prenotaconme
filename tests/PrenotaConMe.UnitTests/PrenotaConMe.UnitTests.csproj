@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\backend\PrenotaConMe.Shared\PrenotaConMe.Shared.csproj" />
     <ProjectReference Include="..\..\src\backend\PrenotaConMe.Infrastructure\PrenotaConMe.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Tenancy\PrenotaConMe.Modules.Tenancy.csproj" />
+    <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Users\PrenotaConMe.Modules.Users.csproj" />
   </ItemGroup>
 
 </Project>
