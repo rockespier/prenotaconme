@@ -11,8 +11,8 @@
     "delete": "Elimina",
     "edit": "Modifica",
     "active": "Attivo",
-    "inactive": "non attivo",
-    "saved": "Salvato"
+    "inactive": "disattivato",
+    "saved": "Modifiche salvate"
   },
   "languages": {
     "it": "Italiano",
@@ -20,15 +20,15 @@
     "en": "English"
   },
   "nav": {
-    "dashboard": "Pannello",
+    "dashboard": "Panoramica",
     "locations": "Sedi",
     "services": "Servizi",
-    "staff": "Staff"
+    "staff": "Collaboratori"
   },
   "home": {
     "title": "Prenota il tuo appuntamento",
     "subtitle": "Parrucchieri, barbieri, centri estetici e altro.",
-    "apiStatus": "Stato API",
+    "apiStatus": "Stato del servizio",
     "status": {
       "checking": "verifica…",
       "online": "online",
@@ -46,7 +46,7 @@
   },
   "public": {
     "signIn": "Accedi",
-    "backoffice": "Area attività"
+    "backoffice": "La mia attività"
   },
   "login": {
     "title": "Accedi",
@@ -56,15 +56,15 @@
   },
   "register": {
     "title": "Registra la tua attività",
-    "subtitle": "Crea lo spazio della tua attività: diventerai amministratore.",
+    "subtitle": "Crea la pagina della tua attività: ne sarai l'amministratore.",
     "name": "Nome dell'attività",
-    "slug": "Indirizzo della pagina di prenotazione",
-    "slugHint": "Lettere minuscole, numeri e trattini.",
+    "slug": "Indirizzo web per le prenotazioni",
+    "slugHint": "Solo lettere minuscole, numeri e trattini (es. barberia-mario).",
     "slugChecking": "Verifica disponibilità…",
     "slugAvailable": "Disponibile",
     "timeZone": "Fuso orario",
-    "language": "Lingua predefinita",
-    "submit": "Crea attività"
+    "language": "Lingua per i clienti",
+    "submit": "Crea la mia attività"
   },
   "errors": {
     "slug": {
@@ -102,7 +102,7 @@
     },
     "email": {
       "invalid": "Email non valida.",
-      "taken": "Esiste già un membro con questa email.",
+      "taken": "Hai già un collaboratore con questa email.",
       "locked": "L'email di un account collegato non si può cambiare."
     },
     "workingHours": {
@@ -111,8 +111,8 @@
         "granularity": "Usa fasce da 1 ora.",
         "overlap": "Orari sovrapposti nello stesso giorno."
       },
-      "locationNotAssigned": "Sede non assegnata a questo membro.",
-      "outsideOpeningHours": "Alcuni orari sono fuori dall'orario di apertura della sede."
+      "locationNotAssigned": "Questa sede non è assegnata al collaboratore.",
+      "outsideOpeningHours": "Alcune ore sono fuori dall'orario di apertura della sede."
     },
     "timeOff": {
       "order": "La data di fine deve essere successiva all'inizio.",
@@ -120,12 +120,12 @@
     }
   },
   "backoffice": {
-    "newBusiness": "Nuova attività",
-    "account": "Account",
+    "newBusiness": "Aggiungi un'altra attività",
+    "account": "Il mio account",
     "signOut": "Esci"
   },
   "dashboard": {
-    "publicLink": "Pagina pubblica di prenotazione"
+    "publicLink": "Il link per prenotare (condividilo con i tuoi clienti)"
   },
   "days": {
     "Monday": "Lunedì",
@@ -137,53 +137,58 @@
     "Sunday": "Domenica"
   },
   "locations": {
-    "new": "Nuova sede",
+    "new": "Aggiungi sede",
     "edit": "Modifica sede",
     "address": "Indirizzo",
     "city": "Città",
     "phone": "Telefono",
-    "openingHours": "Orari di apertura",
+    "openingHours": "Orario di apertura",
     "opens": "Apertura",
     "closes": "Chiusura",
     "closed": "Chiuso",
-    "addRange": "Aggiungi fascia oraria",
-    "empty": "Nessuna sede.",
-    "confirmDelete": "Eliminare la sede «{{name}}»? Verrà rimossa anche dai servizi e dagli orari dello staff."
+    "addRange": "Aggiungi orario",
+    "empty": "Non hai ancora aggiunto nessuna sede.",
+    "confirmDelete": "Eliminare la sede «{{name}}»? Verrà tolta anche dai servizi e dagli orari dei collaboratori.",
+    "active": "Sede attiva",
+    "inactive": "disattivata"
   },
   "services": {
-    "new": "Nuovo servizio",
+    "new": "Aggiungi servizio",
     "edit": "Modifica servizio",
-    "description": "Descrizione",
+    "description": "Descrizione (facoltativa)",
     "duration": "Durata",
     "price": "Prezzo",
-    "bookable": "Prenotabile",
-    "confirmDelete": "Eliminare il servizio «{{name}}»?"
+    "bookable": "Prenotabile online",
+    "confirmDelete": "Eliminare il servizio «{{name}}»?",
+    "inactive": "non prenotabile"
   },
   "staff": {
-    "new": "Nuovo membro",
-    "edit": "Modifica membro",
-    "email": "Email (account Google)",
-    "emailHint": "Quando accederà con questo account Google, vedrà il suo spazio.",
-    "emailLocked": "L'account è già collegato: l'email non si può cambiare.",
-    "inviteInfo": "Aggiungi i membri con la loro email Google: il collegamento avviene al primo accesso.",
-    "status": "Stato",
-    "linked": "Collegato",
-    "invited": "Invitato",
+    "new": "Aggiungi collaboratore",
+    "edit": "Modifica collaboratore",
+    "email": "Email Google del collaboratore",
+    "emailHint": "Il collaboratore entrerà con questo account Google.",
+    "emailLocked": "Il collaboratore ha già effettuato l'accesso: l'email non si può più cambiare.",
+    "inviteInfo": "Inserisci l'email Google di ogni collaboratore: al primo accesso con quell'account vedrà la sua area.",
+    "status": "Accesso",
+    "linked": "Attivo",
+    "invited": "In attesa del primo accesso",
     "schedule": "Orari",
-    "confirmDelete": "Eliminare «{{name}}» dallo staff?",
-    "scheduleOf": "Orari di {{name}}",
-    "workingHours": "Disponibilità settimanale",
-    "workingHoursHint": "Fasce da 1 ora. Clicca le celle o il nome del giorno per riempirlo.",
-    "noLocations": "Assegna almeno una sede a questo membro per definire gli orari.",
-    "toggleDay": "Seleziona/deseleziona tutto il giorno",
-    "legendWorking": "Lavora",
-    "legendFree": "Libero",
-    "legendElsewhere": "In un'altra sede",
-    "timeOff": "Assenze e ferie",
-    "noTimeOff": "Nessuna assenza programmata.",
-    "from": "Dal",
-    "to": "Al",
-    "reason": "Motivo (facoltativo)",
-    "addTimeOff": "Aggiungi assenza"
+    "confirmDelete": "Rimuovere {{name}} dai collaboratori?",
+    "scheduleOf": "Orari di lavoro di {{name}}",
+    "workingHours": "Orario di lavoro settimanale",
+    "workingHoursHint": "Ogni casella è un'ora. Clicca per segnare quando lavora, oppure clicca sul giorno per selezionarlo tutto.",
+    "noLocations": "Prima assegna una sede a questo collaboratore (Modifica → Sedi).",
+    "toggleDay": "Seleziona o deseleziona tutto il giorno",
+    "legendWorking": "Al lavoro",
+    "legendFree": "Non lavora",
+    "legendElsewhere": "Lavora in un'altra sede",
+    "timeOff": "Ferie e permessi",
+    "noTimeOff": "Nessuna assenza in programma.",
+    "from": "Dal giorno",
+    "to": "Al giorno",
+    "reason": "Motivo (es. ferie)",
+    "addTimeOff": "Aggiungi ferie o permesso",
+    "active": "In servizio",
+    "inactive": "non in servizio"
   }
 }

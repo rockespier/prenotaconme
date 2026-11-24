@@ -148,7 +148,9 @@
     "closed": "Closed",
     "addRange": "Add time range",
     "empty": "No locations.",
-    "confirmDelete": "Delete the location “{{name}}”? It will also be removed from services and staff schedules."
+    "confirmDelete": "Delete the location “{{name}}”? It will also be removed from services and staff schedules.",
+    "active": "Location active",
+    "inactive": "inactive"
   },
   "services": {
     "new": "New service",
@@ -156,8 +158,9 @@
     "description": "Description",
     "duration": "Duration",
     "price": "Price",
-    "bookable": "Bookable",
-    "confirmDelete": "Delete the service “{{name}}”?"
+    "bookable": "Bookable online",
+    "confirmDelete": "Delete the service “{{name}}”?",
+    "inactive": "not bookable"
   },
   "staff": {
     "new": "New member",
@@ -184,6 +187,8 @@
     "from": "From",
     "to": "To",
     "reason": "Reason (optional)",
-    "addTimeOff": "Add time off"
+    "addTimeOff": "Add time off",
+    "active": "Working here",
+    "inactive": "not working"
   }
 }

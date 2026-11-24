@@ -7,14 +7,17 @@ namespace PrenotaConMe.Api.Hosting;
 /// In production the Angular build is published into wwwroot and served by the API itself
 /// (single IIS site, same origin). In development wwwroot is empty and Angular runs on ng serve.
 /// </summary>
-internal static class SpaHostingExtensions
+internal static partial class SpaHostingExtensions
 {
-    // index.html and the Angular service worker files must always be revalidated,
-    // otherwise clients keep running an old version of the PWA.
-    private static readonly HashSet<string> NoCacheFiles = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "index.html", "ngsw-worker.js", "ngsw.json", "manifest.webmanifest",
-    };
+    /// <summary>
+    /// Files whose name carries a content hash (main-ABC123XY.js, chunk-*.js, styles-*.css, hashed media):
+    /// their content never changes, so they can be cached for a year. Everything else (index.html,
+    /// i18n/*.json, ngsw files, manifest, icons) must be revalidated, or clients keep stale copies.
+    /// </summary>
+    internal static bool IsContentHashed(string fileName) => HashedFileName().IsMatch(fileName);
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"-[A-Z0-9]{8}\.(js|css|woff2?|ttf|eot|svg|png|jpe?g|gif|webp|avif|ico)$")]
+    private static partial System.Text.RegularExpressions.Regex HashedFileName();
 
     public static IApplicationBuilder UseSpaStaticFiles(this IApplicationBuilder app)
     {
@@ -27,10 +30,9 @@ internal static class SpaHostingExtensions
             OnPrepareResponse = ctx =>
             {
                 var headers = ctx.Context.Response.Headers;
-                headers[HeaderNames.CacheControl] = NoCacheFiles.Contains(ctx.File.Name)
-                    ? "no-cache"
-                    // Angular emits content-hashed file names, safe to cache long-term.
-                    : "public, max-age=31536000, immutable";
+                headers[HeaderNames.CacheControl] = IsContentHashed(ctx.File.Name)
+                    ? "public, max-age=31536000, immutable"
+                    : "no-cache";
             },
         });
     }

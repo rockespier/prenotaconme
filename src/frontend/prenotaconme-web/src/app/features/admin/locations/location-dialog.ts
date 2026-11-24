@@ -58,7 +58,7 @@ const rangeGroup = (opens = '09:00', closes = '19:00') =>
             </mat-select>
           </mat-form-field>
         </div>
-        <mat-slide-toggle formControlName="isActive">{{ 'common.active' | transloco }}</mat-slide-toggle>
+        <mat-slide-toggle formControlName="isActive">{{ 'locations.active' | transloco }}</mat-slide-toggle>
 
         <h3>{{ 'locations.openingHours' | transloco }}</h3>
         @for (day of days; track day) {

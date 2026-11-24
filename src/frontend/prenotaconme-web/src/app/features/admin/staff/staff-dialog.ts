@@ -48,7 +48,7 @@ export interface StaffDialogData {
             }
           </mat-select>
         </mat-form-field>
-        <mat-slide-toggle formControlName="isActive">{{ 'common.active' | transloco }}</mat-slide-toggle>
+        <mat-slide-toggle formControlName="isActive">{{ 'staff.active' | transloco }}</mat-slide-toggle>
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button mat-button type="button" mat-dialog-close>{{ 'common.cancel' | transloco }}</button>

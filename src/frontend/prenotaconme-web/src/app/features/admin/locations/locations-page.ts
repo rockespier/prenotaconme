@@ -27,7 +27,7 @@ type Location = Schemas['LocationDto'];
       @for (l of locations(); track l.id) {
         <mat-card appearance="outlined">
           <mat-card-header>
-            <mat-card-title>{{ l.name }} @if (!l.isActive) { <small>({{ 'common.inactive' | transloco }})</small> }</mat-card-title>
+            <mat-card-title>{{ l.name }} @if (!l.isActive) { <small>({{ 'locations.inactive' | transloco }})</small> }</mat-card-title>
             <mat-card-subtitle>{{ place(l) }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
