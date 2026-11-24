@@ -9,7 +9,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 ---
 
 ## Fase 0 — Fundamentos (setup)
-> Estado: F0-01…F0-07 implementadas. F0-08: artefactos listos (`deploy/`), falta preparar el VPS y los secrets de GitHub.
+> Estado: F0-01…F0-07 implementadas. F0-08: artefactos listos para Windows Server/IIS (`deploy/`), falta preparar el servidor y los secrets de GitHub.
 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
@@ -20,7 +20,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F0-05 | OpenAPI + cliente | OpenAPI nativo + Scalar; cliente TypeScript generado en el build del frontend |
 | F0-06 | Shell Angular | Standalone + Signals, Angular Material con tema, Transloco (IT/ES/EN), layouts público/backoffice con lazy loading, `@angular/pwa` |
 | F0-07 | CI | GitHub Actions: build + tests backend/frontend en cada PR |
-| F0-08 | Staging en VPS | Postgres nativo (PGDG) configurado, Compose con Caddy + API + web, deploy por SSH desde CI |
+| F0-08 | Staging en VPS | Windows Server 2022: IIS + Hosting Bundle, Postgres nativo, TLS win-acme; deploy por SSH desde CI (zip + `deploy.ps1`) |
 
 ## Fase 1 — Core de reservas (MVP usable por un negocio)
 | ID | Historia | Criterios de aceptación |

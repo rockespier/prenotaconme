@@ -1,66 +1,121 @@
-# Despliegue en VPS (staging)
+# Despliegue en Windows Server 2022 (IIS)
 
-PostgreSQL nativo en el host + Docker Compose para `web` (Caddy + Angular), `api` y `seq`.
+Un único sitio IIS: la API (.NET 10, in-process) sirve también la PWA de Angular desde `wwwroot`. PostgreSQL y Seq corren nativos en el mismo servidor.
 
-## 1. Preparar el VPS (Ubuntu 24.04, una vez)
-
-```bash
-# Docker
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-
-# PostgreSQL 18 desde el repo oficial PGDG
-sudo apt install -y postgresql-common
-sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-sudo apt install -y postgresql-18
-
-# Usuario y base de datos
-sudo -u postgres psql -c "CREATE ROLE prenota LOGIN PASSWORD 'CHANGE_ME';"
-sudo -u postgres psql -c "CREATE DATABASE prenotaconme OWNER prenota;"
-sudo -u postgres psql -d prenotaconme -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+```
+Internet ──443──> IIS (sitio "prenotaconme.rtres.net", TLS con win-acme)
+                   └─ ASP.NET Core Module ─> PrenotaConMe.Api
+                         ├─ /api/*, /health   endpoints
+                         └─ resto             wwwroot (Angular) + fallback a index.html
+                   PostgreSQL 18 (localhost:5432) · Seq (localhost:5341)
 ```
 
-### Acceso desde los contenedores
+Todos los comandos: **PowerShell como Administrador** en el servidor.
 
-`/etc/postgresql/18/main/postgresql.conf`:
-```
-listen_addresses = '*'
-```
+## 1. IIS + .NET 10 Hosting Bundle
 
-`/etc/postgresql/18/main/pg_hba.conf` (solo redes de Docker):
-```
-host  prenotaconme  prenota  172.16.0.0/12  scram-sha-256
+```powershell
+Install-WindowsFeature Web-Server, Web-WebSockets -IncludeManagementTools
 ```
 
-```bash
-sudo systemctl restart postgresql
-# Firewall: 5432 nunca expuesto a internet
-sudo ufw allow OpenSSH && sudo ufw allow 80,443/tcp && sudo ufw allow 443/udp
-sudo ufw deny 5432 && sudo ufw enable
+Descarga e instala el **ASP.NET Core 10 Hosting Bundle** desde https://dotnet.microsoft.com/download/dotnet/10.0 (sección *ASP.NET Core Runtime → Windows → Hosting Bundle*). Después:
+
+```powershell
+net stop was /y; net start w3svc
 ```
 
-> Docker publica puertos saltándose ufw, pero Postgres no está en Docker, así que `ufw deny 5432` sí lo protege.
+## 2. Carpetas, app pool y sitio
 
-## 2. Configurar la app
+```powershell
+$root = 'C:\prenotaconme'
+'incoming','releases','shared' | ForEach-Object { New-Item -ItemType Directory -Force "$root\$_" | Out-Null }
+New-Item -ItemType Directory -Force "$root\releases\initial" | Out-Null
+New-Item -ItemType Junction -Path "$root\current" -Target "$root\releases\initial" | Out-Null
 
-```bash
-sudo mkdir -p /opt/prenotaconme && sudo chown $USER /opt/prenotaconme
-# Copiar deploy/.env.example a /opt/prenotaconme/.env y rellenar
+Import-Module WebAdministration
+New-WebAppPool -Name prenotaconme.rtres.net
+Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name managedRuntimeVersion -Value ''   # "No managed code"
+New-Website -Name prenotaconme.rtres.net -PhysicalPath "$root\current" -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'staging.tudominio.com'
+
+# El app pool necesita leer las releases
+icacls $root /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
 ```
 
-Si las imágenes de GHCR son privadas: `docker login ghcr.io` en el VPS con un PAT con `read:packages`.
+Si existe, detén o elimina el *Default Web Site* para liberar el puerto 80.
 
-## 3. GitHub
+## 3. Configuración de producción (fuera de las releases)
 
-- Environment `staging` con secrets: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`.
-- Cada push a `main` con CI en verde despliega automáticamente (o manual con *Run workflow*).
+Copia `deploy/windows/appsettings.Production.example.json` a `C:\prenotaconme\shared\appsettings.Production.json` y rellena la contraseña y el dominio. `deploy.ps1` lo copia en cada release.
 
-## 4. Operación
+## 4. PostgreSQL 18
 
-```bash
-cd /opt/prenotaconme
-docker compose logs -f api
-ssh -L 5341:localhost:5341 <vps>   # Seq en http://localhost:5341
+Instalador de https://www.postgresql.org/download/windows/ y, después (con `C:\Program Files\PostgreSQL\18\bin` en el PATH):
+
+```powershell
+psql -U postgres -c "CREATE ROLE prenota LOGIN PASSWORD 'CHANGE_ME';"
+psql -U postgres -c "CREATE DATABASE prenotaconme OWNER prenota;"
+psql -U postgres -d prenotaconme -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
 ```
 
-Backups (pgBackRest) se configuran en F5-06.
+Postgres solo debe escuchar en local. En `C:\Program Files\PostgreSQL\18\data\postgresql.conf`: `listen_addresses = 'localhost'`, y no abras el 5432 en el firewall.
+
+## 5. Seq (opcional, logs y trazas)
+
+Instalador MSI de https://datalust.co/download. Escucha en `http://localhost:5341`. Para verlo desde tu PC: `ssh -L 5341:localhost:5341 deploy@TU_SERVIDOR`.
+
+## 6. TLS con win-acme (Let's Encrypt)
+
+Con el DNS del dominio ya apuntando al servidor y el puerto 80 abierto, descarga win-acme de https://www.win-acme.com, ejecuta `wacs.exe` y elige el sitio `prenotaconme.rtres.net`. Crea el binding 443 y una tarea programada de renovación.
+
+```powershell
+New-NetFirewallRule -DisplayName 'HTTP/HTTPS' -Direction Inbound -Protocol TCP -LocalPort 80,443 -Action Allow
+```
+
+## 7. OpenSSH Server y usuario de deploy
+
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Set-Service sshd -StartupType Automatic; Start-Service sshd
+
+# Usuario local para GitHub Actions (necesita ser admin para reciclar el app pool)
+$pass = Read-Host -AsSecureString 'Password para deploy'
+New-LocalUser -Name deploy -Password $pass -PasswordNeverExpires
+Add-LocalGroupMember -Group Administrators -Member deploy
+icacls C:\prenotaconme /grant 'deploy:(OI)(CI)M' /T
+```
+
+Para usuarios administradores, OpenSSH en Windows lee la clave pública de `C:\ProgramData\ssh\administrators_authorized_keys`, no de `~\.ssh`:
+
+```powershell
+Add-Content C:\ProgramData\ssh\administrators_authorized_keys 'CONTENIDO_DE_prenotaconme_deploy.pub'
+icacls C:\ProgramData\ssh\administrators_authorized_keys /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F'
+Restart-Service sshd
+```
+
+Restringe el puerto 22 a las IPs que necesites si tu proveedor lo permite.
+
+## 8. GitHub
+
+En *Settings → Environments → `staging`*:
+
+| Tipo | Nombre | Valor |
+|---|---|---|
+| Secret | `VPS_HOST` | IP o dominio del servidor |
+| Secret | `VPS_USER` | `deploy` |
+| Secret | `VPS_SSH_KEY` | clave **privada** completa (`prenotaconme_deploy`) |
+| Variable | `SITE_DOMAIN` | `staging.tudominio.com` (smoke test de `/health`) |
+
+Clave en tu PC: `ssh-keygen -t ed25519 -C github-deploy -f "$HOME\.ssh\prenotaconme_deploy"` (pulsa Enter dos veces: sin passphrase). Copiar la privada para el secret: `Get-Content "$HOME\.ssh\prenotaconme_deploy" -Raw | Set-Clipboard`. Prueba: `ssh -i $HOME\.ssh\prenotaconme_deploy deploy@TU_SERVIDOR hostname`.
+
+## Despliegue y rollback
+
+Cada push a `main` con el CI en verde ejecuta `.github/workflows/deploy.yml`, que publica la API para win-x64 con Angular en `wwwroot`, sube un zip y ejecuta `deploy/windows/deploy.ps1`. Ese script descomprime en `releases\<versión>`, mueve el junction `current` y recicla el app pool.
+
+Rollback manual:
+```powershell
+(Get-Item C:\prenotaconme\current).Delete()
+New-Item -ItemType Junction -Path C:\prenotaconme\current -Target C:\prenotaconme\releases\<versión-anterior>
+Restart-WebAppPool prenotaconme.rtres.net
+```
+
+Logs de arranque si el sitio da 500.30/502.5: Visor de eventos → *Application* (origen *IIS AspNetCore Module V2*), o Seq.

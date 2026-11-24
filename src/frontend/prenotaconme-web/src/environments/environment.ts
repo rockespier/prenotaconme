@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  // Same origin in production: Caddy routes /api to the backend.
+  // Same origin in production: the API serves this build from wwwroot (IIS).
   apiUrl: '',
 };

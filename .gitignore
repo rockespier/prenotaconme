@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Angular build copied in at deploy time
+src/backend/PrenotaConMe.Api/wwwroot/

@@ -62,7 +62,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - All routes are lazy (`app.routes.ts`): the public layout serves `/` and `/b/:slug` (per-business booking page), the backoffice layout serves `/admin`.
 - Route params bind to component inputs (`withComponentInputBinding`).
 - i18n uses Transloco at runtime. JSON files live in `public/i18n/{it,es,en}.json`, the default language is `it`, and every UI string goes through the `transloco` pipe.
-- In production the frontend is served same-origin (`apiUrl: ''`) by Caddy, which proxies `/api` and `/health`.
+- In production the Angular build is copied into the API's `wwwroot` and served by the API itself (`Hosting/SpaHostingExtensions.cs`): same origin (`apiUrl: ''`), and a fallback to `index.html` for every path except `/api*` and `/health*`. `index.html`/`ngsw*` are served `no-cache`.
 
 **Observability:** Serilog is configured from `appsettings*.json`. OpenTelemetry traces and metrics are exported over OTLP only when `OpenTelemetry:OtlpEndpoint` is set (Seq). Health endpoints are `/health` (DB readiness) and `/health/live`.
 
@@ -72,7 +72,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - **Node and Angular version:** the machine has Node 22.14, which is why the project uses Angular 21 (Angular 22 needs Node ≥22.22.3).
 - **npm bug:** npm 11.2 crashes with `edgesOut`. `.npmrc` sets `legacy-peer-deps=true` to work around it.
 - **Analyzers:** `AnalysisLevel` is `latest-recommended` (`Directory.Build.props`). CA1707 is suppressed in `tests/` and CA1716 in `.editorconfig`. Keep the build warning-free.
-- **Production layout:** PostgreSQL runs natively on the VPS. The API container reaches it via `host.docker.internal` (host-gateway). See `deploy/README.md`.
+- **Production layout:** Windows Server 2022 with no Docker, a single IIS site (ASP.NET Core Module in-process), and PostgreSQL + Seq native on the same host. `deploy.yml` publishes win-x64 with Angular in `wwwroot`, then `deploy/windows/deploy.ps1` swaps the `C:\prenotaconme\current` junction and recycles the app pool. Secrets live in `C:\prenotaconme\shared\appsettings.Production.json` on the server. See `deploy/README.md`.
 
 ## Key product decisions (affect implementation)
 
