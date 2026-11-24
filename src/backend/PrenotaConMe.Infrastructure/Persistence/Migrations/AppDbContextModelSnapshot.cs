@@ -184,7 +184,17 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("cancelled_at");
 
-                    b.Property<Guid>("ClientUserId")
+                    b.Property<string>("ClientName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("client_name");
+
+                    b.Property<string>("ClientPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("client_phone");
+
+                    b.Property<Guid?>("ClientUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("client_user_id");
 
@@ -258,6 +268,8 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("appointments", null, t =>
                         {
                             t.HasCheckConstraint("ck_appointments_ends_after_start", "ends_at > starts_at");
+
+                            t.HasCheckConstraint("ck_appointments_has_client", "client_user_id IS NOT NULL OR client_name IS NOT NULL");
                         });
                 });
 

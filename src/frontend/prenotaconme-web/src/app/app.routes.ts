@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./layouts/backoffice-layout/backoffice-layout').then((m) => m.BackofficeLayout),
     children: [
       { path: '', loadComponent: () => import('./features/admin/dashboard').then((m) => m.Dashboard) },
+      // F1-13: Admin and Staff (Staff see only their own appointments).
+      {
+        path: 'calendario',
+        loadComponent: () => import('./features/admin/calendar/calendar-page').then((m) => m.CalendarPage),
+      },
       {
         path: 'sedi',
         canActivate: [adminGuard],

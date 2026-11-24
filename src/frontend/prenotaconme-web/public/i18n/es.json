@@ -23,7 +23,8 @@
     "dashboard": "Panel",
     "locations": "Sedes",
     "services": "Servicios",
-    "staff": "Staff"
+    "staff": "Staff",
+    "calendar": "Calendario"
   },
   "home": {
     "title": "Las reservas de tu salón, online",
@@ -216,6 +217,13 @@
     },
     "cancellationNotice": {
       "range": "Valor no válido (de 0 a 720 horas)."
+    },
+    "clientName": {
+      "required": "Escribe el nombre del cliente.",
+      "length": "Nombre demasiado largo."
+    },
+    "range": {
+      "invalid": "Rango de fechas no válido."
     }
   },
   "backoffice": {
@@ -259,6 +267,26 @@
       "anytime": "Siempre, hasta el inicio",
       "hours": "{{hours}} horas antes"
     }
+  },
+  "calendar": {
+    "new": "Nueva cita",
+    "location": "Sede",
+    "staff": "Profesional",
+    "service": "Servicio",
+    "all": "Todos",
+    "date": "Fecha",
+    "time": "Hora",
+    "clientName": "Nombre del cliente",
+    "clientPhone": "Teléfono (opcional)",
+    "noStaffForService": "Nadie realiza este servicio en esta sede.",
+    "notLinked": "Tu cuenta aún no está vinculada a un profesional: pide al titular que te añada con tu email.",
+    "guest": "sin cuenta",
+    "noName": "Cliente",
+    "with": "Con",
+    "close": "Cerrar",
+    "cancelAppointment": "Cancelar cita",
+    "confirmCancel": "¿Confirmas la cancelación?",
+    "dragHint": "Para cambiar la hora arrastra la cita en el calendario."
   },
   "days": {
     "Monday": "Lunes",
