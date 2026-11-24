@@ -1,0 +1,156 @@
+@switch (state()) {
+  @case ('loading') {
+    <div class="skeleton-header" aria-hidden="true">
+      <span class="sk sk-avatar"></span>
+      <span class="sk sk-line wide"></span>
+    </div>
+    @for (i of [1, 2]; track i) {
+      <div class="sk sk-card" aria-hidden="true"></div>
+    }
+  }
+  @case ('notFound') {
+    <div class="empty">
+      <mat-icon>storefront</mat-icon>
+      <h1>{{ 'booking.notFound' | transloco }}</h1>
+      <p class="muted">{{ 'booking.notFoundHint' | transloco }}</p>
+    </div>
+  }
+  @default {
+    <header class="business">
+      <span class="monogram" aria-hidden="true">{{ initials(tenant()?.name ?? '') }}</span>
+      <div>
+        <h1>{{ tenant()?.name }}</h1>
+        <p class="place">{{ 'myAppointments.title' | transloco }}</p>
+      </div>
+    </header>
+
+    @if (message()) {
+      <p class="notice" role="status"><mat-icon>check_circle</mat-icon>{{ message()! | transloco }}</p>
+    }
+    @if (error()) {
+      <p class="alert" role="alert"><mat-icon>error_outline</mat-icon>{{ error()! | transloco }}</p>
+    }
+
+    @if (!signedIn()) {
+      <div class="empty">
+        <mat-icon>lock</mat-icon>
+        <p>{{ 'myAppointments.signInHint' | transloco }}</p>
+        <button mat-flat-button (click)="signIn()">{{ 'login.google' | transloco }}</button>
+      </div>
+    } @else {
+      <h2>{{ 'myAppointments.upcoming' | transloco }}</h2>
+      @for (a of upcoming(); track a.id) {
+        @let w = when(a);
+        <article class="appointment" [class.active]="moving()?.id === a.id">
+          <div class="appointment-head">
+            <span class="date">
+              <strong>{{ w.date }}</strong>
+              <span class="hour">{{ w.time }}</span>
+            </span>
+            <span class="muted">{{ price(a.price) }}</span>
+          </div>
+          <p class="details">
+            <strong>{{ a.serviceName }}</strong> · {{ a.staffName }}<br />
+            <span class="muted">{{ a.locationName }}@if (place(a)) { · {{ place(a) }} }</span>
+          </p>
+
+          @if (a.canChange) {
+            @if (moving()?.id !== a.id) {
+              <div class="actions">
+                <button mat-stroked-button (click)="startMove(a)" [disabled]="busy()">
+                  <mat-icon>event_repeat</mat-icon>{{ 'myAppointments.move' | transloco }}
+                </button>
+                <button mat-button class="danger" (click)="cancel(a)" [disabled]="busy()">
+                  {{ (confirmingCancel() === a.id ? 'myAppointments.confirmCancel' : 'myAppointments.cancel') | transloco }}
+                </button>
+              </div>
+              <p class="hint">
+                {{ 'myAppointments.deadline' | transloco: { date: deadline(a).date, time: deadline(a).time } }}
+              </p>
+            } @else {
+              <section class="move">
+                <div class="move-head">
+                  <h3>{{ 'myAppointments.chooseNewTime' | transloco }}</h3>
+                  <button mat-icon-button (click)="stopMove()" [attr.aria-label]="'common.cancel' | transloco">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+
+                <div class="days" role="tablist" [attr.aria-label]="'booking.chooseDay' | transloco">
+                  @for (d of days(); track d.date) {
+                    @let parts = chip(d.date);
+                    <button
+                      class="day"
+                      role="tab"
+                      [class.selected]="d.date === selectedDay()"
+                      [attr.aria-selected]="d.date === selectedDay()"
+                      [attr.aria-label]="day(d.date)"
+                      [disabled]="d.slots.length === 0"
+                      (click)="selectedDay.set(d.date)"
+                    >
+                      <span class="weekday">{{ parts.weekday }}</span>
+                      <span class="num">{{ parts.day }}</span>
+                      <span class="month">{{ parts.month }}</span>
+                    </button>
+                  }
+                  <button class="day more" (click)="moreDays()" [disabled]="loadingSlots()">
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span class="month">{{ 'booking.moreDays' | transloco }}</span>
+                  </button>
+                </div>
+
+                @if (loadingSlots()) {
+                  <div class="times" aria-hidden="true">
+                    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                      <span class="sk sk-time"></span>
+                    }
+                  </div>
+                } @else if (selectedDay()) {
+                  @for (group of periods(); track group.period) {
+                    <section class="period">
+                      <h4>{{ 'booking.' + group.period | transloco }}</h4>
+                      <div class="times">
+                        @for (s of group.slots; track s.startsAt) {
+                          <button class="time" [disabled]="busy() || isCurrent(s)" (click)="moveTo(s)">{{ s.time }}</button>
+                        }
+                      </div>
+                    </section>
+                  }
+                } @else {
+                  <p class="muted">{{ 'booking.noTimes' | transloco }}</p>
+                }
+              </section>
+            }
+          } @else {
+            <p class="hint">{{ 'myAppointments.tooLate' | transloco: { hours: data()?.cancellationNoticeHours } }}</p>
+          }
+        </article>
+      } @empty {
+        <div class="empty small">
+          <mat-icon>event_available</mat-icon>
+          <p>{{ 'myAppointments.none' | transloco }}</p>
+        </div>
+      }
+
+      <a mat-flat-button class="book" [routerLink]="['/', slug()]">
+        <mat-icon>add</mat-icon>{{ 'myAppointments.bookNew' | transloco }}
+      </a>
+
+      @if (past().length > 0) {
+        <h2>{{ 'myAppointments.past' | transloco }}</h2>
+        <ul class="history">
+          @for (a of past(); track a.id) {
+            @let w = when(a);
+            <li [class.cancelled]="a.status === 'Cancelled'">
+              <span>
+                <strong>{{ a.serviceName }}</strong>
+                <span class="muted">{{ w.date }}, {{ w.time }} · {{ a.staffName }}</span>
+              </span>
+              <span class="pill">{{ 'myAppointments.status.' + a.status | transloco }}</span>
+            </li>
+          }
+        </ul>
+      }
+    }
+  }
+}

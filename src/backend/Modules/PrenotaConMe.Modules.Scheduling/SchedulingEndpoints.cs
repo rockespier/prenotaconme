@@ -48,11 +48,17 @@ internal static class SchedulingEndpoints
             .RequireAuthorization()
             .RequireTenant()
             .WithName("BookAppointment");
+
+        // F1-12: the client's own appointments (list, cancel, reschedule).
+        MyAppointmentsEndpoints.Map(group);
     }
 
+    /// <param name="rescheduling">
+    /// Id of the caller's own appointment being moved: its current time then counts as free. Ignored for anyone else.
+    /// </param>
     private static async Task<Results<Ok<AvailabilityDto>, ValidationProblem>> GetAvailabilityAsync(
-        Guid locationId, Guid serviceId, DateOnly from, int? days, Guid? staffId,
-        AvailabilityService availability, CancellationToken ct)
+        Guid locationId, Guid serviceId, DateOnly from, int? days, Guid? staffId, Guid? rescheduling,
+        AvailabilityService availability, AppDbContext db, ICurrentUser currentUser, CancellationToken ct)
     {
         var count = days ?? 7;
         if (count is < 1 or > MaxDays)
@@ -60,7 +66,18 @@ internal static class SchedulingEndpoints
             return new ValidationErrors().Add("days", "days.invalid").ToProblem();
         }
 
-        var result = await availability.GetAsync(new AvailabilityQuery(locationId, serviceId, staffId, from, from.AddDays(count - 1)), ct);
+        Guid? ignore = null;
+        if (rescheduling is not null && currentUser.IsAuthenticated)
+        {
+            var userId = await currentUser.GetUserIdAsync(ct);
+            if (await db.Set<Appointment>().AnyAsync(a => a.Id == rescheduling && a.ClientUserId == userId, ct))
+            {
+                ignore = rescheduling;
+            }
+        }
+
+        var result = await availability.GetAsync(
+            new AvailabilityQuery(locationId, serviceId, staffId, from, from.AddDays(count - 1), ignore), ct);
         if (result.Error is not null)
         {
             return new ValidationErrors().Add("availability", result.Error).ToProblem();
@@ -137,8 +154,9 @@ internal static class SchedulingEndpoints
     }
 
     /// <summary>"Any staff": the free person with the fewest appointments that local day (ties: stable by id).</summary>
-    private static async Task<Guid> LeastBusyAsync(
-        AppDbContext db, IReadOnlyList<Guid> candidates, DateTimeOffset startsAt, string timeZoneId, CancellationToken ct)
+    internal static async Task<Guid> LeastBusyAsync(
+        AppDbContext db, IReadOnlyList<Guid> candidates, DateTimeOffset startsAt, string timeZoneId, CancellationToken ct,
+        Guid? ignoreAppointmentId = null)
     {
         var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
         var day = AvailabilityService.LocalDate(startsAt, timeZoneId);
@@ -147,6 +165,7 @@ internal static class SchedulingEndpoints
 
         var counts = await db.Set<Appointment>()
             .Where(a => candidates.Contains(a.StaffMemberId) && a.Status != AppointmentStatus.Cancelled
+                        && a.Id != ignoreAppointmentId
                         && a.StartsAt >= dayStart && a.StartsAt < dayEnd)
             .GroupBy(a => a.StaffMemberId)
             .Select(g => new { StaffId = g.Key, Count = g.Count() })
@@ -155,7 +174,7 @@ internal static class SchedulingEndpoints
         return candidates.OrderBy(id => counts.GetValueOrDefault(id)).ThenBy(id => id).First();
     }
 
-    private static ProblemHttpResult SlotTaken(string code) =>
+    internal static ProblemHttpResult SlotTaken(string code) =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: code,
             detail: "The selected time is no longer available.");
 

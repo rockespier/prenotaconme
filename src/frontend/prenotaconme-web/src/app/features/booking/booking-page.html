@@ -27,6 +27,9 @@
           </p>
         }
       </div>
+      @if (signedIn() && step() !== 'done') {
+        <a mat-button class="mine" [routerLink]="['/', slug(), 'prenotazioni']">{{ 'myAppointments.link' | transloco }}</a>
+      }
     </header>
 
     @if (step() !== 'done') {
@@ -258,7 +261,13 @@
             </div>
           </dl>
 
-          <button mat-stroked-button (click)="bookAnother()">{{ 'booking.bookAnother' | transloco }}</button>
+          <div class="done-actions">
+            <a mat-flat-button [routerLink]="['/', slug(), 'prenotazioni']">{{ 'myAppointments.link' | transloco }}</a>
+            <button mat-stroked-button (click)="bookAnother()">{{ 'booking.bookAnother' | transloco }}</button>
+          </div>
+          @if (tenant(); as t) {
+            <p class="hint">{{ 'myAppointments.policy' | transloco: { hours: t.cancellationNoticeHours } }}</p>
+          }
         </div>
       }
     }

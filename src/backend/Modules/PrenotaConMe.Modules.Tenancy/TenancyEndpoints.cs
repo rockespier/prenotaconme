@@ -13,9 +13,11 @@ namespace PrenotaConMe.Modules.Tenancy;
 
 public sealed record RegisterTenantRequest(string Name, string Slug, string TimeZone, string Language);
 
-public sealed record TenantDto(Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage);
+public sealed record TenantDto(Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
 
-public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage);
+public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
+
+public sealed record UpdateTenantSettingsRequest(int CancellationNoticeHours);
 
 public sealed record SlugAvailabilityDto(string Slug, bool Available, string? Reason);
 
@@ -39,6 +41,11 @@ internal static class TenancyEndpoints
         group.MapGet("/tenants/current", GetCurrentAsync)
             .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
             .WithName("GetCurrentTenant");
+
+        // F1-12: business settings (cancellation/reschedule notice).
+        group.MapPut("/tenants/current/settings", UpdateSettingsAsync)
+            .RequireTenantRole(TenantRole.Admin)
+            .WithName("UpdateTenantSettings");
     }
 
     private static async Task<Results<Created<TenantDto>, ValidationProblem, ProblemHttpResult>> RegisterAsync(
@@ -106,7 +113,7 @@ internal static class TenancyEndpoints
 
         return tenant is null
             ? TypedResults.NotFound()
-            : TypedResults.Ok(new PublicTenantDto(tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage));
+            : TypedResults.Ok(new PublicTenantDto(tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage, tenant.CancellationNoticeHours));
     }
 
     private static async Task<Ok<SlugAvailabilityDto>> CheckSlugAsync(
@@ -133,11 +140,26 @@ internal static class TenancyEndpoints
         return TypedResults.Ok(ToDto(tenant));
     }
 
+    private static async Task<Results<Ok<TenantDto>, ValidationProblem>> UpdateSettingsAsync(
+        UpdateTenantSettingsRequest request, ITenantContext tenantContext, AppDbContext db, CancellationToken cancellationToken)
+    {
+        if (request.CancellationNoticeHours is < 0 or > TenantRules.MaxCancellationNoticeHours)
+        {
+            return new ValidationErrors().Add("cancellationNoticeHours", "cancellationNotice.range").ToProblem();
+        }
+
+        var tenant = await db.Set<Tenant>().SingleAsync(t => t.Id == tenantContext.TenantId, cancellationToken);
+        tenant.SetCancellationNotice(request.CancellationNoticeHours);
+        await db.SaveChangesAsync(cancellationToken);
+
+        return TypedResults.Ok(ToDto(tenant));
+    }
+
     private static ProblemHttpResult SlugTaken(string slug) =>
         TypedResults.Problem(
             statusCode: StatusCodes.Status409Conflict,
             title: "slug.taken",
             detail: $"The slug '{slug}' is already in use.");
 
-    private static TenantDto ToDto(Tenant t) => new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage);
+    private static TenantDto ToDto(Tenant t) => new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours);
 }

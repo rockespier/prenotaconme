@@ -1,4 +1,4 @@
-import { addDaysIso, dayParts, formatDay, formatDuration, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
+import { addDaysIso, dayParts, formatDay, formatDuration, formatInstant, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
 
 describe('booking formatting', () => {
   it('formats prices in euro for the UI language', () => {
@@ -7,6 +7,10 @@ describe('booking formatting', () => {
 
   it('formats a calendar day without shifting it by time zone', () => {
     expect(formatDay('2026-12-02', 'it')).toBe('mercoledì 2 dicembre');
+  });
+
+  it('formats an instant in the location time zone', () => {
+    expect(formatInstant('2026-12-02T08:30:00Z', 'Europe/Rome', 'it')).toEqual({ date: 'mercoledì 2 dicembre', time: '09:30' });
   });
 
   it('formats durations', () => {

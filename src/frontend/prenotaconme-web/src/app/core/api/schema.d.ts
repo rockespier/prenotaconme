@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/tenants/current/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UpdateTenantSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me/phone": {
         parameters: {
             query?: never;
@@ -324,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/scheduling/appointments/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyAppointments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/appointments/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelMyAppointment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/appointments/{id}/reschedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RescheduleMyAppointment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -430,6 +494,37 @@ export interface components {
             tenantName: string;
             role: components["schemas"]["TenantRole"];
         };
+        MyAppointmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            locationId: string;
+            locationName: string;
+            locationAddress: null | string;
+            locationCity: null | string;
+            timeZone: string;
+            /** Format: uuid */
+            serviceId: string;
+            serviceName: string;
+            /** Format: double */
+            price: number;
+            /** Format: uuid */
+            staffMemberId: string;
+            staffName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            status: components["schemas"]["AppointmentStatus"];
+            /** Format: date-time */
+            changeableUntil: string;
+            canChange: boolean;
+        };
+        MyAppointmentsDto: {
+            /** Format: int32 */
+            cancellationNoticeHours: number;
+            appointments: components["schemas"]["MyAppointmentDto"][];
+        };
         OpeningHoursDto: {
             day: components["schemas"]["DayOfWeek"];
             /** Format: time */
@@ -469,12 +564,20 @@ export interface components {
             slug: string;
             timeZone: string;
             defaultLanguage: string;
+            /** Format: int32 */
+            cancellationNoticeHours: number;
         };
         RegisterTenantRequest: {
             name: string;
             slug: string;
             timeZone: string;
             language: string;
+        };
+        RescheduleAppointmentRequest: {
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: uuid */
+            staffId: null | string;
         };
         SaveLocationRequest: {
             name: string;
@@ -549,6 +652,8 @@ export interface components {
             slug: string;
             timeZone: string;
             defaultLanguage: string;
+            /** Format: int32 */
+            cancellationNoticeHours: number;
         };
         /** @enum {unknown} */
         TenantRole: "Admin" | "Staff" | "Client";
@@ -560,6 +665,10 @@ export interface components {
             /** Format: date */
             to: string;
             reason: null | string;
+        };
+        UpdateTenantSettingsRequest: {
+            /** Format: int32 */
+            cancellationNoticeHours: number;
         };
         WorkingHoursDto: {
             /** Format: uuid */
@@ -699,6 +808,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TenantDto"];
+                };
+            };
+        };
+    };
+    UpdateTenantSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTenantSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
                 };
             };
         };
@@ -1376,6 +1518,7 @@ export interface operations {
                 from: string;
                 days?: number;
                 staffId?: string;
+                rescheduling?: string;
             };
             header?: never;
             path?: never;
@@ -1433,6 +1576,97 @@ export interface operations {
                 content: {
                     "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
                 };
+            };
+        };
+    };
+    GetMyAppointments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyAppointmentsDto"];
+                };
+            };
+        };
+    };
+    CancelMyAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppointmentDto"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RescheduleMyAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RescheduleAppointmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppointmentDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

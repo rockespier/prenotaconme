@@ -86,6 +86,30 @@
     "evening": "Evening",
     "confirmedHint": "We've e-mailed you the details and the appointment to add to your calendar."
   },
+  "myAppointments": {
+    "title": "My appointments",
+    "link": "My appointments",
+    "signInHint": "Sign in with the same Google account you used to book.",
+    "upcoming": "Upcoming",
+    "past": "History",
+    "none": "You have no upcoming appointments.",
+    "bookNew": "New booking",
+    "move": "Reschedule",
+    "cancel": "Cancel",
+    "confirmCancel": "Confirm cancellation?",
+    "cancelled": "Appointment cancelled.",
+    "moved": "Appointment rescheduled.",
+    "chooseNewTime": "Choose the new time",
+    "deadline": "You can reschedule or cancel until {{date}}, {{time}}.",
+    "tooLate": "Less than {{hours}} hours to go: please contact the business for changes.",
+    "policy": "You can reschedule or cancel up to {{hours}} hours before from “My appointments”.",
+    "status": {
+      "Confirmed": "Confirmed",
+      "Cancelled": "Cancelled",
+      "Completed": "Completed",
+      "NoShow": "No-show"
+    }
+  },
   "notFound": {
     "title": "Page not found",
     "back": "Back to home"
@@ -185,6 +209,13 @@
     },
     "phone": {
       "invalid": "Invalid number: include the country code (e.g. +44 7700 900123)."
+    },
+    "appointment": {
+      "tooLate": "It is too late to change this appointment: please contact the business.",
+      "notConfirmed": "This appointment is no longer active."
+    },
+    "cancellationNotice": {
+      "range": "Invalid value (0 to 720 hours)."
     }
   },
   "backoffice": {
@@ -220,6 +251,13 @@
         "title": "Staff working hours",
         "hint": "The hours each person takes appointments."
       }
+    },
+    "rules": {
+      "title": "Client rules",
+      "hint": "How late clients can reschedule or cancel an appointment themselves.",
+      "notice": "Minimum notice",
+      "anytime": "Any time before it starts",
+      "hours": "{{hours}} hours before"
     }
   },
   "days": {

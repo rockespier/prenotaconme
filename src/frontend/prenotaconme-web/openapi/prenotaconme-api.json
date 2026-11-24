@@ -148,6 +148,46 @@
         }
       }
     },
+    "/api/tenancy/tenants/current/settings": {
+      "put": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "UpdateTenantSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTenantSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me/phone": {
       "put": {
         "tags": [
@@ -967,6 +1007,14 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "rescheduling",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1019,6 +1067,114 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduling/appointments/mine": {
+      "get": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "GetMyAppointments",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyAppointmentsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduling/appointments/{id}/cancel": {
+      "post": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "CancelMyAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/scheduling/appointments/{id}/reschedule": {
+      "post": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "RescheduleMyAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RescheduleAppointmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
           },
           "400": {
             "description": "Bad Request",
@@ -1426,6 +1582,110 @@
           }
         }
       },
+      "MyAppointmentDto": {
+        "required": [
+          "id",
+          "locationId",
+          "locationName",
+          "locationAddress",
+          "locationCity",
+          "timeZone",
+          "serviceId",
+          "serviceName",
+          "price",
+          "staffMemberId",
+          "staffName",
+          "startsAt",
+          "endsAt",
+          "status",
+          "changeableUntil",
+          "canChange"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locationName": {
+            "type": "string"
+          },
+          "locationAddress": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "locationCity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "staffMemberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AppointmentStatus"
+          },
+          "changeableUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canChange": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MyAppointmentsDto": {
+        "required": [
+          "cancellationNoticeHours",
+          "appointments"
+        ],
+        "type": "object",
+        "properties": {
+          "cancellationNoticeHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "appointments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyAppointmentDto"
+            }
+          }
+        }
+      },
       "OpeningHoursDto": {
         "required": [
           "day",
@@ -1566,7 +1826,8 @@
           "name",
           "slug",
           "timeZone",
-          "defaultLanguage"
+          "defaultLanguage",
+          "cancellationNoticeHours"
         ],
         "type": "object",
         "properties": {
@@ -1581,6 +1842,10 @@
           },
           "defaultLanguage": {
             "type": "string"
+          },
+          "cancellationNoticeHours": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1604,6 +1869,26 @@
           },
           "language": {
             "type": "string"
+          }
+        }
+      },
+      "RescheduleAppointmentRequest": {
+        "required": [
+          "startsAt",
+          "staffId"
+        ],
+        "type": "object",
+        "properties": {
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "staffId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -1914,7 +2199,8 @@
           "name",
           "slug",
           "timeZone",
-          "defaultLanguage"
+          "defaultLanguage",
+          "cancellationNoticeHours"
         ],
         "type": "object",
         "properties": {
@@ -1933,6 +2219,10 @@
           },
           "defaultLanguage": {
             "type": "string"
+          },
+          "cancellationNoticeHours": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1969,6 +2259,18 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "UpdateTenantSettingsRequest": {
+        "required": [
+          "cancellationNoticeHours"
+        ],
+        "type": "object",
+        "properties": {
+          "cancellationNoticeHours": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

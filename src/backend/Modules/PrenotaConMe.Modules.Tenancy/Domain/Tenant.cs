@@ -21,6 +21,11 @@ public sealed class Tenant : Entity
 
     public bool IsActive { get; private set; } = true;
 
+    /// <summary>Minimum notice (hours before the start) for a client to cancel or reschedule an appointment.</summary>
+    public int CancellationNoticeHours { get; private set; } = TenantRules.DefaultCancellationNoticeHours;
+
+    public void SetCancellationNotice(int hours) => CancellationNoticeHours = hours;
+
     /// <summary>Inputs must already be validated with <see cref="TenantRules"/>.</summary>
     public static Tenant Create(string name, string normalizedSlug, string timeZone, string language) => new()
     {

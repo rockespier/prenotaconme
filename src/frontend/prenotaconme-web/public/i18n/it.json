@@ -86,6 +86,30 @@
     "evening": "Sera",
     "confirmedHint": "Ti abbiamo inviato un'email con i dettagli e l'appuntamento da aggiungere al calendario."
   },
+  "myAppointments": {
+    "title": "Le mie prenotazioni",
+    "link": "Le mie prenotazioni",
+    "signInHint": "Accedi con lo stesso account Google usato per prenotare.",
+    "upcoming": "Prossimi appuntamenti",
+    "past": "Storico",
+    "none": "Non hai appuntamenti in programma.",
+    "bookNew": "Nuova prenotazione",
+    "move": "Sposta",
+    "cancel": "Disdici",
+    "confirmCancel": "Confermi la disdetta?",
+    "cancelled": "Appuntamento disdetto.",
+    "moved": "Appuntamento spostato.",
+    "chooseNewTime": "Scegli il nuovo orario",
+    "deadline": "Puoi spostarlo o disdirlo fino a {{date}}, ore {{time}}.",
+    "tooLate": "Mancano meno di {{hours}} ore: per modifiche contatta direttamente l'attività.",
+    "policy": "Puoi spostare o disdire fino a {{hours}} ore prima da «Le mie prenotazioni».",
+    "status": {
+      "Confirmed": "Confermato",
+      "Cancelled": "Disdetto",
+      "Completed": "Completato",
+      "NoShow": "Non presentato"
+    }
+  },
   "notFound": {
     "title": "Pagina non trovata",
     "back": "Torna alla home"
@@ -185,6 +209,13 @@
     },
     "phone": {
       "invalid": "Numero non valido: scrivilo con il prefisso internazionale (es. +39 333 123 4567)."
+    },
+    "appointment": {
+      "tooLate": "È troppo tardi per modificare questo appuntamento: contatta l'attività.",
+      "notConfirmed": "Questo appuntamento non è più attivo."
+    },
+    "cancellationNotice": {
+      "range": "Valore non valido (da 0 a 720 ore)."
     }
   },
   "backoffice": {
@@ -220,6 +251,13 @@
         "title": "Orari di lavoro dei collaboratori",
         "hint": "Le ore in cui ognuno è disponibile per gli appuntamenti."
       }
+    },
+    "rules": {
+      "title": "Regole per i clienti",
+      "hint": "Fino a quando i clienti possono spostare o disdire da soli un appuntamento.",
+      "notice": "Preavviso minimo",
+      "anytime": "Sempre, fino all'inizio",
+      "hours": "{{hours}} ore prima"
     }
   },
   "days": {
