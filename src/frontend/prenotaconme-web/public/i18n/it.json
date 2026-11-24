@@ -228,6 +228,7 @@
     }
   },
   "backoffice": {
+    "jobs": "Job in background",
     "newBusiness": "Aggiungi un'altra attività",
     "account": "Il mio account",
     "signOut": "Esci"

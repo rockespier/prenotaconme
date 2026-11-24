@@ -33,6 +33,7 @@ try
         o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
     });
     builder.Services.AddFirebaseAuthentication(builder.Configuration);
+    builder.Services.AddJobsDashboard();
     builder.Services.AddOpenApi();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddModules(builder.Configuration, ModuleCatalog.All);
@@ -82,6 +83,7 @@ try
         .WithTags("System");
 
     api.MapModules(ModuleCatalog.All);
+    app.MapJobsDashboard(api);
 
     app.MapSpaFallback();
 

@@ -11,9 +11,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { map } from 'rxjs';
+import { API_CLIENT } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { LanguageSwitcher } from '../../shared/language-switcher/language-switcher';
+import { environment } from '../../../environments/environment';
 
 interface NavItem {
   path: string;
@@ -96,6 +98,12 @@ interface NavItem {
           <mat-menu #userMenu="matMenu">
             <div class="user" mat-menu-item disabled>{{ auth.user()?.displayName ?? auth.user()?.email }}</div>
             <mat-divider />
+            @if (session.me()?.isPlatformAdmin) {
+              <button mat-menu-item (click)="openJobs()">
+                <mat-icon>work_history</mat-icon>
+                {{ 'backoffice.jobs' | transloco }}
+              </button>
+            }
             <button mat-menu-item (click)="signOut()">
               <mat-icon>logout</mat-icon>
               {{ 'backoffice.signOut' | transloco }}
@@ -166,6 +174,7 @@ export class BackofficeLayout {
   protected readonly auth = inject(AuthService);
   protected readonly session = inject(SessionService);
   private readonly router = inject(Router);
+  private readonly api = inject(API_CLIENT);
 
   protected readonly isHandset = toSignal(
     inject(BreakpointObserver)
@@ -191,6 +200,22 @@ export class BackofficeLayout {
   protected async switchBusiness(slug: string): Promise<void> {
     this.session.selectBusiness(slug);
     await this.router.navigateByUrl('/admin');
+  }
+
+  /**
+   * F2-01: Hangfire dashboard (platform admins). The API sets a cookie for /hangfire first, because a page
+   * navigation cannot carry the bearer token. The tab is opened before the await so popup blockers allow it.
+   */
+  protected async openJobs(): Promise<void> {
+    const tab = window.open('', '_blank');
+    const { response } = await this.api.POST('/api/jobs/dashboard-session', { credentials: 'include' });
+    if (!tab) return;
+    if (response.ok) {
+      tab.opener = null;
+      tab.location.href = `${environment.apiUrl}/hangfire`;
+    } else {
+      tab.close();
+    }
   }
 
   protected async signOut(): Promise<void> {

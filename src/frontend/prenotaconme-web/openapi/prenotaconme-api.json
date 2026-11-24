@@ -25,6 +25,19 @@
         }
       }
     },
+    "/api/jobs/dashboard-session": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "operationId": "OpenJobsDashboard",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/tenancy/tenants": {
       "post": {
         "tags": [
@@ -2094,7 +2107,8 @@
           "displayName",
           "photoUrl",
           "phoneNumber",
-          "memberships"
+          "memberships",
+          "isPlatformAdmin"
         ],
         "type": "object",
         "properties": {
@@ -2131,6 +2145,9 @@
             "items": {
               "$ref": "#/components/schemas/MembershipDto"
             }
+          },
+          "isPlatformAdmin": {
+            "type": "boolean"
           }
         }
       },

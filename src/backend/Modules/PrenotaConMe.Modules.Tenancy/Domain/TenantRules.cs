@@ -25,7 +25,7 @@ public static partial class TenantRules
     public static readonly IReadOnlySet<string> ReservedSlugs = new HashSet<string>(StringComparer.Ordinal)
     {
         // Current app and server routes
-        "admin", "login", "registra-attivita", "b", "api", "health", "openapi", "scalar",
+        "admin", "login", "registra-attivita", "b", "api", "health", "openapi", "scalar", "hangfire",
         // Likely future routes
         "app", "account", "auth", "logout", "signin", "signup", "register", "registrati", "registrazione",
         "dashboard", "settings", "impostazioni", "profilo", "profile", "prenotazioni", "bookings",

@@ -23,7 +23,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F0-08 | Staging en VPS | Windows Server 2022: IIS + Hosting Bundle, Postgres nativo, TLS win-acme; deploy por SSH desde CI (zip + `deploy.ps1`) |
 
 ## Fase 1 — Core de reservas (MVP usable por un negocio)
-> Estado: Fase 1 completa (F1-01…F1-14) (registro de negocio, login Google/Firebase, roles por negocio, sedes con horario de apertura, servicios, staff con invitación por email, disponibilidad semanal en franjas de 1 h y ausencias, cálculo de disponibilidad y reserva con garantía de no solapamiento en BD, página pública de reserva con login Google y teléfono, email de confirmación con `.ics` a cliente y staff, mis citas en `/{slug}/prenotazioni` con cancelar/reprogramar dentro de la antelación configurable, calendario backoffice día/semana con alta de citas sin cuenta, drag & drop y cancelación, ficha de cliente con historial). Siguiente: Fase 2 (F2-01 Hangfire).
+> Estado: Fase 1 completa (F1-01…F1-14) (registro de negocio, login Google/Firebase, roles por negocio, sedes con horario de apertura, servicios, staff con invitación por email, disponibilidad semanal en franjas de 1 h y ausencias, cálculo de disponibilidad y reserva con garantía de no solapamiento en BD, página pública de reserva con login Google y teléfono, email de confirmación con `.ics` a cliente y staff, mis citas en `/{slug}/prenotazioni` con cancelar/reprogramar dentro de la antelación configurable, calendario backoffice día/semana con alta de citas sin cuenta, drag & drop y cancelación, ficha de cliente con historial).
 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
@@ -43,6 +43,8 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F1-14 | Ficha de cliente (A) | Listado de clientes del negocio con historial de citas |
 
 ## Fase 2 — Notificaciones y Google Calendar
+> Estado: F2-01 implementada (Hangfire con storage Postgres en el esquema `hangfire`; los emails de confirmación son jobs con reintentos; los jobs conservan el tenant que los encoló; dashboard `/hangfire` solo para P, porque muestra datos de todos los negocios). Siguiente: F2-02 Web Push.
+
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
 | F2-01 | Infraestructura de jobs | Hangfire con storage Postgres, dashboard protegido para P/A |
