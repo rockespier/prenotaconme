@@ -78,11 +78,22 @@ internal static class CatalogEndpoints
         return TypedResults.Ok(ToDto(service));
     }
 
-    private static async Task<Results<NoContent, NotFound>> DeleteAsync(Guid id, AppDbContext db, CancellationToken ct)
+    private static async Task<Results<NoContent, NotFound, ProblemHttpResult>> DeleteAsync(Guid id, AppDbContext db, CancellationToken ct)
     {
-        var deleted = await db.Set<Service>().Where(s => s.Id == id).ExecuteDeleteAsync(ct);
-        return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+        try
+        {
+            var deleted = await db.Set<Service>().Where(s => s.Id == id).ExecuteDeleteAsync(ct);
+            return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+        }
+        catch (Exception ex) when (DbErrors.IsForeignKeyViolation(ex))
+        {
+            return InUse("service.inUse");
+        }
     }
+
+    private static ProblemHttpResult InUse(string code) =>
+        TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: code,
+            detail: "It has appointments: deactivate it instead of deleting it.");
 
     private static async Task<ValidationErrors> ValidateAsync(SaveServiceRequest request, AppDbContext db, CancellationToken ct)
     {

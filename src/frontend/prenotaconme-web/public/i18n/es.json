@@ -117,6 +117,25 @@
     "timeOff": {
       "order": "La fecha de fin debe ser posterior a la de inicio.",
       "tooLong": "Máximo un año."
+    },
+    "location": {
+      "inUse": "Esta sede tiene citas: desactívala en lugar de eliminarla.",
+      "notFound": "Sede no encontrada."
+    },
+    "service": {
+      "inUse": "Este servicio tiene citas: márcalo como no reservable en lugar de eliminarlo.",
+      "notAvailable": "Servicio no reservable en esta sede."
+    },
+    "staff": {
+      "inUse": "Este miembro tiene citas: márcalo como fuera de servicio en lugar de eliminarlo.",
+      "notAvailable": "La persona elegida no está disponible para este servicio."
+    },
+    "slot": {
+      "unavailable": "Esta hora ya no está disponible. Elige otra.",
+      "taken": "Alguien acaba de reservar esta hora. Elige otra."
+    },
+    "days": {
+      "invalid": "Rango de días no válido."
     }
   },
   "backoffice": {

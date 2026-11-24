@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Catalog.Domain;
 using PrenotaConMe.Modules.Locations.Domain;
@@ -120,7 +119,7 @@ internal static class StaffEndpoints
         return TypedResults.Ok(ToDto(staff));
     }
 
-    private static async Task<Results<NoContent, NotFound>> DeleteAsync(
+    private static async Task<Results<NoContent, NotFound, ProblemHttpResult>> DeleteAsync(
         Guid id, AppDbContext db, IMembershipWriter memberships, ITenantContext tenant, CancellationToken ct)
     {
         var staff = await db.Set<StaffMember>().SingleOrDefaultAsync(s => s.Id == id, ct);
@@ -135,7 +134,16 @@ internal static class StaffEndpoints
         }
 
         db.Remove(staff);
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex) when (DbErrors.IsForeignKeyViolation(ex))
+        {
+            return TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "staff.inUse",
+                detail: "This person has appointments: mark them as not working instead of deleting.");
+        }
+
         return TypedResults.NoContent();
     }
 
@@ -230,7 +238,7 @@ internal static class StaffEndpoints
             await db.SaveChangesAsync(ct);
             return null;
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (Exception ex) when (DbErrors.IsUniqueViolation(ex))
         {
             return TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "email.taken",
                 detail: "A staff member with this e-mail already exists in this business.");

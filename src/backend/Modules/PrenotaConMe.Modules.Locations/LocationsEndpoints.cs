@@ -81,11 +81,22 @@ internal static class LocationsEndpoints
     }
 
     /// <summary>Also removes the location from services and staff, and its staff working hours (DB cascade).</summary>
-    private static async Task<Results<NoContent, NotFound>> DeleteAsync(Guid id, AppDbContext db, CancellationToken ct)
+    private static async Task<Results<NoContent, NotFound, ProblemHttpResult>> DeleteAsync(Guid id, AppDbContext db, CancellationToken ct)
     {
-        var deleted = await db.Set<Location>().Where(l => l.Id == id).ExecuteDeleteAsync(ct);
-        return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+        try
+        {
+            var deleted = await db.Set<Location>().Where(l => l.Id == id).ExecuteDeleteAsync(ct);
+            return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+        }
+        catch (Exception ex) when (DbErrors.IsForeignKeyViolation(ex))
+        {
+            return InUse("location.inUse");
+        }
     }
+
+    private static ProblemHttpResult InUse(string code) =>
+        TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: code,
+            detail: "It has appointments: deactivate it instead of deleting it.");
 
     private static LocationData ToData(SaveLocationRequest r) => new(
         r.Name, r.Address, r.City, r.Phone, r.TimeZone, r.IsActive,

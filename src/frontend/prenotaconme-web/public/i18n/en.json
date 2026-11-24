@@ -117,6 +117,25 @@
     "timeOff": {
       "order": "The end date must be after the start date.",
       "tooLong": "At most one year."
+    },
+    "location": {
+      "inUse": "This location has appointments: deactivate it instead of deleting it.",
+      "notFound": "Location not found."
+    },
+    "service": {
+      "inUse": "This service has appointments: make it not bookable instead of deleting it.",
+      "notAvailable": "This service cannot be booked at this location."
+    },
+    "staff": {
+      "inUse": "This person has appointments: mark them as not working instead of deleting.",
+      "notAvailable": "The selected person is not available for this service."
+    },
+    "slot": {
+      "unavailable": "This time is no longer available. Please choose another.",
+      "taken": "Someone just booked this time. Please choose another."
+    },
+    "days": {
+      "invalid": "Invalid day range."
     }
   },
   "backoffice": {

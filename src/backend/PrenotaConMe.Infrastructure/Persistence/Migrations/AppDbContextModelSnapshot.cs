@@ -174,6 +174,89 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("locations", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Scheduling.Domain.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClientUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("location_id");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<string>("ServiceName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("service_name");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_appointments");
+
+                    b.HasIndex("ClientUserId")
+                        .HasDatabaseName("ix_appointments_client_user_id");
+
+                    b.HasIndex("ServiceId")
+                        .HasDatabaseName("ix_appointments_service_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_appointments_tenant_id");
+
+                    b.HasIndex("LocationId", "StartsAt")
+                        .HasDatabaseName("ix_appointments_location_id_starts_at");
+
+                    b.HasIndex("StaffMemberId", "StartsAt")
+                        .HasDatabaseName("ix_appointments_staff_member_id_starts_at");
+
+                    b.ToTable("appointments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_appointments_ends_after_start", "ends_at > starts_at");
+                        });
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffLocation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -608,6 +691,30 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("OpeningHours");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Scheduling.Domain.Appointment", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Locations.Domain.Location", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_appointments_locations_location_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Catalog.Domain.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_appointments_services_service_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany()
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_appointments_staff_members_staff_member_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffLocation", b =>

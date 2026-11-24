@@ -7,6 +7,7 @@
   <Folder Name="/src/Modules/">
     <Project Path="src/backend/Modules/PrenotaConMe.Modules.Catalog/PrenotaConMe.Modules.Catalog.csproj" />
     <Project Path="src/backend/Modules/PrenotaConMe.Modules.Locations/PrenotaConMe.Modules.Locations.csproj" />
+    <Project Path="src/backend/Modules/PrenotaConMe.Modules.Scheduling/PrenotaConMe.Modules.Scheduling.csproj" />
     <Project Path="src/backend/Modules/PrenotaConMe.Modules.Staff/PrenotaConMe.Modules.Staff.csproj" />
     <Project Path="src/backend/Modules/PrenotaConMe.Modules.Tenancy/PrenotaConMe.Modules.Tenancy.csproj" />
     <Project Path="src/backend/Modules/PrenotaConMe.Modules.Users/PrenotaConMe.Modules.Users.csproj" />

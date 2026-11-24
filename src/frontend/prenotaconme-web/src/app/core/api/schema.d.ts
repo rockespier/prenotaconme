@@ -260,6 +260,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/scheduling/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scheduling/appointments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["BookAppointment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -275,6 +307,51 @@ export interface components {
             name: string;
             version: string;
             environment: string;
+        };
+        AppointmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            locationId: string;
+            /** Format: uuid */
+            serviceId: string;
+            serviceName: string;
+            /** Format: double */
+            price: number;
+            /** Format: uuid */
+            staffMemberId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            status: components["schemas"]["AppointmentStatus"];
+        };
+        /** @enum {unknown} */
+        AppointmentStatus: "Confirmed" | "Cancelled" | "Completed" | "NoShow";
+        AvailabilityDayDto: {
+            /** Format: date */
+            date: string;
+            slots: components["schemas"]["SlotDto"][];
+        };
+        AvailabilityDto: {
+            /** Format: uuid */
+            locationId: string;
+            /** Format: uuid */
+            serviceId: string;
+            timeZone: string;
+            /** Format: int32 */
+            durationMinutes: number;
+            days: components["schemas"]["AvailabilityDayDto"][];
+        };
+        BookAppointmentRequest: {
+            /** Format: uuid */
+            locationId: string;
+            /** Format: uuid */
+            serviceId: string;
+            /** Format: uuid */
+            staffId: null | string;
+            /** Format: date-time */
+            startsAt: string;
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
@@ -371,6 +448,12 @@ export interface components {
             price: number;
             isActive: boolean;
             locationIds: string[];
+        };
+        SlotDto: {
+            time: string;
+            /** Format: date-time */
+            startsAt: string;
+            staffIds: string[];
         };
         SlugAvailabilityDto: {
             slug: string;
@@ -1163,6 +1246,74 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GetAvailability: {
+        parameters: {
+            query: {
+                locationId: string;
+                serviceId: string;
+                from: string;
+                days?: number;
+                staffId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    BookAppointment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookAppointmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppointmentDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
             };
         };
     };
