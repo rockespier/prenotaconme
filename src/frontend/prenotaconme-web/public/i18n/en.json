@@ -4,7 +4,15 @@
   },
   "common": {
     "language": "Language",
-    "menu": "Menu"
+    "menu": "Menu",
+    "name": "Name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "active": "Active",
+    "inactive": "inactive",
+    "saved": "Saved"
   },
   "languages": {
     "it": "Italiano",
@@ -12,7 +20,10 @@
     "en": "English"
   },
   "nav": {
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "locations": "Locations",
+    "services": "Services",
+    "staff": "Staff"
   },
   "home": {
     "title": "Book your appointment",
@@ -62,7 +73,51 @@
       "reserved": "This address is reserved.",
       "taken": "Address already in use."
     },
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "name": {
+      "required": "Name is required."
+    },
+    "timeZone": {
+      "invalid": "Invalid time zone."
+    },
+    "openingHours": {
+      "interval": {
+        "order": "Opening must be before closing.",
+        "granularity": "Use times in 30-minute steps.",
+        "overlap": "Time ranges on the same day overlap."
+      }
+    },
+    "duration": {
+      "invalid": "Duration must be a multiple of 30 minutes (max 8 hours)."
+    },
+    "price": {
+      "invalid": "Invalid price."
+    },
+    "locations": {
+      "required": "Choose at least one location.",
+      "unknown": "Invalid location."
+    },
+    "services": {
+      "unknown": "Invalid service."
+    },
+    "email": {
+      "invalid": "Invalid e-mail.",
+      "taken": "A member with this e-mail already exists.",
+      "locked": "A linked account's e-mail cannot be changed."
+    },
+    "workingHours": {
+      "interval": {
+        "order": "Invalid time range.",
+        "granularity": "Use 1-hour blocks.",
+        "overlap": "Overlapping hours on the same day."
+      },
+      "locationNotAssigned": "Location not assigned to this member.",
+      "outsideOpeningHours": "Some hours are outside the location's opening hours."
+    },
+    "timeOff": {
+      "order": "The end date must be after the start date.",
+      "tooLong": "At most one year."
+    }
   },
   "backoffice": {
     "newBusiness": "New business",
@@ -71,5 +126,64 @@
   },
   "dashboard": {
     "publicLink": "Public booking page"
+  },
+  "days": {
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Sunday": "Sunday"
+  },
+  "locations": {
+    "new": "New location",
+    "edit": "Edit location",
+    "address": "Address",
+    "city": "City",
+    "phone": "Phone",
+    "openingHours": "Opening hours",
+    "opens": "Opens",
+    "closes": "Closes",
+    "closed": "Closed",
+    "addRange": "Add time range",
+    "empty": "No locations.",
+    "confirmDelete": "Delete the location “{{name}}”? It will also be removed from services and staff schedules."
+  },
+  "services": {
+    "new": "New service",
+    "edit": "Edit service",
+    "description": "Description",
+    "duration": "Duration",
+    "price": "Price",
+    "bookable": "Bookable",
+    "confirmDelete": "Delete the service “{{name}}”?"
+  },
+  "staff": {
+    "new": "New member",
+    "edit": "Edit member",
+    "email": "E-mail (Google account)",
+    "emailHint": "When they sign in with this Google account they will see their space.",
+    "emailLocked": "The account is already linked: the e-mail cannot be changed.",
+    "inviteInfo": "Add members with their Google e-mail: they are linked on first sign-in.",
+    "status": "Status",
+    "linked": "Linked",
+    "invited": "Invited",
+    "schedule": "Schedule",
+    "confirmDelete": "Remove “{{name}}” from the staff?",
+    "scheduleOf": "Schedule of {{name}}",
+    "workingHours": "Weekly availability",
+    "workingHoursHint": "1-hour blocks. Click cells, or a day name to fill it.",
+    "noLocations": "Assign at least one location to this member to set their hours.",
+    "toggleDay": "Select/clear the whole day",
+    "legendWorking": "Working",
+    "legendFree": "Free",
+    "legendElsewhere": "At another location",
+    "timeOff": "Time off",
+    "noTimeOff": "No time off scheduled.",
+    "from": "From",
+    "to": "To",
+    "reason": "Reason (optional)",
+    "addTimeOff": "Add time off"
   }
 }

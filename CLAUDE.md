@@ -41,19 +41,31 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - registers its services;
 - maps its endpoints under `/api/{module.Name}`, and registers the module assembly as a `ModelAssembly` so its `IEntityTypeConfiguration`s are applied to the single `AppDbContext`.
 
+**How modules may depend on each other:**
+- **Lower-level domain types:** a module may reference another module's domain types to get real foreign keys, but only in one acyclic direction. Current chain: Staff → Catalog → Locations.
+- **Everything else:** goes through Shared contracts.
+  - `ICurrentUser`.
+  - `IMembershipWriter`: `EnsureAsync`/`RemoveAsync` are idempotent and only stage changes.
+  - `ITenantDirectory`.
+  - `ITenantInitializer`: starter data when a business registers. It is ordered: Locations (10) seeds the default location, then Catalog (20) seeds the sample services, reading the staged location through `DbSet.Local`.
+  - `IUserSignInHook`: runs from `GET /api/users/me`. Staff uses it to link invitations by verified e-mail.
+
+**Shared scheduling helpers:** `TimeZones.IsValidIana` and `WeeklyIntervals` (validate order, granularity and overlap; coverage within opening hours). All weekly hours are local to the location. Location opening hours use 30-minute steps; staff working hours use 1-hour blocks and must fall inside the opening hours.
+
 **Multi-tenancy (row-level, fail-closed).** These rules hold for every tenant-owned entity:
 - Tenant data derives from `TenantEntity` / `ITenantOwned`.
 - `AppDbContext` adds a named query filter (`AppDbContext.TenantFilter`) and an index on `TenantId` to every root entity of that kind.
 - With no tenant in the scoped `ITenantContext`, queries return nothing. Platform-level code must call `IgnoreQueryFilters([AppDbContext.TenantFilter])`.
 - `AuditingInterceptor` stamps `TenantId` on insert, throws `MissingTenantException` when there is no tenant, and rejects cross-tenant inserts and `TenantId` changes. It also sets `CreatedAt`/`UpdatedAt` via `TimeProvider`.
-- Entity ids are UUIDv7 (`Guid.CreateVersion7()`).
+- Entity ids are UUIDv7 (`Guid.CreateVersion7()`), assigned when the object is constructed. `AppDbContext` marks every `Id` as `ValueGeneratedNever`. Without that, EF assumes a new child added to a tracked parent's collection already exists, and issues an UPDATE that hits 0 rows.
+- JSON is strict: enums are serialized as strings, and numbers must be JSON numbers (`NumberHandling.Strict`), which keeps the OpenAPI/TS types as plain `number`.
 - **Tenant resolution:** the client sends the business slug in the `X-Tenant` header. `TenantResolutionMiddleware` (Tenancy module) resolves it through `ITenantDirectory`, with the slug lookup cached for 5 minutes, and calls `ITenantContext.SetTenant`. An unknown or inactive slug gets 404. An endpoint marked `.RequireTenant()` gets 400 when the header is missing. Pipeline order: `UseAuthentication` → `UseTenantResolution` → `UseAuthorization`.
 
 **Auth (Firebase).**
 - **Token validation:** the API validates Firebase ID tokens with JwtBearer (`Hosting/AuthExtensions.cs`, `Firebase:ProjectId`). Claims keep their raw names (`sub` = Firebase uid, `email`, `name`, `picture`).
 - **Local users:** `ICurrentUser.GetUserIdAsync()` (Users module) provisions the local `UserAccount` on first use.
 - **Role checks:** `.RequireTenantRole(TenantRole.Admin, ...)` (Shared) implies `.RequireTenant()` plus a `TenantRoleRequirement`, which `TenantRoleHandler` checks against `UserMembership` in the current tenant.
-- **Cross-module contracts:** modules interact only through contracts in Shared: `ICurrentUser`, `IMembershipWriter`, `ITenantDirectory`. `IMembershipWriter` only stages its change, so the caller's `SaveChanges` stays atomic.
+- **Staff invitations:** an Admin creates a staff member with an e-mail. When someone signs in with that verified Google e-mail, `StaffInvitationLinker` links the user and grants them the Staff role. An Admin who adds their own e-mail is linked immediately.
 - **Integration tests:** `TestAuthHandler` replaces JWT validation. The header `X-Test-User: uid|email|name` authenticates the request; `ApiFactory.CreateUserClient(uid, tenantSlug)` builds such a client.
 - **Frontend:** `AuthService` wraps the Firebase JS SDK directly, without @angular/fire. The `API_CLIENT` middleware adds `Authorization: Bearer <idToken>` and `X-Tenant` (taken from `TenantSelection`, stored in localStorage) to every call. `SessionService` loads `/api/users/me`. Guards: `authGuard`, `backofficeGuard` (Admin/Staff of at least one business, otherwise `/registra-attivita`).
 

@@ -26,7 +26,12 @@ try
 
     builder.Services.AddObservability(builder.Configuration);
     builder.Services.AddProblemDetails();
-    builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+    builder.Services.ConfigureHttpJsonOptions(o =>
+    {
+        o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        // Numbers must be JSON numbers (also makes the OpenAPI types plain `number`).
+        o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    });
     builder.Services.AddFirebaseAuthentication(builder.Configuration);
     builder.Services.AddOpenApi();
     builder.Services.AddInfrastructure(builder.Configuration);

@@ -24,6 +24,8 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, AppD
 
     public string? Email => Principal?.FindFirstValue("email");
 
+    public bool EmailVerified => string.Equals(Principal?.FindFirstValue("email_verified"), "true", StringComparison.OrdinalIgnoreCase);
+
     private string? DisplayName => Principal?.FindFirstValue("name");
 
     private string? PhotoUrl => Principal?.FindFirstValue("picture");

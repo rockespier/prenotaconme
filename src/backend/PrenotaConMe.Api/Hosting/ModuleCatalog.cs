@@ -1,3 +1,6 @@
+using PrenotaConMe.Modules.Catalog;
+using PrenotaConMe.Modules.Locations;
+using PrenotaConMe.Modules.Staff;
 using PrenotaConMe.Modules.Tenancy;
 using PrenotaConMe.Modules.Users;
 using PrenotaConMe.Shared.Modules;
@@ -11,5 +14,8 @@ internal static class ModuleCatalog
     [
         new TenancyModule(),
         new UsersModule(),
+        new LocationsModule(),
+        new CatalogModule(),
+        new StaffModule(),
     ];
 }

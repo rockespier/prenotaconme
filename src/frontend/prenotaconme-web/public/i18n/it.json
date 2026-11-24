@@ -4,7 +4,15 @@
   },
   "common": {
     "language": "Lingua",
-    "menu": "Menu"
+    "menu": "Menu",
+    "name": "Nome",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "active": "Attivo",
+    "inactive": "non attivo",
+    "saved": "Salvato"
   },
   "languages": {
     "it": "Italiano",
@@ -12,7 +20,10 @@
     "en": "English"
   },
   "nav": {
-    "dashboard": "Pannello"
+    "dashboard": "Pannello",
+    "locations": "Sedi",
+    "services": "Servizi",
+    "staff": "Staff"
   },
   "home": {
     "title": "Prenota il tuo appuntamento",
@@ -62,7 +73,51 @@
       "reserved": "Questo indirizzo è riservato.",
       "taken": "Indirizzo già in uso."
     },
-    "generic": "Si è verificato un errore. Riprova."
+    "generic": "Si è verificato un errore. Riprova.",
+    "name": {
+      "required": "Il nome è obbligatorio."
+    },
+    "timeZone": {
+      "invalid": "Fuso orario non valido."
+    },
+    "openingHours": {
+      "interval": {
+        "order": "L'apertura deve essere prima della chiusura.",
+        "granularity": "Usa orari a intervalli di 30 minuti.",
+        "overlap": "Le fasce orarie dello stesso giorno si sovrappongono."
+      }
+    },
+    "duration": {
+      "invalid": "La durata deve essere un multiplo di 30 minuti (max 8 ore)."
+    },
+    "price": {
+      "invalid": "Prezzo non valido."
+    },
+    "locations": {
+      "required": "Scegli almeno una sede.",
+      "unknown": "Sede non valida."
+    },
+    "services": {
+      "unknown": "Servizio non valido."
+    },
+    "email": {
+      "invalid": "Email non valida.",
+      "taken": "Esiste già un membro con questa email.",
+      "locked": "L'email di un account collegato non si può cambiare."
+    },
+    "workingHours": {
+      "interval": {
+        "order": "Orario non valido.",
+        "granularity": "Usa fasce da 1 ora.",
+        "overlap": "Orari sovrapposti nello stesso giorno."
+      },
+      "locationNotAssigned": "Sede non assegnata a questo membro.",
+      "outsideOpeningHours": "Alcuni orari sono fuori dall'orario di apertura della sede."
+    },
+    "timeOff": {
+      "order": "La data di fine deve essere successiva all'inizio.",
+      "tooLong": "Massimo un anno."
+    }
   },
   "backoffice": {
     "newBusiness": "Nuova attività",
@@ -71,5 +126,64 @@
   },
   "dashboard": {
     "publicLink": "Pagina pubblica di prenotazione"
+  },
+  "days": {
+    "Monday": "Lunedì",
+    "Tuesday": "Martedì",
+    "Wednesday": "Mercoledì",
+    "Thursday": "Giovedì",
+    "Friday": "Venerdì",
+    "Saturday": "Sabato",
+    "Sunday": "Domenica"
+  },
+  "locations": {
+    "new": "Nuova sede",
+    "edit": "Modifica sede",
+    "address": "Indirizzo",
+    "city": "Città",
+    "phone": "Telefono",
+    "openingHours": "Orari di apertura",
+    "opens": "Apertura",
+    "closes": "Chiusura",
+    "closed": "Chiuso",
+    "addRange": "Aggiungi fascia oraria",
+    "empty": "Nessuna sede.",
+    "confirmDelete": "Eliminare la sede «{{name}}»? Verrà rimossa anche dai servizi e dagli orari dello staff."
+  },
+  "services": {
+    "new": "Nuovo servizio",
+    "edit": "Modifica servizio",
+    "description": "Descrizione",
+    "duration": "Durata",
+    "price": "Prezzo",
+    "bookable": "Prenotabile",
+    "confirmDelete": "Eliminare il servizio «{{name}}»?"
+  },
+  "staff": {
+    "new": "Nuovo membro",
+    "edit": "Modifica membro",
+    "email": "Email (account Google)",
+    "emailHint": "Quando accederà con questo account Google, vedrà il suo spazio.",
+    "emailLocked": "L'account è già collegato: l'email non si può cambiare.",
+    "inviteInfo": "Aggiungi i membri con la loro email Google: il collegamento avviene al primo accesso.",
+    "status": "Stato",
+    "linked": "Collegato",
+    "invited": "Invitato",
+    "schedule": "Orari",
+    "confirmDelete": "Eliminare «{{name}}» dallo staff?",
+    "scheduleOf": "Orari di {{name}}",
+    "workingHours": "Disponibilità settimanale",
+    "workingHoursHint": "Fasce da 1 ora. Clicca le celle o il nome del giorno per riempirlo.",
+    "noLocations": "Assegna almeno una sede a questo membro per definire gli orari.",
+    "toggleDay": "Seleziona/deseleziona tutto il giorno",
+    "legendWorking": "Lavora",
+    "legendFree": "Libero",
+    "legendElsewhere": "In un'altra sede",
+    "timeOff": "Assenze e ferie",
+    "noTimeOff": "Nessuna assenza programmata.",
+    "from": "Dal",
+    "to": "Al",
+    "reason": "Motivo (facoltativo)",
+    "addTimeOff": "Aggiungi assenza"
   }
 }

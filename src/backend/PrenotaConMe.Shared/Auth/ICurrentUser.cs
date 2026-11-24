@@ -10,6 +10,9 @@ public interface ICurrentUser
 
     string? Email { get; }
 
+    /// <summary>True when the identity provider verified <see cref="Email"/> (always true for Google sign-in).</summary>
+    bool EmailVerified { get; }
+
     /// <summary>
     /// Local user id. Creates the local user record on first use (just-in-time provisioning).
     /// Throws <see cref="InvalidOperationException"/> when the request is anonymous.

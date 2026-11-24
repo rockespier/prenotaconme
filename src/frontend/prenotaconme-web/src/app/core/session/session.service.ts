@@ -35,6 +35,9 @@ export class SessionService {
 
   readonly currentBusiness = computed(() => this.businesses().find((b) => b.slug === this.tenant.slug()) ?? null);
 
+  /** Admin of the selected business (can manage locations, services and staff). */
+  readonly isAdmin = computed(() => this.currentBusiness()?.roles.includes('Admin') ?? false);
+
   constructor() {
     // Signing out (or switching account) drops the cached profile.
     effect(() => {

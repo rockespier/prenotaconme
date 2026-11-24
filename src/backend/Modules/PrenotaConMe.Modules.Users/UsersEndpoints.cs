@@ -28,9 +28,22 @@ internal static class UsersEndpoints
         ICurrentUser currentUser,
         AppDbContext db,
         ITenantDirectory tenants,
+        IEnumerable<IUserSignInHook> signInHooks,
         CancellationToken cancellationToken)
     {
         var userId = await currentUser.GetUserIdAsync(cancellationToken);
+
+        // E.g. link pending staff invitations sent to this e-mail.
+        var verifiedEmail = currentUser.EmailVerified ? currentUser.Email?.Trim().ToLowerInvariant() : null;
+        foreach (var hook in signInHooks)
+        {
+            await hook.OnSignedInAsync(userId, verifiedEmail, cancellationToken);
+        }
+
+        if (db.ChangeTracker.HasChanges())
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
 
         var user = await db.Set<UserAccount>().AsNoTracking().SingleAsync(u => u.Id == userId, cancellationToken);
 

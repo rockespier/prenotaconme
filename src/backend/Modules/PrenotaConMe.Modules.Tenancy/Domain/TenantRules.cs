@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using PrenotaConMe.Shared.Scheduling;
 
 namespace PrenotaConMe.Modules.Tenancy.Domain;
 
@@ -51,10 +52,7 @@ public static partial class TenantRules
     }
 
     /// <summary>Only IANA ids (e.g. "Europe/Rome"), valid on both Linux and Windows.</summary>
-    public static bool IsValidTimeZone(string? timeZone) =>
-        !string.IsNullOrWhiteSpace(timeZone)
-        && TimeZoneInfo.TryConvertIanaIdToWindowsId(timeZone, out _)
-        && TimeZoneInfo.TryFindSystemTimeZoneById(timeZone, out _);
+    public static bool IsValidTimeZone(string? timeZone) => TimeZones.IsValidIana(timeZone);
 
     public static bool IsValidLanguage(string? language) => language is not null && Languages.Contains(language);
 

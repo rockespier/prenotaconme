@@ -33,6 +33,14 @@ public sealed class AppDbContext(
             modelBuilder.ApplyConfigurationsFromAssembly(assembly);
         }
 
+        // Ids are assigned client-side (UUIDv7) when the object is constructed. Telling EF they are never
+        // store-generated makes it INSERT new children found in navigations, instead of assuming they exist.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes()
+                     .Where(t => t.BaseType is null && typeof(Entity).IsAssignableFrom(t.ClrType)))
+        {
+            modelBuilder.Entity(entityType.ClrType).Property(nameof(Entity.Id)).ValueGeneratedNever();
+        }
+
         var tenantOwnedRoots = modelBuilder.Model.GetEntityTypes()
             .Where(t => t.BaseType is null && typeof(ITenantOwned).IsAssignableFrom(t.ClrType))
             .Select(t => t.ClrType)

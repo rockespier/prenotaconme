@@ -1,5 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,12 +41,12 @@ interface NavItem {
     <mat-sidenav-container class="container">
       <mat-sidenav #drawer [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()">
         <mat-nav-list>
-          @for (item of nav; track item.path) {
+          @for (item of nav(); track item.path) {
             <a
               mat-list-item
               [routerLink]="item.path"
               routerLinkActive
-              [routerLinkActiveOptions]="{ exact: true }"
+              [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
               #rla="routerLinkActive"
               [activated]="rla.isActive"
               (click)="isHandset() && drawer.close()"
@@ -71,7 +71,7 @@ interface NavItem {
           </button>
           <mat-menu #businessMenu="matMenu">
             @for (b of session.businesses(); track b.slug) {
-              <button mat-menu-item (click)="session.selectBusiness(b.slug)" [disabled]="b.slug === session.currentBusiness()?.slug">
+              <button mat-menu-item (click)="switchBusiness(b.slug)" [disabled]="b.slug === session.currentBusiness()?.slug">
                 {{ b.name }}
               </button>
             }
@@ -128,7 +128,22 @@ export class BackofficeLayout {
     { initialValue: false },
   );
 
-  protected readonly nav: NavItem[] = [{ path: '/admin', icon: 'dashboard', label: 'nav.dashboard' }];
+  protected readonly nav = computed<NavItem[]>(() => [
+    { path: '/admin', icon: 'dashboard', label: 'nav.dashboard' },
+    ...(this.session.isAdmin()
+      ? [
+          { path: '/admin/sedi', icon: 'storefront', label: 'nav.locations' },
+          { path: '/admin/servizi', icon: 'content_cut', label: 'nav.services' },
+          { path: '/admin/staff', icon: 'groups', label: 'nav.staff' },
+        ]
+      : []),
+  ]);
+
+  /** Back to the dashboard so no page keeps showing the previous business's data. */
+  protected async switchBusiness(slug: string): Promise<void> {
+    this.session.selectBusiness(slug);
+    await this.router.navigateByUrl('/admin');
+  }
 
   protected async signOut(): Promise<void> {
     await this.session.signOut();

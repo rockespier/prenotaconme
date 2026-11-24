@@ -1,12 +1,34 @@
 import { Routes } from '@angular/router';
-import { authGuard, backofficeGuard } from './core/auth/guards';
+import { adminGuard, authGuard, backofficeGuard } from './core/auth/guards';
 
 export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [backofficeGuard],
     loadComponent: () => import('./layouts/backoffice-layout/backoffice-layout').then((m) => m.BackofficeLayout),
-    children: [{ path: '', loadComponent: () => import('./features/admin/dashboard').then((m) => m.Dashboard) }],
+    children: [
+      { path: '', loadComponent: () => import('./features/admin/dashboard').then((m) => m.Dashboard) },
+      {
+        path: 'sedi',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/locations/locations-page').then((m) => m.LocationsPage),
+      },
+      {
+        path: 'servizi',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/services/services-page').then((m) => m.ServicesPage),
+      },
+      {
+        path: 'staff',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/staff/staff-page').then((m) => m.StaffPage),
+      },
+      {
+        path: 'staff/:id',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/staff/staff-schedule-page').then((m) => m.StaffSchedulePage),
+      },
+    ],
   },
   {
     path: '',
