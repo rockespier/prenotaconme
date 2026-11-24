@@ -1,0 +1,168 @@
+@switch (state()) {
+  @case ('loading') {
+    <div class="center"><mat-spinner diameter="40" /></div>
+  }
+  @case ('notFound') {
+    <h1>{{ 'booking.notFound' | transloco }}</h1>
+  }
+  @default {
+    <header class="business">
+      <h1>{{ tenant()?.name }}</h1>
+      @if (location(); as l) {
+        <p class="muted">{{ l.name }}@if (place(l)) { · {{ place(l) }} }</p>
+      }
+    </header>
+
+    @if (canGoBack()) {
+      <button mat-button class="back" (click)="back()"><mat-icon>arrow_back</mat-icon>{{ 'booking.back' | transloco }}</button>
+    }
+
+    @switch (step()) {
+      <!-- 1. Location -->
+      @case ('location') {
+        <h2>{{ 'booking.chooseLocation' | transloco }}</h2>
+        <div class="choices">
+          @for (l of options()?.locations; track l.id) {
+            <button class="choice" (click)="chooseLocation(l)">
+              <strong>{{ l.name }}</strong>
+              <span class="muted">{{ place(l) }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- 2. Service -->
+      @case ('service') {
+        <h2>{{ 'booking.chooseService' | transloco }}</h2>
+        <div class="choices">
+          @for (s of servicesHere(); track s.id) {
+            <button class="choice" (click)="chooseService(s)">
+              <span class="row">
+                <strong>{{ s.name }}</strong>
+                <strong>{{ price(s.price) }}</strong>
+              </span>
+              <span class="muted">{{ duration(s.durationMinutes) }}@if (s.description) { · {{ s.description }} }</span>
+            </button>
+          } @empty {
+            <p>{{ 'booking.noServices' | transloco }}</p>
+          }
+        </div>
+      }
+
+      <!-- 3. Staff -->
+      @case ('staff') {
+        <h2>{{ 'booking.chooseStaff' | transloco }}</h2>
+        <div class="choices">
+          <button class="choice" (click)="chooseStaff(null)">
+            <strong>{{ 'booking.anyStaff' | transloco }}</strong>
+            <span class="muted">{{ 'booking.anyStaffHint' | transloco }}</span>
+          </button>
+          @for (p of staffForService(); track p.id) {
+            <button class="choice" (click)="chooseStaff(p)"><strong>{{ p.displayName }}</strong></button>
+          }
+        </div>
+      }
+
+      <!-- 4. Day and time -->
+      @case ('time') {
+        <h2>{{ 'booking.chooseTime' | transloco }}</h2>
+        <p class="muted">
+          {{ service()?.name }} · {{ duration(service()?.durationMinutes ?? 0) }}
+          · {{ staff()?.displayName ?? ('booking.anyStaff' | transloco) }}
+        </p>
+        @if (error()) {
+          <p class="error" role="alert">{{ error()! | transloco }}</p>
+        }
+
+        <div class="days" role="tablist">
+          @for (d of days(); track d.date) {
+            <button
+              class="day"
+              role="tab"
+              [class.selected]="d.date === selectedDay()"
+              [attr.aria-selected]="d.date === selectedDay()"
+              [disabled]="d.slots.length === 0"
+              (click)="selectedDay.set(d.date)"
+            >
+              {{ day(d.date, 'short') }}
+            </button>
+          }
+          <button mat-stroked-button class="more" (click)="moreDays()" [disabled]="loadingSlots()">
+            {{ 'booking.moreDays' | transloco }}
+          </button>
+        </div>
+
+        @if (loadingSlots()) {
+          <div class="center"><mat-spinner diameter="32" /></div>
+        } @else if (selectedDay()) {
+          <h3>{{ day(selectedDay()!) }}</h3>
+          <div class="times">
+            @for (s of slotsOfDay(); track s.startsAt) {
+              <button mat-stroked-button (click)="chooseSlot(s)">{{ s.time }}</button>
+            }
+          </div>
+        } @else {
+          <p>{{ 'booking.noTimes' | transloco }}</p>
+        }
+      }
+
+      <!-- 5. Confirm -->
+      @case ('confirm') {
+        <h2>{{ 'booking.summary' | transloco }}</h2>
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <dl class="summary">
+              <dt>{{ 'booking.service' | transloco }}</dt>
+              <dd>{{ service()?.name }} ({{ duration(service()?.durationMinutes ?? 0) }})</dd>
+              <dt>{{ 'booking.when' | transloco }}</dt>
+              <dd>{{ day(selectedDay()!) }}, {{ slot()?.time }}</dd>
+              <dt>{{ 'booking.with' | transloco }}</dt>
+              <dd>{{ staff()?.displayName ?? ('booking.anyStaff' | transloco) }}</dd>
+              <dt>{{ 'booking.where' | transloco }}</dt>
+              <dd>{{ location()?.name }}</dd>
+              <dt>{{ 'booking.price' | transloco }}</dt>
+              <dd>{{ price(service()?.price ?? 0) }} <span class="muted">{{ 'booking.payOnSite' | transloco }}</span></dd>
+            </dl>
+
+            @if (error()) {
+              <p class="error" role="alert">{{ error()! | transloco }}</p>
+            }
+
+            @if (!signedIn()) {
+              <p>{{ 'booking.signInToConfirm' | transloco }}</p>
+            } @else if (needsPhone()) {
+              <mat-form-field class="phone">
+                <mat-label>{{ 'booking.phone' | transloco }}</mat-label>
+                <input matInput type="tel" [formControl]="phone" autocomplete="tel" />
+                <mat-hint>{{ 'booking.phoneHint' | transloco }}</mat-hint>
+              </mat-form-field>
+            }
+          </mat-card-content>
+          <mat-card-actions align="end">
+            @if (!signedIn()) {
+              <button mat-flat-button (click)="signIn()"><mat-icon>login</mat-icon>{{ 'login.google' | transloco }}</button>
+            } @else {
+              <button mat-flat-button (click)="confirm()" [disabled]="busy() || (needsPhone() && phone.invalid)">
+                {{ 'booking.confirm' | transloco }}
+              </button>
+            }
+          </mat-card-actions>
+        </mat-card>
+      }
+
+      <!-- 6. Done -->
+      @case ('done') {
+        <div class="done">
+          <mat-icon class="ok">check_circle</mat-icon>
+          <h2>{{ 'booking.confirmed' | transloco }}</h2>
+          <p>
+            {{ appointment()?.serviceName }} · {{ day(selectedDay()!) }}, {{ slot()?.time }}
+            @if (staffName()) { · {{ 'booking.with' | transloco }} {{ staffName() }} }
+          </p>
+          <p class="muted">{{ location()?.name }}@if (place(location())) { · {{ place(location()) }} }</p>
+          <button mat-stroked-button (click)="bookAnother()">{{ 'booking.bookAnother' | transloco }}</button>
+        </div>
+      }
+    }
+  }
+}

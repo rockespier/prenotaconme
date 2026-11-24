@@ -148,6 +148,39 @@
         }
       }
     },
+    "/api/users/me/phone": {
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "operationId": "SetMyPhone",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPhoneRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me": {
       "get": {
         "tags": [
@@ -865,6 +898,26 @@
         }
       }
     },
+    "/api/scheduling/booking-options": {
+      "get": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "GetBookingOptions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOptionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/scheduling/availability": {
       "get": {
         "tags": [
@@ -1166,6 +1219,34 @@
           }
         }
       },
+      "BookingOptionsDto": {
+        "required": [
+          "locations",
+          "services",
+          "staff"
+        ],
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicLocationDto"
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicServiceDto"
+            }
+          },
+          "staff": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicStaffDto"
+            }
+          }
+        }
+      },
       "DayOfWeek": {
         "enum": [
           "Sunday",
@@ -1280,6 +1361,7 @@
           "email",
           "displayName",
           "photoUrl",
+          "phoneNumber",
           "memberships"
         ],
         "type": "object",
@@ -1301,6 +1383,12 @@
             ]
           },
           "photoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phoneNumber": {
             "type": [
               "null",
               "string"
@@ -1356,6 +1444,120 @@
           "closes": {
             "type": "string",
             "format": "time"
+          }
+        }
+      },
+      "PublicLocationDto": {
+        "required": [
+          "id",
+          "name",
+          "address",
+          "city",
+          "phone",
+          "timeZone"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "city": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timeZone": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicServiceDto": {
+        "required": [
+          "id",
+          "name",
+          "description",
+          "durationMinutes",
+          "price",
+          "locationIds"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "locationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "PublicStaffDto": {
+        "required": [
+          "id",
+          "displayName",
+          "locationIds",
+          "serviceIds"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "locationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "serviceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -1581,6 +1783,17 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "SetPhoneRequest": {
+        "required": [
+          "phoneNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string"
           }
         }
       },
