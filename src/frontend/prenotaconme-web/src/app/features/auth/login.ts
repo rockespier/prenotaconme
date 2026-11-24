@@ -10,27 +10,35 @@ import { AuthService } from '../../core/auth/auth.service';
   selector: 'app-login',
   imports: [MatButtonModule, MatCardModule, MatIconModule, TranslocoPipe],
   template: `
-    <mat-card appearance="outlined" class="card">
-      <mat-card-header>
-        <mat-card-title>{{ 'login.title' | transloco }}</mat-card-title>
-        <mat-card-subtitle>{{ 'login.subtitle' | transloco }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        @if (error()) {
-          <p class="error" role="alert">{{ 'login.error' | transloco }}</p>
-        }
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-flat-button (click)="signIn()" [disabled]="busy()">
-          <mat-icon>login</mat-icon>
-          {{ 'login.google' | transloco }}
-        </button>
-      </mat-card-actions>
-    </mat-card>
+    <section class="panel">
+      <h1>{{ 'login.title' | transloco }}</h1>
+      <p class="muted">{{ 'login.subtitle' | transloco }}</p>
+      @if (error()) {
+        <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ 'login.error' | transloco }}</p>
+      }
+      <button mat-flat-button class="google" (click)="signIn()" [disabled]="busy()">
+        <mat-icon>login</mat-icon>
+        {{ 'login.google' | transloco }}
+      </button>
+    </section>
   `,
   styles: `
-    .card { max-width: 420px; margin: 48px auto; }
-    .error { color: var(--mat-sys-error); }
+    .panel {
+      max-width: 400px;
+      margin: var(--space-7) auto;
+      padding: var(--space-6) var(--space-5);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--radius-l);
+    }
+    h1 { margin-bottom: var(--space-2); }
+    .muted { margin: 0 0 var(--space-5); }
+    .google { width: 100%; height: 48px; }
+    .error {
+      display: flex; gap: var(--space-2); align-items: flex-start;
+      margin: 0 0 var(--space-4); padding: var(--space-3);
+      border-radius: var(--radius-m);
+      background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container);
+    }
   `,
 })
 export class Login {

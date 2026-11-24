@@ -27,7 +27,7 @@ type Location = Schemas['LocationDto'];
       @for (l of locations(); track l.id) {
         <mat-card appearance="outlined">
           <mat-card-header>
-            <mat-card-title>{{ l.name }} @if (!l.isActive) { <small>({{ 'locations.inactive' | transloco }})</small> }</mat-card-title>
+            <mat-card-title>{{ l.name }} @if (!l.isActive) { <span class="pill">{{ 'locations.inactive' | transloco }}</span> }</mat-card-title>
             <mat-card-subtitle>{{ place(l) }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
@@ -44,15 +44,16 @@ type Location = Schemas['LocationDto'];
           </mat-card-actions>
         </mat-card>
       } @empty {
-        <p>{{ 'locations.empty' | transloco }}</p>
+        <p class="muted">{{ 'locations.empty' | transloco }}</p>
       }
     </div>
   `,
   styles: `
-    .page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
     dl { display: grid; grid-template-columns: auto 1fr; gap: 2px 16px; margin: 8px 0 0; }
+    mat-card { --mat-card-outlined-container-shape: var(--radius-l); }
     dt { color: var(--mat-sys-on-surface-variant); }
+    dd { font-variant-numeric: tabular-nums; }
     dd { margin: 0; }
   `,
 })

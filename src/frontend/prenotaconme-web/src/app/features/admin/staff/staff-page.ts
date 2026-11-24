@@ -1,7 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -17,35 +16,36 @@ type Staff = Schemas['StaffDto'];
 /** F1-06: staff members, their locations and services. */
 @Component({
   selector: 'app-staff-page',
-  imports: [RouterLink, MatButtonModule, MatChipsModule, MatIconModule, MatTableModule, TranslocoPipe],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatTableModule, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.staff' | transloco }}</h1>
       <button mat-flat-button (click)="edit(null)"><mat-icon>person_add</mat-icon>{{ 'staff.new' | transloco }}</button>
+      <p>{{ 'staff.inviteInfo' | transloco }}</p>
     </header>
-    <p class="muted">{{ 'staff.inviteInfo' | transloco }}</p>
 
+    <div class="table-card">
     <table mat-table [dataSource]="staff()">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | transloco }}</th>
         <td mat-cell *matCellDef="let s">
-          {{ s.displayName }}
-          @if (!s.isActive) { <small class="muted">({{ 'staff.inactive' | transloco }})</small> }
+          <strong>{{ s.displayName }}</strong>
+          @if (!s.isActive) { <span class="pill">{{ 'staff.inactive' | transloco }}</span> }
         </td>
       </ng-container>
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>{{ 'staff.email' | transloco }}</th>
-        <td mat-cell *matCellDef="let s">{{ s.email }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'staff.email' | transloco }}</th>
+        <td mat-cell *matCellDef="let s" class="hide-sm">{{ s.email }}</td>
       </ng-container>
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>{{ 'staff.status' | transloco }}</th>
         <td mat-cell *matCellDef="let s">
-          <mat-chip [highlighted]="s.isLinked">{{ (s.isLinked ? 'staff.linked' : 'staff.invited') | transloco }}</mat-chip>
+          <span class="pill" [class.ok]="s.isLinked">{{ (s.isLinked ? 'staff.linked' : 'staff.invited') | transloco }}</span>
         </td>
       </ng-container>
       <ng-container matColumnDef="locations">
-        <th mat-header-cell *matHeaderCellDef>{{ 'nav.locations' | transloco }}</th>
-        <td mat-cell *matCellDef="let s">{{ locationNames(s) }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'nav.locations' | transloco }}</th>
+        <td mat-cell *matCellDef="let s" class="hide-sm">{{ locationNames(s) }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
@@ -57,13 +57,14 @@ type Staff = Schemas['StaffDto'];
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      <tr class="mat-mdc-row no-data" *matNoDataRow>
+        <td class="mat-mdc-cell" [attr.colspan]="columns.length">{{ 'staff.empty' | transloco }}</td>
+      </tr>
     </table>
+    </div>
   `,
   styles: `
-    .page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    table { width: 100%; }
-    .actions { text-align: right; white-space: nowrap; }
-    .muted { color: var(--mat-sys-on-surface-variant); }
+    strong { font-weight: 600; margin-right: var(--space-2); }
   `,
 })
 export class StaffPage implements OnInit {
