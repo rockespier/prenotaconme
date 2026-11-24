@@ -57,11 +57,19 @@ jobs:
           SSH_OPTS="-i key -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
           VERSION="$(date -u +%Y%m%d%H%M%S)-${SHA::7}"
 
-          scp $SSH_OPTS release.zip deploy/windows/deploy.ps1 "$USER@$HOST:C:/prenotaconme/incoming/"
+          # Make sure the upload folder exists (scp does not create it when copying several files).
+          ssh $SSH_OPTS "$USER@$HOST" \
+            "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force C:\\prenotaconme\\incoming | Out-Null\""
+
+          # Windows OpenSSH (SFTP) expects drive paths as /C:/...
+          scp $SSH_OPTS release.zip deploy/windows/deploy.ps1 "$USER@$HOST:/C:/prenotaconme/incoming/"
+
           ssh $SSH_OPTS "$USER@$HOST" \
             "powershell -NoProfile -ExecutionPolicy Bypass -File C:\\prenotaconme\\incoming\\deploy.ps1 -Package C:\\prenotaconme\\incoming\\release.zip -Version $VERSION"
 
-          rm -f key
+      - name: Remove SSH key
+        if: always()
+        run: rm -f key
 
       - name: Smoke test
         run: curl --fail --retry 5 --retry-delay 5 "https://${{ vars.SITE_DOMAIN }}/health"
