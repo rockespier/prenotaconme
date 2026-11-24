@@ -37,8 +37,30 @@
   },
   "booking": {
     "title": "Reserva",
-    "comingSoon": "Las reservas online estarán disponibles pronto.",
-    "notFound": "Negocio no encontrado"
+    "notFound": "Negocio no encontrado",
+    "back": "Atrás",
+    "chooseLocation": "Elige la sede",
+    "chooseService": "¿Qué servicio quieres?",
+    "noServices": "Ahora mismo no hay servicios reservables online.",
+    "chooseStaff": "¿Con quién quieres reservar?",
+    "anyStaff": "Sin preferencia",
+    "anyStaffHint": "Te asignamos a la primera persona libre",
+    "chooseTime": "Elige día y hora",
+    "moreDays": "Más días",
+    "noTimes": "No hay horas libres en estos días. Prueba con «Más días».",
+    "summary": "Resumen de la reserva",
+    "service": "Servicio",
+    "when": "Cuándo",
+    "with": "Con",
+    "where": "Dónde",
+    "price": "Precio",
+    "payOnSite": "(se paga en el local)",
+    "signInToConfirm": "Para confirmar, accede con tu cuenta de Google: así podrás ver y gestionar tus reservas.",
+    "phone": "Tu número de móvil",
+    "phoneHint": "Con prefijo internacional, p. ej. +34 612 345 678. Solo lo usamos para los recordatorios.",
+    "confirm": "Confirmar reserva",
+    "confirmed": "¡Reserva confirmada!",
+    "bookAnother": "Reservar otro servicio"
   },
   "notFound": {
     "title": "Página no encontrada",
@@ -136,6 +158,9 @@
     },
     "days": {
       "invalid": "Rango de días no válido."
+    },
+    "phone": {
+      "invalid": "Número no válido: escríbelo con el prefijo internacional (p. ej. +34 612 345 678)."
     }
   },
   "backoffice": {

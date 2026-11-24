@@ -29,6 +29,12 @@ internal static class SchedulingEndpoints
 
     public static void Map(IEndpointRouteBuilder group)
     {
+        // F1-10: public booking page data (business chosen with X-Tenant).
+        group.MapGet("/booking-options", BookingOptions.GetAsync)
+            .AllowAnonymous()
+            .RequireTenant()
+            .WithName("GetBookingOptions");
+
         // F1-08: public, used by the booking page (business chosen with X-Tenant).
         group.MapGet("/availability", GetAvailabilityAsync)
             .AllowAnonymous()

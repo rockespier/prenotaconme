@@ -37,8 +37,30 @@
   },
   "booking": {
     "title": "Prenotazione",
-    "comingSoon": "Le prenotazioni online saranno disponibili a breve.",
-    "notFound": "Attività non trovata"
+    "notFound": "Attività non trovata",
+    "back": "Indietro",
+    "chooseLocation": "Scegli la sede",
+    "chooseService": "Che servizio desideri?",
+    "noServices": "Al momento non ci sono servizi prenotabili online.",
+    "chooseStaff": "Con chi vuoi prenotare?",
+    "anyStaff": "Nessuna preferenza",
+    "anyStaffHint": "Ti assegniamo il primo collaboratore libero",
+    "chooseTime": "Scegli giorno e ora",
+    "moreDays": "Altri giorni",
+    "noTimes": "Nessun orario libero in questi giorni. Prova con «Altri giorni».",
+    "summary": "Riepilogo della prenotazione",
+    "service": "Servizio",
+    "when": "Quando",
+    "with": "Con",
+    "where": "Dove",
+    "price": "Prezzo",
+    "payOnSite": "(si paga in sede)",
+    "signInToConfirm": "Per confermare accedi con il tuo account Google: così potrai ritrovare e gestire le tue prenotazioni.",
+    "phone": "Il tuo numero di cellulare",
+    "phoneHint": "Con il prefisso internazionale, es. +39 333 123 4567. Lo usiamo solo per i promemoria.",
+    "confirm": "Conferma prenotazione",
+    "confirmed": "Prenotazione confermata!",
+    "bookAnother": "Prenota un altro servizio"
   },
   "notFound": {
     "title": "Pagina non trovata",
@@ -136,6 +158,9 @@
     },
     "days": {
       "invalid": "Intervallo di giorni non valido."
+    },
+    "phone": {
+      "invalid": "Numero non valido: scrivilo con il prefisso internazionale (es. +39 333 123 4567)."
     }
   },
   "backoffice": {

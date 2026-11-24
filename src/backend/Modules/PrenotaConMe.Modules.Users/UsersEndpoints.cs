@@ -7,21 +7,46 @@ using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Users.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
+using PrenotaConMe.Shared.Validation;
 
 namespace PrenotaConMe.Modules.Users;
 
 public sealed record MembershipDto(Guid TenantId, string TenantSlug, string TenantName, TenantRole Role);
 
-public sealed record MeDto(Guid Id, string? Email, string? DisplayName, string? PhotoUrl, IReadOnlyList<MembershipDto> Memberships);
+public sealed record MeDto(
+    Guid Id, string? Email, string? DisplayName, string? PhotoUrl, string? PhoneNumber, IReadOnlyList<MembershipDto> Memberships);
+
+public sealed record SetPhoneRequest(string PhoneNumber);
 
 internal static class UsersEndpoints
 {
     public static void Map(IEndpointRouteBuilder group)
     {
         // Called by the frontend right after sign-in: provisions the local user and lists their businesses.
+        // F1-10: asked on the first booking; needed for reminders (WhatsApp/Telegram) and to reach the client.
+        group.MapPut("/me/phone", SetPhoneAsync)
+            .RequireAuthorization()
+            .WithName("SetMyPhone");
+
         group.MapGet("/me", GetMeAsync)
             .RequireAuthorization()
             .WithName("GetMe");
+    }
+
+    private static async Task<Results<NoContent, ValidationProblem>> SetPhoneAsync(
+        SetPhoneRequest request, ICurrentUser currentUser, AppDbContext db, CancellationToken cancellationToken)
+    {
+        var phone = PhoneNumbers.Normalize(request.PhoneNumber);
+        if (phone is null)
+        {
+            return new ValidationErrors().Add("phoneNumber", "phone.invalid").ToProblem();
+        }
+
+        var userId = await currentUser.GetUserIdAsync(cancellationToken);
+        var user = await db.Set<UserAccount>().SingleAsync(u => u.Id == userId, cancellationToken);
+        user.SetPhoneNumber(phone);
+        await db.SaveChangesAsync(cancellationToken);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Ok<MeDto>> GetMeAsync(
@@ -64,6 +89,6 @@ internal static class UsersEndpoints
             .ThenBy(m => m.Role)
             .ToList();
 
-        return TypedResults.Ok(new MeDto(user.Id, user.Email, user.DisplayName, user.PhotoUrl, dtos));
+        return TypedResults.Ok(new MeDto(user.Id, user.Email, user.DisplayName, user.PhotoUrl, user.PhoneNumber, dtos));
     }
 }

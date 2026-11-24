@@ -37,8 +37,30 @@
   },
   "booking": {
     "title": "Booking",
-    "comingSoon": "Online booking is coming soon.",
-    "notFound": "Business not found"
+    "notFound": "Business not found",
+    "back": "Back",
+    "chooseLocation": "Choose a location",
+    "chooseService": "Which service would you like?",
+    "noServices": "No services can be booked online right now.",
+    "chooseStaff": "Who would you like to book with?",
+    "anyStaff": "No preference",
+    "anyStaffHint": "We'll assign the first person available",
+    "chooseTime": "Choose a day and time",
+    "moreDays": "More days",
+    "noTimes": "No free times in these days. Try “More days”.",
+    "summary": "Booking summary",
+    "service": "Service",
+    "when": "When",
+    "with": "With",
+    "where": "Where",
+    "price": "Price",
+    "payOnSite": "(paid on site)",
+    "signInToConfirm": "To confirm, sign in with your Google account so you can find and manage your bookings.",
+    "phone": "Your mobile number",
+    "phoneHint": "With the country code, e.g. +44 7700 900123. Only used for reminders.",
+    "confirm": "Confirm booking",
+    "confirmed": "Booking confirmed!",
+    "bookAnother": "Book another service"
   },
   "notFound": {
     "title": "Page not found",
@@ -136,6 +158,9 @@
     },
     "days": {
       "invalid": "Invalid day range."
+    },
+    "phone": {
+      "invalid": "Invalid number: include the country code (e.g. +44 7700 900123)."
     }
   },
   "backoffice": {

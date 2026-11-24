@@ -29,6 +29,8 @@ public sealed class UserAccount : Entity
         PhotoUrl = photoUrl,
     };
 
+    public void SetPhoneNumber(string e164) => PhoneNumber = e164;
+
     /// <summary>Keeps the profile in sync with the identity provider. Returns true when something changed.</summary>
     public bool SyncProfile(string? email, string? displayName, string? photoUrl)
     {
