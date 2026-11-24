@@ -9,6 +9,7 @@
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Catalog\PrenotaConMe.Modules.Catalog.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Staff\PrenotaConMe.Modules.Staff.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Scheduling\PrenotaConMe.Modules.Scheduling.csproj" />
+    <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Notifications\PrenotaConMe.Modules.Notifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +36,7 @@
 
   <PropertyGroup>
     <!-- OpenAPI document generated on build; consumed by the Angular client generator (npm run api:generate). -->
+    <UserSecretsId>prenotaconme-api</UserSecretsId>
     <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/../../frontend/prenotaconme-web/openapi</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocumentsOptions>--file-name prenotaconme-api</OpenApiGenerateDocumentsOptions>
   </PropertyGroup>

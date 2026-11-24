@@ -33,6 +33,8 @@ npx ng build
 npm run api:generate       # regenerate typed API client from openapi/prenotaconme-api.json
 ```
 
+Secrets for local dev (SMTP password, `Notifications:StaffEmail`) live in user-secrets, never in `appsettings.Development.json` (the repo is public): `dotnet user-secrets set Smtp:Password <value> --project src/backend/PrenotaConMe.Api`.
+
 Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconme`, user/password `prenota`/`prenota`, Seq optional at `localhost:5341`. `deploy/docker-compose.dev.yml` is the Docker alternative.
 
 ## Architecture
@@ -59,6 +61,8 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - **Overlap guarantee:** the `ex_appointments_staff_no_overlap` constraint (`EXCLUDE USING gist` on staff + `tstzrange [)`, ignoring cancelled appointments) is created with raw SQL in the `AddAppointments` migration. It turns concurrent double bookings into 409 `slot.taken`.
 - **Deleting referenced data:** appointments reference location, service and staff with `ON DELETE RESTRICT`. The delete endpoints map that to 409 `*.inUse` ("deactivate instead").
 - **Constraint errors:** use `DbErrors.IsUniqueViolation/IsForeignKeyViolation/IsExclusionViolation`, which cover both SaveChanges and ExecuteDelete. RESTRICT raises SQLSTATE 23001, not 23503.
+
+**Notifications (e-mail, F1-11).** After a booking commits, Scheduling builds an `AppointmentNotice` (Shared) and calls `IAppointmentNotifier.Booked`, which only enqueues it in memory; `AppointmentEmailWorker` (Notifications module) sends the client and staff e-mails with an `.ics` attachment through MailKit, in the business's default language. Queued messages are lost on restart until Hangfire (F2-01). Without `Smtp:Host`, `LoggingEmailSender` only logs. `Notifications:StaffEmail` (dev) redirects every staff e-mail to one address. Integration tests replace `IEmailSender` with `CapturingEmailSender` (`ApiFactory.Emails`).
 
 **Multi-tenancy (row-level, fail-closed).** These rules hold for every tenant-owned entity:
 - Tenant data derives from `TenantEntity` / `ITenantOwned`.

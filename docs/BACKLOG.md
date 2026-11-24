@@ -23,7 +23,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F0-08 | Staging en VPS | Windows Server 2022: IIS + Hosting Bundle, Postgres nativo, TLS win-acme; deploy por SSH desde CI (zip + `deploy.ps1`) |
 
 ## Fase 1 — Core de reservas (MVP usable por un negocio)
-> Estado: F1-01…F1-10 implementadas (registro de negocio, login Google/Firebase, roles por negocio, sedes con horario de apertura, servicios, staff con invitación por email, disponibilidad semanal en franjas de 1 h y ausencias, cálculo de disponibilidad y reserva con garantía de no solapamiento en BD, página pública de reserva con login Google y teléfono). Siguiente: F1-11 email de confirmación.
+> Estado: F1-01…F1-10 implementadas (registro de negocio, login Google/Firebase, roles por negocio, sedes con horario de apertura, servicios, staff con invitación por email, disponibilidad semanal en franjas de 1 h y ausencias, cálculo de disponibilidad y reserva con garantía de no solapamiento en BD, página pública de reserva con login Google y teléfono, email de confirmación con `.ics` a cliente y staff). Siguiente: F1-12 mis citas.
 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|

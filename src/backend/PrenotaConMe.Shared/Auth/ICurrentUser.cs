@@ -10,6 +10,9 @@ public interface ICurrentUser
 
     string? Email { get; }
 
+    /// <summary>Name from the identity provider (Google profile name).</summary>
+    string? DisplayName { get; }
+
     /// <summary>True when the identity provider verified <see cref="Email"/> (always true for Google sign-in).</summary>
     bool EmailVerified { get; }
 
