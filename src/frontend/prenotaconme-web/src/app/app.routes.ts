@@ -29,6 +29,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/staff/staff-page').then((m) => m.StaffPage),
       },
       {
+        path: 'clienti',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/clients/clients-page').then((m) => m.ClientsPage),
+      },
+      {
+        path: 'clienti/scheda',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/clients/client-page').then((m) => m.ClientPage),
+      },
+      {
         path: 'staff/:id',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/staff/staff-schedule-page').then((m) => m.StaffSchedulePage),

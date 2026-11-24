@@ -24,7 +24,8 @@
     "locations": "Sedes",
     "services": "Servicios",
     "staff": "Staff",
-    "calendar": "Calendario"
+    "calendar": "Calendario",
+    "clients": "Clientes"
   },
   "home": {
     "title": "Las reservas de tu salón, online",
@@ -287,6 +288,25 @@
     "cancelAppointment": "Cancelar cita",
     "confirmCancel": "¿Confirmas la cancelación?",
     "dragHint": "Para cambiar la hora arrastra la cita en el calendario."
+  },
+  "clients": {
+    "search": "Buscar por nombre, teléfono o email",
+    "noName": "Cliente sin nombre",
+    "visits": "Visitas",
+    "lastVisit": "Última visita",
+    "next": "Próxima",
+    "spent": "Gastado",
+    "cancelled": "Cancelaciones",
+    "history": "Historial de citas",
+    "loading": "Cargando…",
+    "empty": "Aún no hay clientes: aparecerán aquí tras la primera reserva.",
+    "noMatch": "Ningún cliente encontrado.",
+    "notFound": "Cliente no encontrado.",
+    "open": "Ficha del cliente",
+    "status": {
+      "upcoming": "Programada",
+      "done": "Realizada"
+    }
   },
   "days": {
     "Monday": "Lunes",

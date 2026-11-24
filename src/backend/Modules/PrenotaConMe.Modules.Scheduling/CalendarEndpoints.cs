@@ -17,10 +17,11 @@ using PrenotaConMe.Shared.Validation;
 namespace PrenotaConMe.Modules.Scheduling;
 
 /// <param name="IsGuest">Entered by the business for a client without an account.</param>
+/// <param name="ClientKey">Key of the client card (F1-14).</param>
 public sealed record CalendarAppointmentDto(
     Guid Id, Guid LocationId, Guid ServiceId, string ServiceName, decimal Price, Guid StaffMemberId,
     DateTimeOffset StartsAt, DateTimeOffset EndsAt, AppointmentStatus Status,
-    string? ClientName, string? ClientEmail, string? ClientPhone, bool IsGuest);
+    string? ClientName, string? ClientEmail, string? ClientPhone, bool IsGuest, string ClientKey);
 
 public sealed record CalendarStaffDto(Guid Id, string DisplayName, bool IsActive, IReadOnlyList<Guid> LocationIds, IReadOnlyList<Guid> ServiceIds);
 
@@ -231,5 +232,6 @@ internal static class CalendarEndpoints
 
     private static CalendarAppointmentDto ToDto(Appointment a, UserSummary? client) => new(
         a.Id, a.LocationId, a.ServiceId, a.ServiceName, a.Price, a.StaffMemberId, a.StartsAt, a.EndsAt, a.Status,
-        client?.DisplayName ?? a.ClientName, client?.Email, client?.PhoneNumber ?? a.ClientPhone, a.ClientUserId is null);
+        client?.DisplayName ?? a.ClientName, client?.Email, client?.PhoneNumber ?? a.ClientPhone, a.ClientUserId is null,
+        ClientsEndpoints.KeyOf(a));
 }

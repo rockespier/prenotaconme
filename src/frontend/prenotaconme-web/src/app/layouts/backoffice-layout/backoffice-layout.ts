@@ -182,6 +182,7 @@ export class BackofficeLayout {
           { path: '/admin/sedi', icon: 'storefront', label: 'nav.locations' },
           { path: '/admin/servizi', icon: 'content_cut', label: 'nav.services' },
           { path: '/admin/staff', icon: 'groups', label: 'nav.staff' },
+          { path: '/admin/clienti', icon: 'contacts', label: 'nav.clients' },
         ]
       : []),
   ]);
