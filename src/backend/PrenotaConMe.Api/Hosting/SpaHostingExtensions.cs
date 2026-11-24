@@ -35,10 +35,14 @@ internal static class SpaHostingExtensions
         });
     }
 
-    /// <summary>Client-side routes (/admin, /b/{slug}, ...) fall back to index.html; /api and /health never do.</summary>
+    /// <summary>
+    /// Client-side routes (/admin, /b/{slug}, ...) fall back to index.html; /api, /health and file paths never do.
+    /// "nonfile" is essential: the static file middleware skips requests that already matched an endpoint,
+    /// so without it main-*.js / manifest.webmanifest would be answered with index.html.
+    /// </summary>
     public static IEndpointRouteBuilder MapSpaFallback(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapFallbackToFile("{*path:regex(^(?!api/|api$|health).*$)}", "index.html");
+        endpoints.MapFallbackToFile("{*path:nonfile:regex(^(?!api/|api$|health).*$)}", "index.html");
         return endpoints;
     }
 }
