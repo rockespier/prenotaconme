@@ -33,12 +33,12 @@ New-Item -ItemType Directory -Force "$root\releases\initial" | Out-Null
 New-Item -ItemType Junction -Path "$root\current" -Target "$root\releases\initial" | Out-Null
 
 Import-Module WebAdministration
-New-WebAppPool -Name prenotaconme
-Set-ItemProperty IIS:\AppPools\prenotaconme -Name managedRuntimeVersion -Value ''   # "No managed code"
-New-Website -Name prenotaconme -PhysicalPath "$root\current" -ApplicationPool prenotaconme -Port 80 -HostHeader 'staging.tudominio.com'
+New-WebAppPool -Name prenotaconme.rtres.net
+Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name managedRuntimeVersion -Value ''   # "No managed code"
+New-Website -Name prenotaconme -PhysicalPath "$root\current" -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'staging.tudominio.com'
 
 # El app pool necesita leer las releases
-icacls $root /grant 'IIS AppPool\prenotaconme:(OI)(CI)RX' /T
+icacls $root /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
 ```
 
 Si existe, detén o elimina el *Default Web Site* para liberar el puerto 80.
@@ -115,7 +115,7 @@ Rollback manual:
 ```powershell
 (Get-Item C:\prenotaconme\current).Delete()
 New-Item -ItemType Junction -Path C:\prenotaconme\current -Target C:\prenotaconme\releases\<versión-anterior>
-Restart-WebAppPool prenotaconme
+Restart-WebAppPool prenotaconme.rtres.net
 ```
 
 Logs de arranque si el sitio da 500.30/502.5: Visor de eventos → *Application* (origen *IIS AspNetCore Module V2*), o Seq.

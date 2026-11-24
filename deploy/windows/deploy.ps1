@@ -16,7 +16,7 @@ param(
     [Parameter(Mandatory)] [string] $Package,
     [Parameter(Mandatory)] [string] $Version,
     [string] $Root = 'C:\prenotaconme',
-    [string] $AppPool = 'prenotaconme',
+    [string] $AppPool = 'prenotaconme.rtres.net',
     [int] $Keep = 5
 )
 
