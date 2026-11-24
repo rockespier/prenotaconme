@@ -54,7 +54,7 @@ Si existe, detén o elimina el *Default Web Site* para liberar el puerto 80.
 
 ## 3. Configuración de producción (fuera de las releases)
 
-Copia `deploy/windows/appsettings.Production.example.json` a `C:\prenotaconme\shared\appsettings.Production.json` y rellena la contraseña y el dominio. `deploy.ps1` lo copia en cada release.
+Copia `deploy/windows/appsettings.Production.example.json` a `C:\prenotaconme\shared\appsettings.Production.json` y rellena la contraseña de la BD, el dominio y la sección `Smtp` (emails de confirmación; sin `Smtp:Host` no se envían, solo se registran en el log). `deploy.ps1` lo copia en cada release.
 
 ## 4. PostgreSQL 18
 

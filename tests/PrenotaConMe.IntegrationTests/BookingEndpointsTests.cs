@@ -87,6 +87,24 @@ public sealed class BookingEndpointsTests(ApiFactory factory) : IClassFixture<Ap
     }
 
     [Fact]
+    public async Task Booking_emails_the_client_and_the_staff_member_with_the_ics()
+    {
+        var s = await CreateBusinessAsync();
+        await AddStaffAsync(s, "mario", 9, 12);
+
+        var booked = await BookAsync(Client(s, "anna"), s, s.Haircut.Id, null, 10);
+        var appointment = await booked.Content.ReadFromJsonAsync<AppointmentDto>(TestJson.Options);
+        var emails = await factory.Emails.WaitForAsync(
+            m => System.Text.Encoding.UTF8.GetString(m.Attachments[0].Content).Contains(appointment!.Id.ToString(), StringComparison.Ordinal), 2);
+
+        Assert.Equal(HttpStatusCode.Created, booked.StatusCode);
+        Assert.Equal(2, emails.Count);
+        Assert.Contains(emails, m => m.To == $"anna-{s.Business.Slug}@test.local" && m.Subject.StartsWith("Prenotazione confermata", StringComparison.Ordinal));
+        Assert.Contains(emails, m => m.To.StartsWith("mario-", StringComparison.Ordinal) && m.Subject.StartsWith("Nuova prenotazione", StringComparison.Ordinal));
+        Assert.All(emails, m => Assert.Equal("Test business", m.FromName));
+    }
+
+    [Fact]
     public async Task Availability_requires_the_business_header()
     {
         var s = await CreateBusinessAsync();

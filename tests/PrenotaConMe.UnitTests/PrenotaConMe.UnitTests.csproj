@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Catalog\PrenotaConMe.Modules.Catalog.csproj" />
     <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Staff\PrenotaConMe.Modules.Staff.csproj" />
     <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Scheduling\PrenotaConMe.Modules.Scheduling.csproj" />
+    <ProjectReference Include="..\..\src\backend\Modules\PrenotaConMe.Modules.Notifications\PrenotaConMe.Modules.Notifications.csproj" />
   </ItemGroup>
 
 </Project>

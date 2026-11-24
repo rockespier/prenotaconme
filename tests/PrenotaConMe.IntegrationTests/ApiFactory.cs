@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using PrenotaConMe.Modules.Notifications;
 using Testcontainers.PostgreSql;
 
 namespace PrenotaConMe.IntegrationTests;
@@ -22,6 +23,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private PostgreSqlContainer? _container;
     private string? _localDatabase;
     private string _connectionString = string.Empty;
+
+    /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
+    public CapturingEmailSender Emails { get; } = new();
 
     public async Task InitializeAsync()
     {
@@ -47,6 +51,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
         builder.ConfigureTestServices(services =>
         {
+            services.AddSingleton<IEmailSender>(Emails);
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o =>
