@@ -72,7 +72,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - **Node and Angular version:** the machine has Node 22.14, which is why the project uses Angular 21 (Angular 22 needs Node ≥22.22.3).
 - **npm bug:** npm 11.2 crashes with `edgesOut`. `.npmrc` sets `legacy-peer-deps=true` to work around it.
 - **Analyzers:** `AnalysisLevel` is `latest-recommended` (`Directory.Build.props`). CA1707 is suppressed in `tests/` and CA1716 in `.editorconfig`. Keep the build warning-free.
-- **Production layout:** Windows Server 2022 with no Docker, a single IIS site (ASP.NET Core Module in-process), and PostgreSQL + Seq native on the same host. `deploy.yml` publishes win-x64 with Angular in `wwwroot`, then `deploy/windows/deploy.ps1` swaps the `C:\prenotaconme\current` junction and recycles the app pool. Secrets live in `C:\prenotaconme\shared\appsettings.Production.json` on the server. See `deploy/README.md`.
+- **Production layout:** Windows Server 2022 with no Docker, a single IIS site (ASP.NET Core Module in-process), and PostgreSQL + Seq native on the same host. `deploy.yml` publishes win-x64 with Angular in `wwwroot`, then `deploy/windows/deploy.ps1` unpacks it to `C:\prenotaconme\releases\<version>` and mirrors it into the IIS site path `D:\IISSites\prenotaconme.rtres.net` (app pool `prenotaconme.rtres.net`). During the copy, `app_offline.htm` keeps the app stopped. Secrets live in `C:\prenotaconme\shared\appsettings.Production.json` on the server. See `deploy/README.md`.
 
 ## Key product decisions (affect implementation)
 
