@@ -391,3 +391,7 @@ dotnet_naming_style.s_camelcase.capitalization = camel_case
 [*.cs]
 # "Shared" is a VB keyword only; not relevant for this C#-only solution
 dotnet_diagnostic.CA1716.severity = none
+
+# EF Core migrations are generated code
+[**/Migrations/*.cs]
+generated_code = true

@@ -1,0 +1,135 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using PrenotaConMe.Infrastructure.Persistence;
+using PrenotaConMe.Modules.Tenancy.Domain;
+using PrenotaConMe.Shared.Auth;
+using PrenotaConMe.Shared.Tenancy;
+using PrenotaConMe.Shared.Validation;
+
+namespace PrenotaConMe.Modules.Tenancy;
+
+public sealed record RegisterTenantRequest(string Name, string Slug, string TimeZone, string Language);
+
+public sealed record TenantDto(Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage);
+
+public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage);
+
+public sealed record SlugAvailabilityDto(string Slug, bool Available, string? Reason);
+
+internal static class TenancyEndpoints
+{
+    public static void Map(IEndpointRouteBuilder group)
+    {
+        // F1-01: a signed-in user registers a business and becomes its Admin.
+        group.MapPost("/tenants", RegisterAsync)
+            .RequireAuthorization()
+            .WithName("RegisterTenant");
+
+        group.MapGet("/tenants/{slug}", GetPublicAsync)
+            .AllowAnonymous()
+            .WithName("GetPublicTenant");
+
+        group.MapGet("/slugs/{slug}/availability", CheckSlugAsync)
+            .AllowAnonymous()
+            .WithName("CheckSlugAvailability");
+
+        group.MapGet("/tenants/current", GetCurrentAsync)
+            .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
+            .WithName("GetCurrentTenant");
+    }
+
+    private static async Task<Results<Created<TenantDto>, ValidationProblem, ProblemHttpResult>> RegisterAsync(
+        RegisterTenantRequest request,
+        AppDbContext db,
+        ICurrentUser currentUser,
+        IMembershipWriter memberships,
+        CancellationToken cancellationToken)
+    {
+        var slug = TenantRules.NormalizeSlug(request.Slug);
+        var name = request.Name?.Trim() ?? string.Empty;
+        var slugError = TenantRules.ValidateSlug(slug);
+
+        var errors = new ValidationErrors()
+            .AddIf(name.Length == 0, "name", "name.required")
+            .AddIf(name.Length > TenantRules.NameMaxLength, "name", "name.length")
+            .AddIf(slugError is not null, "slug", slugError!)
+            .AddIf(!TenantRules.IsValidTimeZone(request.TimeZone), "timeZone", "timeZone.invalid")
+            .AddIf(!TenantRules.IsValidLanguage(request.Language), "language", "language.invalid");
+
+        if (!errors.IsValid)
+        {
+            return errors.ToProblem();
+        }
+
+        if (await db.Set<Tenant>().AnyAsync(t => t.Slug == slug, cancellationToken))
+        {
+            return SlugTaken(slug);
+        }
+
+        var userId = await currentUser.GetUserIdAsync(cancellationToken);
+        var tenant = Tenant.Create(name, slug, request.TimeZone, request.Language);
+
+        db.Add(tenant);
+        memberships.Add(tenant.Id, userId, TenantRole.Admin);
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException { SqlState: Npgsql.PostgresErrorCodes.UniqueViolation })
+        {
+            // Lost a race with another registration for the same slug.
+            return SlugTaken(slug);
+        }
+
+        return TypedResults.Created($"/api/tenancy/tenants/{tenant.Slug}", ToDto(tenant));
+    }
+
+    private static async Task<Results<Ok<PublicTenantDto>, NotFound>> GetPublicAsync(
+        string slug, AppDbContext db, CancellationToken cancellationToken)
+    {
+        var normalized = TenantRules.NormalizeSlug(slug);
+        var tenant = await db.Set<Tenant>()
+            .AsNoTracking()
+            .SingleOrDefaultAsync(t => t.Slug == normalized && t.IsActive, cancellationToken);
+
+        return tenant is null
+            ? TypedResults.NotFound()
+            : TypedResults.Ok(new PublicTenantDto(tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage));
+    }
+
+    private static async Task<Ok<SlugAvailabilityDto>> CheckSlugAsync(
+        string slug, AppDbContext db, CancellationToken cancellationToken)
+    {
+        var normalized = TenantRules.NormalizeSlug(slug);
+        var error = TenantRules.ValidateSlug(normalized);
+
+        if (error is null && await db.Set<Tenant>().AnyAsync(t => t.Slug == normalized, cancellationToken))
+        {
+            error = "slug.taken";
+        }
+
+        return TypedResults.Ok(new SlugAvailabilityDto(normalized, error is null, error));
+    }
+
+    private static async Task<Ok<TenantDto>> GetCurrentAsync(
+        ITenantContext tenantContext, AppDbContext db, CancellationToken cancellationToken)
+    {
+        var tenant = await db.Set<Tenant>()
+            .AsNoTracking()
+            .SingleAsync(t => t.Id == tenantContext.TenantId, cancellationToken);
+
+        return TypedResults.Ok(ToDto(tenant));
+    }
+
+    private static ProblemHttpResult SlugTaken(string slug) =>
+        TypedResults.Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "slug.taken",
+            detail: $"The slug '{slug}' is already in use.");
+
+    private static TenantDto ToDto(Tenant t) => new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage);
+}

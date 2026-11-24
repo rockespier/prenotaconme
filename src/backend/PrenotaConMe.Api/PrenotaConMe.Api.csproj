@@ -3,9 +3,12 @@
   <ItemGroup>
     <ProjectReference Include="..\PrenotaConMe.Infrastructure\PrenotaConMe.Infrastructure.csproj" />
     <ProjectReference Include="..\PrenotaConMe.Shared\PrenotaConMe.Shared.csproj" />
+    <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Tenancy\PrenotaConMe.Modules.Tenancy.csproj" />
+    <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Users\PrenotaConMe.Modules.Users.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

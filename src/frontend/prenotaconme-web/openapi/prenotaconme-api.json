@@ -24,6 +24,149 @@
           }
         }
       }
+    },
+    "/api/tenancy/tenants": {
+      "post": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "RegisterTenant",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterTenantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/tenants/{slug}": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "GetPublicTenant",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTenantDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/tenancy/slugs/{slug}/availability": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "CheckSlugAvailability",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlugAvailabilityDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenancy/tenants/current": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "GetCurrentTenant",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "operationId": "GetMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -46,12 +189,232 @@
             "type": "string"
           }
         }
+      },
+      "HttpValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "MeDto": {
+        "required": [
+          "id",
+          "email",
+          "displayName",
+          "photoUrl",
+          "memberships"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "photoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MembershipDto"
+            }
+          }
+        }
+      },
+      "MembershipDto": {
+        "required": [
+          "tenantId",
+          "tenantSlug",
+          "tenantName",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantSlug": {
+            "type": "string"
+          },
+          "tenantName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/TenantRole"
+          }
+        }
+      },
+      "PublicTenantDto": {
+        "required": [
+          "name",
+          "slug",
+          "timeZone",
+          "defaultLanguage"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "defaultLanguage": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterTenantRequest": {
+        "required": [
+          "name",
+          "slug",
+          "timeZone",
+          "language"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          }
+        }
+      },
+      "SlugAvailabilityDto": {
+        "required": [
+          "slug",
+          "available",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TenantDto": {
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "timeZone",
+          "defaultLanguage"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "defaultLanguage": {
+            "type": "string"
+          }
+        }
+      },
+      "TenantRole": {
+        "enum": [
+          "Admin",
+          "Staff",
+          "Client"
+        ]
       }
     }
   },
   "tags": [
     {
       "name": "System"
+    },
+    {
+      "name": "tenancy"
+    },
+    {
+      "name": "users"
     }
   ]
 }

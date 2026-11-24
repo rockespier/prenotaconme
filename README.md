@@ -46,6 +46,8 @@ cd src/frontend/prenotaconme-web && npm install && npm start
 ```bash
 dotnet test tests/PrenotaConMe.UnitTests
 dotnet test tests/PrenotaConMe.IntegrationTests   # requiere Docker (Testcontainers)
+# Sin Docker, contra el Postgres local (BD temporal; el rol necesita CREATEDB):
+$env:PRENOTA_TEST_PG = "Host=localhost;Username=prenota;Password=prenota"; dotnet test tests/PrenotaConMe.IntegrationTests
 cd src/frontend/prenotaconme-web && npm test
 ```
 
@@ -61,5 +63,5 @@ cd src/frontend/prenotaconme-web && npm run api:generate
 ## Migraciones
 
 ```bash
-dotnet ef migrations add <Nombre> -p src/backend/PrenotaConMe.Infrastructure -s src/backend/PrenotaConMe.Infrastructure -o Persistence/Migrations
+dotnet ef migrations add <Nombre> -p src/backend/PrenotaConMe.Infrastructure -s src/backend/PrenotaConMe.Api -o Persistence/Migrations
 ```

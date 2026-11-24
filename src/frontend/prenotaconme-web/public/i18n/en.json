@@ -26,10 +26,50 @@
   },
   "booking": {
     "title": "Booking",
-    "comingSoon": "Booking for “{{slug}}” is coming soon."
+    "comingSoon": "Online booking is coming soon.",
+    "notFound": "Business not found"
   },
   "notFound": {
     "title": "Page not found",
     "back": "Back to home"
+  },
+  "public": {
+    "signIn": "Sign in",
+    "backoffice": "Business area"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Use your Google account to continue.",
+    "google": "Continue with Google",
+    "error": "Sign-in failed. Please try again."
+  },
+  "register": {
+    "title": "Register your business",
+    "subtitle": "Create your business space: you will be its administrator.",
+    "name": "Business name",
+    "slug": "Booking page address",
+    "slugHint": "Lowercase letters, numbers and hyphens.",
+    "slugChecking": "Checking availability…",
+    "slugAvailable": "Available",
+    "timeZone": "Time zone",
+    "language": "Default language",
+    "submit": "Create business"
+  },
+  "errors": {
+    "slug": {
+      "length": "3 to 50 characters.",
+      "format": "Only lowercase letters, numbers and single hyphens.",
+      "reserved": "This address is reserved.",
+      "taken": "Address already in use."
+    },
+    "generic": "Something went wrong. Please try again."
+  },
+  "backoffice": {
+    "newBusiness": "New business",
+    "account": "Account",
+    "signOut": "Sign out"
+  },
+  "dashboard": {
+    "publicLink": "Public booking page"
   }
 }

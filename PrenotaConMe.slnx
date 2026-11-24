@@ -4,6 +4,10 @@
     <Project Path="src/backend/PrenotaConMe.Infrastructure/PrenotaConMe.Infrastructure.csproj" />
     <Project Path="src/backend/PrenotaConMe.Shared/PrenotaConMe.Shared.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/backend/Modules/PrenotaConMe.Modules.Tenancy/PrenotaConMe.Modules.Tenancy.csproj" />
+    <Project Path="src/backend/Modules/PrenotaConMe.Modules.Users/PrenotaConMe.Modules.Users.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PrenotaConMe.IntegrationTests/PrenotaConMe.IntegrationTests.csproj" />
     <Project Path="tests/PrenotaConMe.UnitTests/PrenotaConMe.UnitTests.csproj" />

@@ -26,10 +26,50 @@
   },
   "booking": {
     "title": "Reserva",
-    "comingSoon": "La reserva para «{{slug}}» estará disponible pronto."
+    "comingSoon": "Las reservas online estarán disponibles pronto.",
+    "notFound": "Negocio no encontrado"
   },
   "notFound": {
     "title": "Página no encontrada",
     "back": "Volver al inicio"
+  },
+  "public": {
+    "signIn": "Acceder",
+    "backoffice": "Área de negocio"
+  },
+  "login": {
+    "title": "Acceder",
+    "subtitle": "Usa tu cuenta de Google para continuar.",
+    "google": "Continuar con Google",
+    "error": "No se pudo iniciar sesión. Inténtalo de nuevo."
+  },
+  "register": {
+    "title": "Registra tu negocio",
+    "subtitle": "Crea el espacio de tu negocio: serás su administrador.",
+    "name": "Nombre del negocio",
+    "slug": "Dirección de la página de reservas",
+    "slugHint": "Minúsculas, números y guiones.",
+    "slugChecking": "Comprobando disponibilidad…",
+    "slugAvailable": "Disponible",
+    "timeZone": "Zona horaria",
+    "language": "Idioma predeterminado",
+    "submit": "Crear negocio"
+  },
+  "errors": {
+    "slug": {
+      "length": "Entre 3 y 50 caracteres.",
+      "format": "Solo minúsculas, números y guiones simples.",
+      "reserved": "Esta dirección está reservada.",
+      "taken": "Dirección ya en uso."
+    },
+    "generic": "Se produjo un error. Inténtalo de nuevo."
+  },
+  "backoffice": {
+    "newBusiness": "Nuevo negocio",
+    "account": "Cuenta",
+    "signOut": "Cerrar sesión"
+  },
+  "dashboard": {
+    "publicLink": "Página pública de reservas"
   }
 }
