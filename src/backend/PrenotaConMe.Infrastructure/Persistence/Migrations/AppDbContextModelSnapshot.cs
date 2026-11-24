@@ -23,10 +23,401 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "btree_gist");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_services");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_services_tenant_id");
+
+                    b.ToTable("services", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.ServiceLocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("location_id");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_locations");
+
+                    b.HasIndex("LocationId")
+                        .HasDatabaseName("ix_service_locations_location_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_service_locations_tenant_id");
+
+                    b.HasIndex("ServiceId", "LocationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_service_locations_service_id_location_id");
+
+                    b.ToTable("service_locations", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("city");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("phone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("time_zone");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_locations");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_locations_tenant_id");
+
+                    b.ToTable("locations", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffLocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("location_id");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_locations");
+
+                    b.HasIndex("LocationId")
+                        .HasDatabaseName("ix_staff_locations_location_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_staff_locations_tenant_id");
+
+                    b.HasIndex("StaffMemberId", "LocationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_locations_staff_member_id_location_id");
+
+                    b.ToTable("staff_locations", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("display_name");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_members");
+
+                    b.HasIndex("Email")
+                        .HasDatabaseName("ix_staff_members_email");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_staff_members_tenant_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_staff_members_user_id");
+
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_members_tenant_id_email");
+
+                    b.ToTable("staff_members", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_services");
+
+                    b.HasIndex("ServiceId")
+                        .HasDatabaseName("ix_staff_services_service_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_staff_services_tenant_id");
+
+                    b.HasIndex("StaffMemberId", "ServiceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_services_staff_member_id_service_id");
+
+                    b.ToTable("staff_services", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffTimeOff", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("From")
+                        .HasColumnType("date")
+                        .HasColumnName("from");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateOnly>("To")
+                        .HasColumnType("date")
+                        .HasColumnName("to");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_time_off");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_staff_time_off_tenant_id");
+
+                    b.HasIndex("StaffMemberId", "From")
+                        .HasDatabaseName("ix_staff_time_off_staff_member_id_from");
+
+                    b.ToTable("staff_time_off", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffWorkingHours", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("integer")
+                        .HasColumnName("day");
+
+                    b.Property<TimeOnly>("End")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("end");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("location_id");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<TimeOnly>("Start")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("start");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_staff_working_hours");
+
+                    b.HasIndex("LocationId")
+                        .HasDatabaseName("ix_staff_working_hours_location_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_staff_working_hours_tenant_id");
+
+                    b.HasIndex("StaffMemberId", "Day")
+                        .HasDatabaseName("ix_staff_working_hours_staff_member_id_day");
+
+                    b.ToTable("staff_working_hours", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Tenancy.Domain.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -79,7 +470,6 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("PrenotaConMe.Modules.Users.Domain.UserAccount", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -130,7 +520,6 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("PrenotaConMe.Modules.Users.Domain.UserMembership", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -172,6 +561,116 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("user_memberships", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.ServiceLocation", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Locations.Domain.Location", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_locations_locations_location_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Catalog.Domain.Service", null)
+                        .WithMany("Locations")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_locations_services_service_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>
+                {
+                    b.OwnsMany("PrenotaConMe.Modules.Locations.Domain.OpeningHours", "OpeningHours", b1 =>
+                        {
+                            b1.Property<Guid>("LocationId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<TimeOnly>("Closes");
+
+                            b1.Property<int>("Day");
+
+                            b1.Property<TimeOnly>("Opens");
+
+                            b1.HasKey("LocationId", "__synthesizedOrdinal")
+                                .HasName("pk_locations");
+
+                            b1.ToTable("locations");
+
+                            b1
+                                .ToJson("opening_hours")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("LocationId")
+                                .HasConstraintName("fk_locations_locations_location_id");
+                        });
+
+                    b.Navigation("OpeningHours");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffLocation", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Locations.Domain.Location", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_locations_locations_location_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany("Locations")
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_locations_staff_member_staff_member_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffService", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Catalog.Domain.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_services_services_service_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany("Services")
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_services_staff_members_staff_member_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffTimeOff", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany("TimeOff")
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_time_off_staff_member_staff_member_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffWorkingHours", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Locations.Domain.Location", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_working_hours_locations_location_id");
+
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany("WorkingHours")
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_working_hours_staff_member_staff_member_id");
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Users.Domain.UserMembership", b =>
                 {
                     b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
@@ -180,6 +679,22 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_memberships_users_user_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.Service", b =>
+                {
+                    b.Navigation("Locations");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Staff.Domain.StaffMember", b =>
+                {
+                    b.Navigation("Locations");
+
+                    b.Navigation("Services");
+
+                    b.Navigation("TimeOff");
+
+                    b.Navigation("WorkingHours");
                 });
 #pragma warning restore 612, 618
         }

@@ -46,6 +46,7 @@ internal static class TenancyEndpoints
         AppDbContext db,
         ICurrentUser currentUser,
         IMembershipWriter memberships,
+        IEnumerable<ITenantInitializer> initializers,
         CancellationToken cancellationToken)
     {
         var slug = TenantRules.NormalizeSlug(request.Slug);
@@ -73,7 +74,14 @@ internal static class TenancyEndpoints
         var tenant = Tenant.Create(name, slug, request.TimeZone, request.Language);
 
         db.Add(tenant);
-        memberships.Add(tenant.Id, userId, TenantRole.Admin);
+        await memberships.EnsureAsync(tenant.Id, userId, TenantRole.Admin, cancellationToken);
+
+        // Starter data from other modules (default location, sample services), committed atomically below.
+        var initContext = new TenantInitializationContext(tenant.Id, tenant.TimeZone, tenant.DefaultLanguage, userId);
+        foreach (var initializer in initializers.OrderBy(i => i.Order))
+        {
+            await initializer.InitializeAsync(initContext, cancellationToken);
+        }
 
         try
         {

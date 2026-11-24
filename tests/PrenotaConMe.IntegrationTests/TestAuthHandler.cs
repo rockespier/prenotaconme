@@ -27,7 +27,11 @@ internal sealed class TestAuthHandler(
 
         var parts = value.Split('|');
         var claims = new List<Claim> { new("sub", parts[0]) };
-        if (parts.Length > 1) claims.Add(new Claim("email", parts[1]));
+        if (parts.Length > 1)
+        {
+            claims.Add(new Claim("email", parts[1]));
+            claims.Add(new Claim("email_verified", "true"));
+        }
         if (parts.Length > 2) claims.Add(new Claim("name", parts[2]));
 
         var identity = new ClaimsIdentity(claims, SchemeName, "name", "role");
