@@ -23,6 +23,8 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F0-08 | Staging en VPS | Windows Server 2022: IIS + Hosting Bundle, Postgres nativo, TLS win-acme; deploy por SSH desde CI (zip + `deploy.ps1`) |
 
 ## Fase 1 — Core de reservas (MVP usable por un negocio)
+> Estado: F1-01, F1-02 y F1-03 implementadas (registro de negocio, login Google/Firebase, roles por negocio y backoffice protegido).
+
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
 | F1-01 | Registro de negocio (P/A) | Alta con nombre, slug único, zona horaria, idioma; crea tenant + usuario Admin |

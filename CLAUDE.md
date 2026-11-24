@@ -13,12 +13,15 @@ Run from the repo root unless noted. The SDK is pinned by `global.json` (.NET 10
 ```bash
 dotnet build PrenotaConMe.slnx
 dotnet test tests/PrenotaConMe.UnitTests
-dotnet test tests/PrenotaConMe.IntegrationTests          # needs Docker (Testcontainers, postgres:18-alpine)
+dotnet test tests/PrenotaConMe.IntegrationTests          # Docker (Testcontainers, postgres:18-alpine), used in CI
+# Without Docker: throwaway DB on the local Postgres (role needs CREATEDB). Bash syntax; in PowerShell set $env:PRENOTA_TEST_PG first
+PRENOTA_TEST_PG="Host=localhost;Username=prenota;Password=prenota" dotnet test tests/PrenotaConMe.IntegrationTests
 dotnet test tests/PrenotaConMe.UnitTests --filter "FullyQualifiedName~TenantIsolationTests.Insert_stamps_tenant_and_created_at"
 dotnet run --project src/backend/PrenotaConMe.Api        # http://localhost:5080/scalar, migrates DB on start in Development
 
-# EF migrations (local tool in dotnet-tools.json; DbContext + design-time factory live in Infrastructure)
-dotnet ef migrations add <Name> -p src/backend/PrenotaConMe.Infrastructure -s src/backend/PrenotaConMe.Infrastructure -o Persistence/Migrations
+# EF migrations (local tool in dotnet-tools.json). Migrations live in Infrastructure; the Api is the startup project
+# so EF sees every module's entity configurations. If it fails with a missing wwwroot path, delete Api bin/obj (stale static-assets manifest).
+dotnet ef migrations add <Name> -p src/backend/PrenotaConMe.Infrastructure -s src/backend/PrenotaConMe.Api -o Persistence/Migrations
 ```
 
 Frontend (run in `src/frontend/prenotaconme-web`):
@@ -44,7 +47,15 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - With no tenant in the scoped `ITenantContext`, queries return nothing. Platform-level code must call `IgnoreQueryFilters([AppDbContext.TenantFilter])`.
 - `AuditingInterceptor` stamps `TenantId` on insert, throws `MissingTenantException` when there is no tenant, and rejects cross-tenant inserts and `TenantId` changes. It also sets `CreatedAt`/`UpdatedAt` via `TimeProvider`.
 - Entity ids are UUIDv7 (`Guid.CreateVersion7()`).
-- Tenant resolution middleware (slug/JWT claim) is not written yet (F1).
+- **Tenant resolution:** the client sends the business slug in the `X-Tenant` header. `TenantResolutionMiddleware` (Tenancy module) resolves it through `ITenantDirectory`, with the slug lookup cached for 5 minutes, and calls `ITenantContext.SetTenant`. An unknown or inactive slug gets 404. An endpoint marked `.RequireTenant()` gets 400 when the header is missing. Pipeline order: `UseAuthentication` → `UseTenantResolution` → `UseAuthorization`.
+
+**Auth (Firebase).**
+- **Token validation:** the API validates Firebase ID tokens with JwtBearer (`Hosting/AuthExtensions.cs`, `Firebase:ProjectId`). Claims keep their raw names (`sub` = Firebase uid, `email`, `name`, `picture`).
+- **Local users:** `ICurrentUser.GetUserIdAsync()` (Users module) provisions the local `UserAccount` on first use.
+- **Role checks:** `.RequireTenantRole(TenantRole.Admin, ...)` (Shared) implies `.RequireTenant()` plus a `TenantRoleRequirement`, which `TenantRoleHandler` checks against `UserMembership` in the current tenant.
+- **Cross-module contracts:** modules interact only through contracts in Shared: `ICurrentUser`, `IMembershipWriter`, `ITenantDirectory`. `IMembershipWriter` only stages its change, so the caller's `SaveChanges` stays atomic.
+- **Integration tests:** `TestAuthHandler` replaces JWT validation. The header `X-Test-User: uid|email|name` authenticates the request; `ApiFactory.CreateUserClient(uid, tenantSlug)` builds such a client.
+- **Frontend:** `AuthService` wraps the Firebase JS SDK directly, without @angular/fire. The `API_CLIENT` middleware adds `Authorization: Bearer <idToken>` and `X-Tenant` (taken from `TenantSelection`, stored in localStorage) to every call. `SessionService` loads `/api/users/me`. Guards: `authGuard`, `backofficeGuard` (Admin/Staff of at least one business, otherwise `/registra-attivita`).
 
 **Persistence conventions:**
 - Npgsql with snake_case naming (EFCore.NamingConventions).

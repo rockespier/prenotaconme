@@ -26,10 +26,50 @@
   },
   "booking": {
     "title": "Prenotazione",
-    "comingSoon": "La prenotazione per «{{slug}}» arriverà presto."
+    "comingSoon": "Le prenotazioni online saranno disponibili a breve.",
+    "notFound": "Attività non trovata"
   },
   "notFound": {
     "title": "Pagina non trovata",
     "back": "Torna alla home"
+  },
+  "public": {
+    "signIn": "Accedi",
+    "backoffice": "Area attività"
+  },
+  "login": {
+    "title": "Accedi",
+    "subtitle": "Usa il tuo account Google per continuare.",
+    "google": "Continua con Google",
+    "error": "Accesso non riuscito. Riprova."
+  },
+  "register": {
+    "title": "Registra la tua attività",
+    "subtitle": "Crea lo spazio della tua attività: diventerai amministratore.",
+    "name": "Nome dell'attività",
+    "slug": "Indirizzo della pagina di prenotazione",
+    "slugHint": "Lettere minuscole, numeri e trattini.",
+    "slugChecking": "Verifica disponibilità…",
+    "slugAvailable": "Disponibile",
+    "timeZone": "Fuso orario",
+    "language": "Lingua predefinita",
+    "submit": "Crea attività"
+  },
+  "errors": {
+    "slug": {
+      "length": "Da 3 a 50 caratteri.",
+      "format": "Solo lettere minuscole, numeri e trattini singoli.",
+      "reserved": "Questo indirizzo è riservato.",
+      "taken": "Indirizzo già in uso."
+    },
+    "generic": "Si è verificato un errore. Riprova."
+  },
+  "backoffice": {
+    "newBusiness": "Nuova attività",
+    "account": "Account",
+    "signOut": "Esci"
+  },
+  "dashboard": {
+    "publicLink": "Pagina pubblica di prenotazione"
   }
 }
