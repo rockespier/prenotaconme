@@ -8,6 +8,7 @@
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Locations\PrenotaConMe.Modules.Locations.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Catalog\PrenotaConMe.Modules.Catalog.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Staff\PrenotaConMe.Modules.Staff.csproj" />
+    <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Scheduling\PrenotaConMe.Modules.Scheduling.csproj" />
   </ItemGroup>
 
   <ItemGroup>

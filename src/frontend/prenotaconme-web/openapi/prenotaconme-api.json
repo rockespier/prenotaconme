@@ -864,6 +864,121 @@
           }
         }
       }
+    },
+    "/api/scheduling/availability": {
+      "get": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "GetAvailability",
+        "parameters": [
+          {
+            "name": "locationId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "serviceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduling/appointments": {
+      "post": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "BookAppointment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookAppointmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -908,6 +1023,146 @@
           },
           "environment": {
             "type": "string"
+          }
+        }
+      },
+      "AppointmentDto": {
+        "required": [
+          "id",
+          "locationId",
+          "serviceId",
+          "serviceName",
+          "price",
+          "staffMemberId",
+          "startsAt",
+          "endsAt",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceName": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "staffMemberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AppointmentStatus"
+          }
+        }
+      },
+      "AppointmentStatus": {
+        "enum": [
+          "Confirmed",
+          "Cancelled",
+          "Completed",
+          "NoShow"
+        ]
+      },
+      "AvailabilityDayDto": {
+        "required": [
+          "date",
+          "slots"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SlotDto"
+            }
+          }
+        }
+      },
+      "AvailabilityDto": {
+        "required": [
+          "locationId",
+          "serviceId",
+          "timeZone",
+          "durationMinutes",
+          "days"
+        ],
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityDayDto"
+            }
+          }
+        }
+      },
+      "BookAppointmentRequest": {
+        "required": [
+          "locationId",
+          "serviceId",
+          "staffId",
+          "startsAt"
+        ],
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "staffId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -1329,6 +1584,30 @@
           }
         }
       },
+      "SlotDto": {
+        "required": [
+          "time",
+          "startsAt",
+          "staffIds"
+        ],
+        "type": "object",
+        "properties": {
+          "time": {
+            "type": "string"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "staffIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
       "SlugAvailabilityDto": {
         "required": [
           "slug",
@@ -1526,6 +1805,9 @@
     },
     {
       "name": "staff"
+    },
+    {
+      "name": "scheduling"
     }
   ]
 }

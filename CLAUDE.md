@@ -42,7 +42,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 - maps its endpoints under `/api/{module.Name}`, and registers the module assembly as a `ModelAssembly` so its `IEntityTypeConfiguration`s are applied to the single `AppDbContext`.
 
 **How modules may depend on each other:**
-- **Lower-level domain types:** a module may reference another module's domain types to get real foreign keys, but only in one acyclic direction. Current chain: Staff → Catalog → Locations.
+- **Lower-level domain types:** a module may reference another module's domain types to get real foreign keys, but only in one acyclic direction. Current chain: Scheduling → Staff → Catalog → Locations.
 - **Everything else:** goes through Shared contracts.
   - `ICurrentUser`.
   - `IMembershipWriter`: `EnsureAsync`/`RemoveAsync` are idempotent and only stage changes.
@@ -51,6 +51,14 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
   - `IUserSignInHook`: runs from `GET /api/users/me`. Staff uses it to link invitations by verified e-mail.
 
 **Shared scheduling helpers:** `TimeZones.IsValidIana` and `WeeklyIntervals` (validate order, granularity and overlap; coverage within opening hours). All weekly hours are local to the location. Location opening hours use 30-minute steps; staff working hours use 1-hour blocks and must fall inside the opening hours.
+
+**Availability and booking (Scheduling module).**
+- **Engine:** `AvailabilityCalculator` is a pure function with no I/O and no clock, so it is unit-tested directly. A slot starts on the 30-minute grid in the location's local time. The whole service must fit inside both the staff member's working hours and the location's opening hours. Days off, overlapping appointments and past times are excluded, and so are times skipped by DST. Slots are returned as UTC instants.
+- **Loading:** `AvailabilityService` gathers the calculator's inputs for one location and service: active staff assigned to both, their hours at that location, time off, and busy appointments.
+- **Booking:** `POST /api/scheduling/appointments` recomputes that local day's slots and only accepts an offered start. With no staff chosen ("any"), it picks the free person with the fewest appointments that day. It snapshots the service name and price, and grants the Client role.
+- **Overlap guarantee:** the `ex_appointments_staff_no_overlap` constraint (`EXCLUDE USING gist` on staff + `tstzrange [)`, ignoring cancelled appointments) is created with raw SQL in the `AddAppointments` migration. It turns concurrent double bookings into 409 `slot.taken`.
+- **Deleting referenced data:** appointments reference location, service and staff with `ON DELETE RESTRICT`. The delete endpoints map that to 409 `*.inUse` ("deactivate instead").
+- **Constraint errors:** use `DbErrors.IsUniqueViolation/IsForeignKeyViolation/IsExclusionViolation`, which cover both SaveChanges and ExecuteDelete. RESTRICT raises SQLSTATE 23001, not 23503.
 
 **Multi-tenancy (row-level, fail-closed).** These rules hold for every tenant-owned entity:
 - Tenant data derives from `TenantEntity` / `ITenantOwned`.
@@ -72,7 +80,7 @@ Local DB is native PostgreSQL 18 (no Docker on the dev machine): db `prenotaconm
 **Persistence conventions:**
 - Npgsql with snake_case naming (EFCore.NamingConventions).
 - The migrations history table is `__ef_migrations_history`.
-- The `btree_gist` extension is enabled, intended for `EXCLUDE USING gist` constraints that prevent overlapping appointments per staff member.
+- The `btree_gist` extension is enabled; it backs the appointments `EXCLUDE` constraint (see Availability and booking).
 
 **API ↔ frontend contract:**
 - Building the Api project writes the OpenAPI document to `src/frontend/prenotaconme-web/openapi/prenotaconme-api.json`, using `Microsoft.Extensions.ApiDescription.Server`.

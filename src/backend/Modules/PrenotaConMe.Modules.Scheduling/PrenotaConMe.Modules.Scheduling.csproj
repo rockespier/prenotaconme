@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\PrenotaConMe.Infrastructure\PrenotaConMe.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\PrenotaConMe.Shared\PrenotaConMe.Shared.csproj" />
+    <ProjectReference Include="..\PrenotaConMe.Modules.Locations\PrenotaConMe.Modules.Locations.csproj" />
+    <ProjectReference Include="..\PrenotaConMe.Modules.Catalog\PrenotaConMe.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\PrenotaConMe.Modules.Staff\PrenotaConMe.Modules.Staff.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
