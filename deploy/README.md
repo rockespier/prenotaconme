@@ -3,7 +3,7 @@
 Un único sitio IIS: la API (.NET 10, in-process) sirve también la PWA de Angular desde `wwwroot`. PostgreSQL y Seq corren nativos en el mismo servidor.
 
 ```
-Internet ──443──> IIS (sitio "prenotaconme", TLS con win-acme)
+Internet ──443──> IIS (sitio "prenotaconme.rtres.net", TLS con win-acme)
                    └─ ASP.NET Core Module ─> PrenotaConMe.Api
                          ├─ /api/*, /health   endpoints
                          └─ resto             wwwroot (Angular) + fallback a index.html
@@ -35,7 +35,7 @@ New-Item -ItemType Junction -Path "$root\current" -Target "$root\releases\initia
 Import-Module WebAdministration
 New-WebAppPool -Name prenotaconme.rtres.net
 Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name managedRuntimeVersion -Value ''   # "No managed code"
-New-Website -Name prenotaconme -PhysicalPath "$root\current" -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'staging.tudominio.com'
+New-Website -Name prenotaconme.rtres.net -PhysicalPath "$root\current" -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'staging.tudominio.com'
 
 # El app pool necesita leer las releases
 icacls $root /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
@@ -65,7 +65,7 @@ Instalador MSI de https://datalust.co/download. Escucha en `http://localhost:534
 
 ## 6. TLS con win-acme (Let's Encrypt)
 
-Con el DNS del dominio ya apuntando al servidor y el puerto 80 abierto, descarga win-acme de https://www.win-acme.com, ejecuta `wacs.exe` y elige el sitio `prenotaconme`. Crea el binding 443 y una tarea programada de renovación.
+Con el DNS del dominio ya apuntando al servidor y el puerto 80 abierto, descarga win-acme de https://www.win-acme.com, ejecuta `wacs.exe` y elige el sitio `prenotaconme.rtres.net`. Crea el binding 443 y una tarea programada de renovación.
 
 ```powershell
 New-NetFirewallRule -DisplayName 'HTTP/HTTPS' -Direction Inbound -Protocol TCP -LocalPort 80,443 -Action Allow
