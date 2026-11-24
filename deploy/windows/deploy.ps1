@@ -1,21 +1,26 @@
 <#
 .SYNOPSIS
-  Installs a release package on the Windows Server (IIS). Invoked over SSH by .github/workflows/deploy.yml.
+  Installs a release on the Windows Server (IIS). Invoked over SSH by .github/workflows/deploy.yml.
 
 .DESCRIPTION
-  Layout under $Root (default C:\prenotaconme):
-    incoming\            uploaded release.zip
-    releases\<version>\  unpacked releases (last $Keep kept)
-    current\             directory junction -> active release (IIS site physical path)
-    shared\              files copied into every release (appsettings.Production.json)
+  Layout:
+    $SitePath                    IIS site physical path (live files)
+    $Root\incoming\              uploaded release.zip + this script
+    $Root\releases\<version>\    unpacked releases (last $Keep kept, used for rollback)
+    $Root\shared\                files copied into every release (appsettings.Production.json)
 
-  Swapping the junction and recycling the app pool gives a near-zero-downtime deploy and an easy rollback
-  (point the junction at a previous release and recycle).
+  Steps: unpack -> add shared files -> app_offline.htm (ASP.NET Core Module stops the app and releases
+  file locks) -> mirror the release into $SitePath -> remove app_offline.htm -> recycle the app pool.
+
+.EXAMPLE
+  # Rollback to a previous release (no package):
+  .\deploy.ps1 -Version 20261124084210-cc77176
 #>
 param(
-    [Parameter(Mandatory)] [string] $Package,
+    [string] $Package,
     [Parameter(Mandatory)] [string] $Version,
     [string] $Root = 'C:\prenotaconme',
+    [string] $SitePath = 'D:\IISSites\prenotaconme.rtres.net',
     [string] $AppPool = 'prenotaconme.rtres.net',
     [int] $Keep = 5
 )
@@ -24,25 +29,42 @@ $ErrorActionPreference = 'Stop'
 Import-Module WebAdministration
 
 $releases = Join-Path $Root 'releases'
-$current = Join-Path $Root 'current'
 $shared = Join-Path $Root 'shared'
-$target = Join-Path $releases $Version
+$release = Join-Path $releases $Version
+$appOffline = Join-Path $SitePath 'app_offline.htm'
 
-Write-Host "Unpacking $Package -> $target"
-if (Test-Path $target) { Remove-Item $target -Recurse -Force }
-New-Item -ItemType Directory -Force $target | Out-Null
-Expand-Archive -Path $Package -DestinationPath $target
+if ($Package) {
+    Write-Host "Unpacking $Package -> $release"
+    if (Test-Path $release) { Remove-Item $release -Recurse -Force }
+    New-Item -ItemType Directory -Force $release | Out-Null
+    Expand-Archive -Path $Package -DestinationPath $release
+}
+elseif (-not (Test-Path $release)) {
+    throw "Release $Version not found in $releases and no -Package given."
+}
 
 if (Test-Path $shared) {
-    Copy-Item (Join-Path $shared '*') $target -Recurse -Force
+    Copy-Item (Join-Path $shared '*') $release -Recurse -Force
+}
+if (-not (Test-Path (Join-Path $release 'appsettings.Production.json'))) {
+    Write-Warning "appsettings.Production.json missing: create it in $shared"
 }
 
-Write-Host "Switching $current -> $target"
-if (Test-Path $current) {
-    # Removes only the junction, not the release it points to.
-    (Get-Item $current).Delete()
+New-Item -ItemType Directory -Force $SitePath | Out-Null
+
+Write-Host 'Taking app offline'
+Set-Content -Path $appOffline -Value '<html><body><h1>Aggiornamento in corso / Actualizando…</h1></body></html>' -Encoding UTF8
+Start-Sleep -Seconds 3
+
+try {
+    Write-Host "Mirroring $release -> $SitePath"
+    # /MIR deletes files not in the release; /XF keeps app_offline.htm in place until we are done.
+    robocopy $release $SitePath /MIR /XF app_offline.htm /R:5 /W:2 /NFL /NDL /NJH /NP | Out-Host
+    if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE" }
 }
-New-Item -ItemType Junction -Path $current -Target $target | Out-Null
+finally {
+    Remove-Item $appOffline -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host "Recycling app pool $AppPool"
 Restart-WebAppPool -Name $AppPool
@@ -52,5 +74,6 @@ Get-ChildItem $releases -Directory |
     Select-Object -Skip $Keep |
     Remove-Item -Recurse -Force
 
-Remove-Item $Package -Force
+if ($Package) { Remove-Item $Package -Force }
 Write-Host "Deployed $Version"
+exit 0

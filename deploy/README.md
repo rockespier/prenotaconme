@@ -26,20 +26,29 @@ net stop was /y; net start w3svc
 
 ## 2. Carpetas, app pool y sitio
 
+| Ruta | Uso |
+|---|---|
+| `D:\IISSites\prenotaconme.rtres.net` | Ruta física del sitio IIS (archivos en producción) |
+| `C:\prenotaconme\incoming` | Zip subido por el workflow + `deploy.ps1` |
+| `C:\prenotaconme\releases\<versión>` | Releases descomprimidas (se guardan las últimas 5, para rollback) |
+| `C:\prenotaconme\shared` | `appsettings.Production.json`, copiado en cada release |
+
 ```powershell
 $root = 'C:\prenotaconme'
+$site = 'D:\IISSites\prenotaconme.rtres.net'
 'incoming','releases','shared' | ForEach-Object { New-Item -ItemType Directory -Force "$root\$_" | Out-Null }
-New-Item -ItemType Directory -Force "$root\releases\initial" | Out-Null
-New-Item -ItemType Junction -Path "$root\current" -Target "$root\releases\initial" | Out-Null
+New-Item -ItemType Directory -Force $site | Out-Null
 
 Import-Module WebAdministration
 New-WebAppPool -Name prenotaconme.rtres.net
 Set-ItemProperty IIS:\AppPools\prenotaconme.rtres.net -Name managedRuntimeVersion -Value ''   # "No managed code"
-New-Website -Name prenotaconme.rtres.net -PhysicalPath "$root\current" -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'staging.tudominio.com'
+New-Website -Name prenotaconme.rtres.net -PhysicalPath $site -ApplicationPool prenotaconme.rtres.net -Port 80 -HostHeader 'prenotaconme.rtres.net'
 
-# El app pool necesita leer las releases
-icacls $root /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
+# El app pool necesita leer los archivos del sitio
+icacls $site /grant 'IIS AppPool\prenotaconme.rtres.net:(OI)(CI)RX' /T
 ```
+
+`deploy.ps1` pone `app_offline.htm` en el sitio (el módulo de ASP.NET Core detiene la app y libera los archivos), copia la release con `robocopy /MIR`, quita `app_offline.htm` y recicla el app pool.
 
 Si existe, detén o elimina el *Default Web Site* para liberar el puerto 80.
 
@@ -109,13 +118,12 @@ Clave en tu PC: `ssh-keygen -t ed25519 -C github-deploy -f "$HOME\.ssh\prenotaco
 
 ## Despliegue y rollback
 
-Cada push a `main` con el CI en verde ejecuta `.github/workflows/deploy.yml`, que publica la API para win-x64 con Angular en `wwwroot`, sube un zip y ejecuta `deploy/windows/deploy.ps1`. Ese script descomprime en `releases\<versión>`, mueve el junction `current` y recicla el app pool.
+Cada push a `main` con el CI en verde ejecuta `.github/workflows/deploy.yml`, que publica la API para win-x64 con Angular en `wwwroot`, sube un zip y ejecuta `deploy/windows/deploy.ps1`. Ese script descomprime en `releases\<versión>`, la copia a `D:\IISSites\prenotaconme.rtres.net` y recicla el app pool.
 
-Rollback manual:
+Rollback manual (reinstala una release anterior):
 ```powershell
-(Get-Item C:\prenotaconme\current).Delete()
-New-Item -ItemType Junction -Path C:\prenotaconme\current -Target C:\prenotaconme\releases\<versión-anterior>
-Restart-WebAppPool prenotaconme.rtres.net
+Get-ChildItem C:\prenotaconme\releases | Sort-Object CreationTime -Descending   # ver versiones
+powershell -ExecutionPolicy Bypass -File C:\prenotaconme\incoming\deploy.ps1 -Version <versión-anterior>
 ```
 
 Logs de arranque si el sitio da 500.30/502.5: Visor de eventos → *Application* (origen *IIS AspNetCore Module V2*), o Seq.

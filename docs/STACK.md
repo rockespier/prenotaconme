@@ -62,7 +62,7 @@ Recordatorios: plantillas aprobadas por Meta (utility), programadas con Hangfire
 - **PostgreSQL 18 nativo** en el mismo servidor, `listen_addresses = 'localhost'`, puerto 5432 cerrado.
 - Seq nativo (MSI) en localhost:5341.
 - Backups: pgBackRest (o `pg_dump` programado) → almacenamiento S3-compatible, con prueba de restore periódica (F5-06).
-- CI/CD: GitHub Actions → build + tests → `dotnet publish win-x64` + `ng build` en un zip → SCP/SSH (OpenSSH Server de Windows) → `deploy/windows/deploy.ps1` (releases + junction `current` + reciclado del app pool).
+- CI/CD: GitHub Actions → build + tests → `dotnet publish win-x64` + `ng build` en un zip → SCP/SSH (OpenSSH Server de Windows) → `deploy/windows/deploy.ps1` (release en `C:\prenotaconme\releases`, `app_offline.htm`, `robocopy /MIR` a `D:\IISSites\prenotaconme.rtres.net`, reciclado del app pool).
 - Monitoreo: Uptime Kuma.
 - GDPR: datos en UE, DPA con OpenAI y Meta, consentimiento opt-in para WhatsApp.
 
