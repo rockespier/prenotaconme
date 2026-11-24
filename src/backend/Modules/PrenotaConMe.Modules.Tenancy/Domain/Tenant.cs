@@ -11,7 +11,7 @@ public sealed class Tenant : Entity
 
     public string Name { get; private set; } = string.Empty;
 
-    /// <summary>Unique, URL-safe identifier used in the public booking page (/b/{slug}) and the X-Tenant header.</summary>
+    /// <summary>Unique, URL-safe identifier used in the public booking page (/{slug}) and the X-Tenant header.</summary>
     public string Slug { get; private set; } = string.Empty;
 
     /// <summary>IANA time zone (e.g. "Europe/Rome"); default for locations of this business.</summary>

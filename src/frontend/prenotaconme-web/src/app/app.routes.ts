@@ -19,7 +19,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./features/auth/register-business').then((m) => m.RegisterBusiness),
       },
-      { path: 'b/:slug', loadComponent: () => import('./features/booking/booking-page').then((m) => m.BookingPage) },
+      // Legacy prefix, kept so early shared links keep working.
+      { path: 'b/:slug', redirectTo: '/:slug' },
+      // Public booking page of a business at the site root. Must stay after every fixed route;
+      // fixed top-level paths must also be in TenantRules.ReservedSlugs (backend).
+      { path: ':slug', loadComponent: () => import('./features/booking/booking-page').then((m) => m.BookingPage) },
       { path: '**', loadComponent: () => import('./features/not-found/not-found').then((m) => m.NotFound) },
     ],
   },

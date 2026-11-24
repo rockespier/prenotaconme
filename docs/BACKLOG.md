@@ -36,7 +36,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F1-07 | Disponibilidad del staff (A/S) | Horario semanal en franjas de 1 h por sede + excepciones (vacaciones, ausencias) |
 | F1-08 | Motor de disponibilidad | Calcula slots de 30 min por servicio/staff/sede/fecha considerando horario, excepciones y citas; respeta zona horaria (NodaTime). Opción "cualquier staff": se asigna el staff libre con menos citas ese día |
 | F1-09 | Reserva de cita | Crear cita; constraint `EXCLUDE` en BD impide solapamientos aunque haya concurrencia (test dedicado) |
-| F1-10 | Página pública `/b/{slug}` (C) | Flujo: sede → servicio → staff (o "cualquiera") → día → slot → login Google obligatorio (+ teléfono la primera vez) → confirmación; responsive y PWA |
+| F1-10 | Página pública `/{slug}` (C) | Flujo: sede → servicio → staff (o "cualquiera") → día → slot → login Google obligatorio (+ teléfono la primera vez) → confirmación; responsive y PWA |
 | F1-11 | Confirmación por email (C/S) | Email al cliente y al staff con detalles + `.ics` adjunto |
 | F1-12 | Mis citas (C) | Listado de próximas/pasadas; reprogramar a otro slot disponible; cancelar (respetando antelación mínima configurable por el Admin, por defecto 2 h) |
 | F1-13 | Calendario backoffice (A/S) | FullCalendar día/semana por staff/sede; Admin crea/mueve/cancela citas (drag & drop); Staff ve solo su calendario |

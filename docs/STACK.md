@@ -38,7 +38,7 @@ Módulos: `Tenancy`, `Users` (perfiles y roles), `Catalog` (servicios), `Staff`,
 - Calendario: **FullCalendar** (vistas día/semana por staff, drag & drop).
 - Gráficos de informes: ngx-echarts.
 - Cliente API generado desde OpenAPI (NSwag u `openapi-typescript`).
-- Dos zonas en una sola app: **pública** (`/b/{slug}` reserva sin fricción) y **backoffice** (admin/staff), con lazy loading.
+- Dos zonas en una sola app: **pública** (`/{slug}` en la raíz del dominio, reserva sin fricción) y **backoffice** (admin/staff), con lazy loading.
 
 ## Chatbot (multicanal)
 Núcleo independiente del canal: `IMessagingChannel` (recibir/enviar texto, audio, botones) con implementaciones **Telegram** (demo con el primer cliente) y **WhatsApp** (producción). Mismo motor GPT + tools + estado de conversación.

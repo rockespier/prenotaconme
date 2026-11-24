@@ -2,7 +2,7 @@ import { Component, effect, inject, input, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { API_CLIENT, Schemas } from '../../core/api/api-client';
 
-/** Public booking page for a business: /b/:slug. Booking flow arrives in F1-10. */
+/** Public booking page for a business: /:slug (site root). Booking flow arrives in F1-10. */
 @Component({
   selector: 'app-booking-page',
   imports: [TranslocoPipe],

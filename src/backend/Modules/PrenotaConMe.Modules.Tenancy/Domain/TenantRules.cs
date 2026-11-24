@@ -11,11 +11,24 @@ public static partial class TenantRules
 
     public static readonly IReadOnlySet<string> Languages = new HashSet<string>(StringComparer.Ordinal) { "it", "es", "en" };
 
-    // Slugs that would collide with app routes or look official.
-    private static readonly HashSet<string> ReservedSlugs = new(StringComparer.Ordinal)
+    /// <summary>
+    /// Business pages live at the site root (/{slug}), so slugs must never collide with app routes.
+    /// Keep in sync with the top-level routes in src/frontend/prenotaconme-web/src/app/app.routes.ts
+    /// and the server paths (/api, /health, /openapi, /scalar). Also blocks names that look official.
+    /// </summary>
+    public static readonly IReadOnlySet<string> ReservedSlugs = new HashSet<string>(StringComparer.Ordinal)
     {
-        "admin", "api", "app", "b", "health", "login", "logout", "register", "registrati",
-        "www", "static", "assets", "i18n", "help", "support", "prenotaconme",
+        // Current app and server routes
+        "admin", "login", "registra-attivita", "b", "api", "health", "openapi", "scalar",
+        // Likely future routes
+        "app", "account", "auth", "logout", "signin", "signup", "register", "registrati", "registrazione",
+        "dashboard", "settings", "impostazioni", "profilo", "profile", "prenotazioni", "bookings",
+        "privacy", "terms", "termini", "cookie", "cookies", "contatti", "contact", "about", "chi-siamo",
+        "pricing", "prezzi", "blog", "help", "aiuto", "support", "supporto", "faq", "status",
+        // Static assets and infrastructure
+        "assets", "static", "media", "i18n", "icons", "favicon", "manifest", "www", "mail", "ftp",
+        // Brand
+        "prenotaconme", "rtres",
     };
 
     /// <summary>Lowercases and trims; does not otherwise alter the value (the user sees what is stored).</summary>

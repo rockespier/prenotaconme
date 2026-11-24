@@ -36,7 +36,7 @@ internal static class SpaHostingExtensions
     }
 
     /// <summary>
-    /// Client-side routes (/admin, /b/{slug}, ...) fall back to index.html; /api, /health and file paths never do.
+    /// Client-side routes (/admin, /{business-slug}, ...) fall back to index.html; /api, /health and file paths never do.
     /// "nonfile" is essential: the static file middleware skips requests that already matched an endpoint,
     /// so without it main-*.js / manifest.webmanifest would be answered with index.html.
     /// </summary>
