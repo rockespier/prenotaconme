@@ -9,10 +9,11 @@ public sealed class AppointmentEmailsTests
     private static readonly DateTimeOffset Now = new(2026, 11, 24, 10, 0, 0, TimeSpan.Zero);
 
     // Wednesday 2 December 2026, 10:30 in Rome (UTC+1).
-    private static AppointmentNotice Notice(string language = "it", string? clientEmail = "anna@example.com") => new(
-        Guid.Parse("0193a000-0000-7000-8000-000000000001"), "Barberia <Demo>", language, "Taglio capelli", 20m,
+    internal static AppointmentNotice Notice(string language = "it", string? clientEmail = "anna@example.com") => new(
+        Guid.Parse("0193a000-0000-7000-8000-000000000001"), "Barberia <Demo>", "barberia-demo", language, "Taglio capelli", 20m,
         new DateTimeOffset(2026, 12, 2, 9, 30, 0, TimeSpan.Zero), new DateTimeOffset(2026, 12, 2, 10, 0, 0, TimeSpan.Zero),
-        "Europe/Rome", "Sede Centro", "Via Roma 1", "Milano", null, "Mario", "mario@example.com", "Anna", clientEmail);
+        "Europe/Rome", "Sede Centro", "Via Roma 1", "Milano", null, "Mario", "mario@example.com", Guid.NewGuid(),
+        "Anna", clientEmail, Guid.NewGuid());
 
     [Fact]
     public void Client_and_staff_each_get_an_email_in_the_business_language_with_local_time()

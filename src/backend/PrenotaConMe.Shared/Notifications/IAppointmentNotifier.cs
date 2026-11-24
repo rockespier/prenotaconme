@@ -1,12 +1,23 @@
 namespace PrenotaConMe.Shared.Notifications;
 
+public enum AppointmentChange
+{
+    Booked,
+    Rescheduled,
+    Cancelled,
+}
+
 /// <summary>
-/// Everything a confirmation message needs, captured when the appointment is booked, so the
+/// Everything an appointment message needs, captured when the appointment changes, so the
 /// notification side never has to query other modules.
 /// </summary>
+/// <param name="BusinessSlug">For links back to the business's pages.</param>
+/// <param name="ClientUserId">Registered client (null for guests entered in the calendar).</param>
+/// <param name="StaffUserId">User linked to the staff member (null until they sign in once).</param>
 public sealed record AppointmentNotice(
     Guid AppointmentId,
     string BusinessName,
+    string BusinessSlug,
     string Language,
     string ServiceName,
     decimal Price,
@@ -19,15 +30,18 @@ public sealed record AppointmentNotice(
     string? LocationPhone,
     string StaffName,
     string? StaffEmail,
+    Guid? StaffUserId,
     string? ClientName,
-    string? ClientEmail);
+    string? ClientEmail,
+    Guid? ClientUserId);
 
 /// <summary>Sends appointment messages (implemented by the Notifications module).</summary>
 public interface IAppointmentNotifier
 {
     /// <summary>
-    /// Queues the confirmation to the client and the staff member. Returns immediately and never throws:
-    /// a failed message must not undo or delay a booking.
+    /// Queues the messages for a change: confirmation e-mails (bookings only) and push notifications to the
+    /// client and the staff member, except to <paramref name="actorUserId"/>, who made the change.
+    /// Returns immediately and never throws: a failed message must not undo or delay the change.
     /// </summary>
-    void Booked(AppointmentNotice notice);
+    void Notify(AppointmentChange change, AppointmentNotice notice, Guid? actorUserId);
 }

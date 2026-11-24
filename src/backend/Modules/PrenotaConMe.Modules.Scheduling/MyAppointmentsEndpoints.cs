@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Locations.Domain;
 using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
+using PrenotaConMe.Shared.Notifications;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
 
@@ -76,7 +77,7 @@ internal static class MyAppointmentsEndpoints
 
     private static async Task<Results<Ok<AppointmentDto>, NotFound, ProblemHttpResult>> CancelAsync(
         Guid id, AppDbContext db, ICurrentUser currentUser, ITenantContext tenant, ITenantDirectory tenants,
-        TimeProvider clock, CancellationToken ct)
+        AppointmentEvents events, TimeProvider clock, CancellationToken ct)
     {
         var appointment = await FindOwnAsync(db, currentUser, id, ct);
         if (appointment is null)
@@ -92,12 +93,14 @@ internal static class MyAppointmentsEndpoints
 
         appointment.Cancel(now);
         await db.SaveChangesAsync(ct);
+        await events.PublishAsync(appointment, AppointmentChange.Cancelled, appointment.ClientUserId, ct);
         return TypedResults.Ok(SchedulingEndpoints.ToDto(appointment));
     }
 
     private static async Task<Results<Ok<AppointmentDto>, NotFound, ValidationProblem, ProblemHttpResult>> RescheduleAsync(
         Guid id, RescheduleAppointmentRequest request, AvailabilityService availability, AppDbContext db,
-        ICurrentUser currentUser, ITenantContext tenant, ITenantDirectory tenants, TimeProvider clock, CancellationToken ct)
+        ICurrentUser currentUser, ITenantContext tenant, ITenantDirectory tenants, AppointmentEvents events, TimeProvider clock,
+        CancellationToken ct)
     {
         var appointment = await FindOwnAsync(db, currentUser, id, ct);
         if (appointment is null)
@@ -127,6 +130,7 @@ internal static class MyAppointmentsEndpoints
 
         var staffId = request.StaffId
             ?? await SchedulingEndpoints.LeastBusyAsync(db, slot.StaffIds, slot.StartsAt, location.TimeZone, ct, appointment.Id);
+        var previousStaffId = appointment.StaffMemberId;
         appointment.Reschedule(staffId, slot.StartsAt);
 
         try
@@ -137,6 +141,8 @@ internal static class MyAppointmentsEndpoints
         {
             return SchedulingEndpoints.SlotTaken("slot.taken");
         }
+
+        await events.PublishAsync(appointment, AppointmentChange.Rescheduled, appointment.ClientUserId, ct, previousStaffId);
 
         return TypedResults.Ok(SchedulingEndpoints.ToDto(appointment));
     }

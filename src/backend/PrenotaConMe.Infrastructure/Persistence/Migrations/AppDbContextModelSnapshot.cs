@@ -174,6 +174,55 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("locations", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.WebPushSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Auth")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("auth");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("endpoint");
+
+                    b.Property<string>("P256dh")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("p256dh");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_web_push_subscriptions");
+
+                    b.HasIndex("Endpoint")
+                        .IsUnique()
+                        .HasDatabaseName("ix_web_push_subscriptions_endpoint");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_web_push_subscriptions_user_id");
+
+                    b.ToTable("web_push_subscriptions", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Scheduling.Domain.Appointment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -711,6 +760,16 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("OpeningHours");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.WebPushSubscription", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_web_push_subscriptions_users_user_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Scheduling.Domain.Appointment", b =>

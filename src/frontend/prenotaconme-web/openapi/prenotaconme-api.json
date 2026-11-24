@@ -1467,6 +1467,80 @@
           }
         }
       }
+    },
+    "/api/notifications/push/config": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetPushConfig",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushConfigDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/push/subscriptions": {
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "SavePushSubscription",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavePushSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "DeletePushSubscription",
+        "parameters": [
+          {
+            "name": "endpoint",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2459,6 +2533,20 @@
           }
         }
       },
+      "PushConfigDto": {
+        "required": [
+          "publicKey"
+        ],
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "RegisterTenantRequest": {
         "required": [
           "name",
@@ -2549,6 +2637,25 @@
             "items": {
               "$ref": "#/components/schemas/OpeningHoursDto"
             }
+          }
+        }
+      },
+      "SavePushSubscriptionRequest": {
+        "required": [
+          "endpoint",
+          "p256dh",
+          "auth"
+        ],
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string"
+          },
+          "p256dh": {
+            "type": "string"
+          },
+          "auth": {
+            "type": "string"
           }
         }
       },
@@ -2933,6 +3040,9 @@
     },
     {
       "name": "scheduling"
+    },
+    {
+      "name": "notifications"
     }
   ]
 }

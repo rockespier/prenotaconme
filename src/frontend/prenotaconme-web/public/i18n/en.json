@@ -374,5 +374,16 @@
     "active": "Working here",
     "inactive": "not working",
     "empty": "No staff yet. Add yourself or your first staff member."
+  },
+  "push": {
+    "title": "Notifications",
+    "client": "Get an alert on your phone when a booking is confirmed, moved or cancelled.",
+    "staff": "Get an alert on this device for every new booking, change or cancellation.",
+    "enable": "Turn on notifications",
+    "disable": "Turn off",
+    "on": "Notifications are on for this device.",
+    "denied": "Notifications are blocked for this site. You can allow them again in the browser settings.",
+    "ios": "On iPhone, first add this page to the Home Screen (Share → Add to Home Screen) and open it from there.",
+    "error": "Notifications could not be turned on. Please try again."
   }
 }

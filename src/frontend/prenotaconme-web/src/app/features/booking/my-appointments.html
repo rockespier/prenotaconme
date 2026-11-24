@@ -38,6 +38,7 @@
         <button mat-flat-button (click)="signIn()">{{ 'login.google' | transloco }}</button>
       </div>
     } @else {
+      <app-push-toggle audience="client" />
       <h2>{{ 'myAppointments.upcoming' | transloco }}</h2>
       @for (a of upcoming(); track a.id) {
         @let w = when(a);

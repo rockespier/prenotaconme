@@ -374,5 +374,16 @@
     "active": "En servicio",
     "inactive": "fuera de servicio",
     "empty": "Ningún colaborador. Añádete a ti o al primer colaborador."
+  },
+  "push": {
+    "title": "Notificaciones",
+    "client": "Recibe un aviso en el móvil cuando una reserva se confirma, se cambia o se cancela.",
+    "staff": "Recibe un aviso en este dispositivo por cada nueva reserva, cambio o cancelación.",
+    "enable": "Activar notificaciones",
+    "disable": "Desactivar",
+    "on": "Notificaciones activas en este dispositivo.",
+    "denied": "Las notificaciones están bloqueadas para este sitio. Puedes reactivarlas en los ajustes del navegador.",
+    "ios": "En iPhone añade primero esta página a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde allí.",
+    "error": "No se pudieron activar las notificaciones. Inténtalo de nuevo."
   }
 }
