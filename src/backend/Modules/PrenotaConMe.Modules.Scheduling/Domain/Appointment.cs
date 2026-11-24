@@ -40,6 +40,8 @@ public sealed class Appointment : TenantEntity
 
     public decimal Price { get; private set; }
 
+    public DateTimeOffset? CancelledAt { get; private set; }
+
     public static Appointment Book(
         Guid locationId, Guid serviceId, string serviceName, decimal price, Guid staffMemberId, Guid clientUserId,
         DateTimeOffset startsAt, int durationMinutes) => new()
@@ -53,4 +55,28 @@ public sealed class Appointment : TenantEntity
         StartsAt = startsAt.ToUniversalTime(),
         EndsAt = startsAt.ToUniversalTime().AddMinutes(durationMinutes),
     };
+
+    /// <summary>
+    /// Latest instant at which the client may still cancel or reschedule, given the business notice.
+    /// </summary>
+    public DateTimeOffset ChangeableUntil(int noticeHours) => StartsAt.AddHours(-noticeHours);
+
+    /// <summary>The client may cancel or reschedule: still confirmed and the notice deadline has not passed.</summary>
+    public bool CanChange(DateTimeOffset now, int noticeHours) =>
+        Status == AppointmentStatus.Confirmed && now <= ChangeableUntil(noticeHours);
+
+    public void Cancel(DateTimeOffset now)
+    {
+        Status = AppointmentStatus.Cancelled;
+        CancelledAt = now;
+    }
+
+    /// <summary>Moves the appointment to another (already validated) slot, keeping service, price and location.</summary>
+    public void Reschedule(Guid staffMemberId, DateTimeOffset startsAt)
+    {
+        var duration = EndsAt - StartsAt;
+        StaffMemberId = staffMemberId;
+        StartsAt = startsAt.ToUniversalTime();
+        EndsAt = StartsAt + duration;
+    }
 }

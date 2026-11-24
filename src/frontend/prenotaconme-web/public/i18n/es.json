@@ -86,6 +86,30 @@
     "evening": "Noche",
     "confirmedHint": "Te hemos enviado un email con los detalles y la cita para añadirla a tu calendario."
   },
+  "myAppointments": {
+    "title": "Mis citas",
+    "link": "Mis citas",
+    "signInHint": "Inicia sesión con la misma cuenta de Google que usaste para reservar.",
+    "upcoming": "Próximas citas",
+    "past": "Historial",
+    "none": "No tienes citas programadas.",
+    "bookNew": "Nueva reserva",
+    "move": "Cambiar hora",
+    "cancel": "Cancelar",
+    "confirmCancel": "¿Confirmas la cancelación?",
+    "cancelled": "Cita cancelada.",
+    "moved": "Cita cambiada.",
+    "chooseNewTime": "Elige la nueva hora",
+    "deadline": "Puedes cambiarla o cancelarla hasta el {{date}}, a las {{time}}.",
+    "tooLate": "Faltan menos de {{hours}} horas: para cambios contacta directamente con el negocio.",
+    "policy": "Puedes cambiar o cancelar hasta {{hours}} horas antes desde «Mis citas».",
+    "status": {
+      "Confirmed": "Confirmada",
+      "Cancelled": "Cancelada",
+      "Completed": "Completada",
+      "NoShow": "No se presentó"
+    }
+  },
   "notFound": {
     "title": "Página no encontrada",
     "back": "Volver al inicio"
@@ -185,6 +209,13 @@
     },
     "phone": {
       "invalid": "Número no válido: escríbelo con el prefijo internacional (p. ej. +34 612 345 678)."
+    },
+    "appointment": {
+      "tooLate": "Ya es tarde para modificar esta cita: contacta con el negocio.",
+      "notConfirmed": "Esta cita ya no está activa."
+    },
+    "cancellationNotice": {
+      "range": "Valor no válido (de 0 a 720 horas)."
     }
   },
   "backoffice": {
@@ -220,6 +251,13 @@
         "title": "Horario de los colaboradores",
         "hint": "Las horas en que cada uno atiende citas."
       }
+    },
+    "rules": {
+      "title": "Reglas para los clientes",
+      "hint": "Hasta cuándo los clientes pueden cambiar o cancelar una cita por su cuenta.",
+      "notice": "Antelación mínima",
+      "anytime": "Siempre, hasta el inicio",
+      "hours": "{{hours}} horas antes"
     }
   },
   "days": {

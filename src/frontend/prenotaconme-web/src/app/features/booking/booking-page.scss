@@ -410,6 +410,22 @@ h2 {
   color: var(--mat-sys-on-error-container);
 }
 
+.business .mine {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.done .hint {
+  margin: var(--space-4) auto 0;
+}
+
+.done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
 .done {
   text-align: center;
   padding-top: var(--space-4);

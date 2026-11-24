@@ -10,6 +10,11 @@ public static partial class TenantRules
     public const int SlugMinLength = 3;
     public const int SlugMaxLength = 50;
 
+    public const int DefaultCancellationNoticeHours = 2;
+
+    /// <summary>Upper bound of the cancellation notice an Admin can set (30 days).</summary>
+    public const int MaxCancellationNoticeHours = 720;
+
     public static readonly IReadOnlySet<string> Languages = new HashSet<string>(StringComparer.Ordinal) { "it", "es", "en" };
 
     /// <summary>

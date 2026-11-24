@@ -71,3 +71,14 @@ export function initials(name: string): string {
     .map((w) => w[0]!.toUpperCase())
     .join('');
 }
+
+/**
+ * An instant shown in the location's time zone (not the browser's):
+ * "2026-12-02T08:30:00Z", "Europe/Rome" → { date: "mercoledì 2 dicembre", time: "09:30" }.
+ */
+export function formatInstant(instant: string, timeZone: string, lang: string): { date: string; time: string } {
+  const at = new Date(instant);
+  const date = new Intl.DateTimeFormat(lang, { timeZone, weekday: 'long', day: 'numeric', month: 'long' }).format(at);
+  const time = new Intl.DateTimeFormat(lang, { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(at);
+  return { date, time };
+}

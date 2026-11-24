@@ -180,6 +180,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
                     b.Property<Guid>("ClientUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("client_user_id");
@@ -503,6 +507,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<int>("CancellationNoticeHours")
+                        .HasColumnType("integer")
+                        .HasColumnName("cancellation_notice_hours");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

@@ -2,11 +2,14 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_CLIENT } from '../../core/api/api-client';
 import { SessionService } from '../../core/session/session.service';
+import { Notifier } from '../../shared/api-errors';
 
 interface SetupStep {
   key: string;
@@ -20,7 +23,7 @@ interface SetupStep {
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, MatButtonModule, MatIconModule, TranslocoPipe],
+  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.dashboard' | transloco }}</h1>
@@ -70,6 +73,23 @@ interface SetupStep {
             }
           </ol>
         </section>
+
+        @if (noticeHours() !== null) {
+          <section class="rules">
+            <h2>{{ 'dashboard.rules.title' | transloco }}</h2>
+            <p class="muted">{{ 'dashboard.rules.hint' | transloco }}</p>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{ 'dashboard.rules.notice' | transloco }}</mat-label>
+              <mat-select [value]="noticeHours()" (valueChange)="saveNotice($event)">
+                @for (h of noticeOptions; track h) {
+                  <mat-option [value]="h">
+                    {{ (h === 0 ? 'dashboard.rules.anytime' : 'dashboard.rules.hours') | transloco: { hours: h } }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </section>
+        }
       }
     }
   `,
@@ -103,7 +123,8 @@ interface SetupStep {
 
     .link-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
-    .setup { margin-top: var(--space-6); }
+    .setup, .rules { margin-top: var(--space-6); }
+    .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
 
     .steps {
       list-style: none;
@@ -156,6 +177,11 @@ export class Dashboard {
   protected readonly steps = signal<SetupStep[] | null>(null);
   protected readonly allDone = computed(() => this.steps()?.every((s) => s.done) ?? false);
 
+  /** Minimum notice for clients to cancel or move an appointment (F1-12). */
+  protected readonly noticeHours = signal<number | null>(null);
+  protected noticeOptions = [0, 1, 2, 3, 4, 6, 12, 24, 48, 72];
+  private readonly notifier = inject(Notifier);
+
   constructor() {
     // Reload when the selected business changes.
     effect(() => {
@@ -163,7 +189,11 @@ export class Dashboard {
       const admin = this.session.isAdmin();
       untracked(() => {
         this.steps.set(null);
-        if (business && admin) void this.loadSetup();
+        this.noticeHours.set(null);
+        if (business && admin) {
+          void this.loadSetup();
+          void this.loadSettings();
+        }
       });
     });
   }
@@ -171,6 +201,28 @@ export class Dashboard {
   protected copy(): void {
     this.clipboard.copy(this.publicUrl());
     this.snackBar.open(this.transloco.translate('dashboard.copied'), undefined, { duration: 2000 });
+  }
+
+  protected async saveNotice(hours: number): Promise<void> {
+    const { data, error } = await this.api.PUT('/api/tenancy/tenants/current/settings', {
+      body: { cancellationNoticeHours: hours },
+    });
+    if (error) {
+      this.notifier.error(error);
+      return;
+    }
+    this.noticeHours.set(data.cancellationNoticeHours);
+    this.notifier.saved();
+  }
+
+  private async loadSettings(): Promise<void> {
+    const { data } = await this.api.GET('/api/tenancy/tenants/current');
+    const hours = data?.cancellationNoticeHours ?? null;
+    // Keep a non-standard value selectable.
+    if (hours !== null && !this.noticeOptions.includes(hours)) {
+      this.noticeOptions = [...this.noticeOptions, hours].sort((a, b) => a - b);
+    }
+    this.noticeHours.set(hours);
   }
 
   private async loadSetup(): Promise<void> {

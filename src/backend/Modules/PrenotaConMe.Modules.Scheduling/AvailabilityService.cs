@@ -8,7 +8,9 @@ using PrenotaConMe.Shared.Scheduling;
 
 namespace PrenotaConMe.Modules.Scheduling;
 
-public sealed record AvailabilityQuery(Guid LocationId, Guid ServiceId, Guid? StaffId, DateOnly From, DateOnly To);
+/// <param name="IgnoreAppointmentId">An appointment that does not count as busy (the one being rescheduled).</param>
+public sealed record AvailabilityQuery(
+    Guid LocationId, Guid ServiceId, Guid? StaffId, DateOnly From, DateOnly To, Guid? IgnoreAppointmentId = null);
 
 /// <summary>Either an error code (bookable data missing) or the computed slots.</summary>
 public sealed record AvailabilityResult(string? Error, Location? Location, Service? Service, IReadOnlyList<AvailableSlot> Slots);
@@ -53,6 +55,7 @@ public sealed class AvailabilityService(AppDbContext db, TimeProvider clock)
         var busy = await db.Set<Appointment>().AsNoTracking()
             .Where(a => staffIds.Contains(a.StaffMemberId)
                         && a.Status != AppointmentStatus.Cancelled
+                        && a.Id != query.IgnoreAppointmentId
                         && a.StartsAt < rangeEnd && a.EndsAt > rangeStart)
             .Select(a => new { a.StaffMemberId, a.StartsAt, a.EndsAt })
             .ToListAsync(ct);
