@@ -28,7 +28,7 @@ type Service = Schemas['ServiceDto'];
         <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | transloco }}</th>
         <td mat-cell *matCellDef="let s">
           {{ s.name }}
-          @if (!s.isActive) { <small class="muted">({{ 'common.inactive' | transloco }})</small> }
+          @if (!s.isActive) { <small class="muted">({{ 'services.inactive' | transloco }})</small> }
         </td>
       </ng-container>
       <ng-container matColumnDef="duration">

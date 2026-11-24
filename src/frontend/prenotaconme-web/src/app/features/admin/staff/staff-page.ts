@@ -30,7 +30,7 @@ type Staff = Schemas['StaffDto'];
         <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | transloco }}</th>
         <td mat-cell *matCellDef="let s">
           {{ s.displayName }}
-          @if (!s.isActive) { <small class="muted">({{ 'common.inactive' | transloco }})</small> }
+          @if (!s.isActive) { <small class="muted">({{ 'staff.inactive' | transloco }})</small> }
         </td>
       </ng-container>
       <ng-container matColumnDef="email">

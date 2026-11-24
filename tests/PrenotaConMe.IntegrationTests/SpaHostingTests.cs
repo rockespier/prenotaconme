@@ -12,7 +12,7 @@ public sealed class SpaHostingTests(ApiFactory factory) : IClassFixture<ApiFacto
         factory.WithWebHostBuilder(b => b.UseSetting(WebHostDefaults.WebRootKey, _webRoot)).CreateClient();
 
     [Theory]
-    [InlineData("/main-ABC123.js", "text/javascript")]
+    [InlineData("/main-ABCD1234.js", "text/javascript")]
     [InlineData("/manifest.webmanifest", "application/manifest+json")]
     public async Task Static_files_are_served_with_their_content_type(string path, string contentType)
     {
@@ -20,6 +20,18 @@ public sealed class SpaHostingTests(ApiFactory factory) : IClassFixture<ApiFacto
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(contentType, response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Theory]
+    [InlineData("/main-ABCD1234.js", "public, max-age=31536000, immutable")]
+    [InlineData("/i18n/it.json", "no-cache")] // not content-hashed: a stale copy would hide new translations
+    [InlineData("/manifest.webmanifest", "no-cache")]
+    [InlineData("/", "no-cache")]
+    public async Task Only_content_hashed_files_are_cached_long_term(string path, string cacheControl)
+    {
+        var response = await CreateClient().GetAsync(new Uri(path, UriKind.Relative));
+
+        Assert.Equal(cacheControl, response.Headers.CacheControl?.ToString());
     }
 
     [Fact]
@@ -56,7 +68,9 @@ public sealed class SpaHostingTests(ApiFactory factory) : IClassFixture<ApiFacto
     {
         var dir = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), $"prenota-wwwroot-{Guid.NewGuid():N}")).FullName;
         File.WriteAllText(Path.Combine(dir, "index.html"), "<!doctype html><html><body><app-root></app-root></body></html>");
-        File.WriteAllText(Path.Combine(dir, "main-ABC123.js"), "console.log('ok');");
+        File.WriteAllText(Path.Combine(dir, "main-ABCD1234.js"), "console.log('ok');");
+        Directory.CreateDirectory(Path.Combine(dir, "i18n"));
+        File.WriteAllText(Path.Combine(dir, "i18n", "it.json"), "{}");
         File.WriteAllText(Path.Combine(dir, "manifest.webmanifest"), "{}");
         return dir;
     }

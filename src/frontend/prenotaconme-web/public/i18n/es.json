@@ -148,7 +148,9 @@
     "closed": "Cerrado",
     "addRange": "Añadir franja horaria",
     "empty": "No hay sedes.",
-    "confirmDelete": "¿Eliminar la sede «{{name}}»? También se quitará de los servicios y de los horarios del staff."
+    "confirmDelete": "¿Eliminar la sede «{{name}}»? También se quitará de los servicios y de los horarios del staff.",
+    "active": "Sede activa",
+    "inactive": "desactivada"
   },
   "services": {
     "new": "Nuevo servicio",
@@ -156,8 +158,9 @@
     "description": "Descripción",
     "duration": "Duración",
     "price": "Precio",
-    "bookable": "Reservable",
-    "confirmDelete": "¿Eliminar el servicio «{{name}}»?"
+    "bookable": "Reservable online",
+    "confirmDelete": "¿Eliminar el servicio «{{name}}»?",
+    "inactive": "no reservable"
   },
   "staff": {
     "new": "Nuevo miembro",
@@ -184,6 +187,8 @@
     "from": "Desde",
     "to": "Hasta",
     "reason": "Motivo (opcional)",
-    "addTimeOff": "Añadir ausencia"
+    "addTimeOff": "Añadir ausencia",
+    "active": "En servicio",
+    "inactive": "fuera de servicio"
   }
 }

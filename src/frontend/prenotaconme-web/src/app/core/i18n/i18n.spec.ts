@@ -10,12 +10,11 @@ describe('initialLang', () => {
 
   it('ignores unsupported saved values', () => {
     localStorage.setItem('lang', 'fr');
-    const lang = initialLang();
-    expect(['it', 'es', 'en']).toContain(lang);
+    expect(initialLang()).toBe(DEFAULT_LANG);
   });
 
-  it('falls back to the default language', () => {
-    vi.spyOn(navigator, 'language', 'get').mockReturnValue('de-DE');
-    expect(initialLang()).toBe(DEFAULT_LANG);
+  it('defaults to Italian regardless of the browser language', () => {
+    vi.spyOn(navigator, 'language', 'get').mockReturnValue('es-ES');
+    expect(initialLang()).toBe('it');
   });
 });
