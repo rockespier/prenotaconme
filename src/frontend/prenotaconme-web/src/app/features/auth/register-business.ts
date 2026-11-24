@@ -79,7 +79,9 @@ type SlugState = 'idle' | 'checking' | 'available' | string; // string = error c
     </mat-card>
   `,
   styles: `
-    .card { max-width: 560px; margin: 32px auto; }
+    .card { max-width: 560px; margin: var(--space-6) auto; padding: var(--space-2); --mat-card-outlined-container-shape: var(--radius-l); }
+    mat-card-actions button { min-height: 48px; }
+    @media (max-width: 599px) { mat-card-actions button { width: 100%; } }
     form mat-form-field { display: block; width: 100%; margin-bottom: 8px; }
     .error { color: var(--mat-sys-error); }
   `,

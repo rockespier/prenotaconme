@@ -11,7 +11,7 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
   imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule, TranslocoPipe, LanguageSwitcher],
   template: `
     <mat-toolbar>
-      <a routerLink="/" class="brand">{{ 'app.name' | transloco }}</a>
+      <a routerLink="/" class="brand"><span class="mark" aria-hidden="true"></span>{{ 'app.name' | transloco }}</a>
       <span class="spacer"></span>
       <app-language-switcher />
       @if (auth.ready()) {
@@ -27,9 +27,20 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
     </main>
   `,
   styles: `
-    .brand { color: inherit; text-decoration: none; font: var(--mat-sys-title-large); }
+    :host { display: block; min-height: 100%; }
+    mat-toolbar {
+      --mat-toolbar-container-background-color: var(--mat-sys-surface);
+      --mat-toolbar-standard-height: 56px;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      color: var(--mat-sys-on-surface-variant); text-decoration: none;
+      font: var(--mat-sys-title-small); font-weight: 600;
+    }
+    .mark { width: 10px; height: 10px; border-radius: 3px; background: var(--mat-sys-primary); }
     .spacer { flex: 1; }
-    main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+    main { max-width: 960px; margin: 0 auto; padding: var(--space-5) var(--space-4) 0; }
   `,
 })
 export class PublicLayout {

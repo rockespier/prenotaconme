@@ -1,4 +1,4 @@
-import { addDaysIso, formatDay, formatDuration, formatPrice, todayIso } from './booking-format';
+import { addDaysIso, dayParts, formatDay, formatDuration, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
 
 describe('booking formatting', () => {
   it('formats prices in euro for the UI language', () => {
@@ -18,5 +18,23 @@ describe('booking formatting', () => {
   it('handles ISO dates across month ends', () => {
     expect(addDaysIso('2026-12-30', 3)).toBe('2027-01-02');
     expect(todayIso(new Date(2026, 0, 5))).toBe('2026-01-05');
+  });
+
+  it('splits a day into chip parts', () => {
+    expect(dayParts('2026-12-02', 'it')).toEqual({ weekday: 'mer', day: '2', month: 'dic' });
+  });
+
+  it('groups times into morning, afternoon and evening', () => {
+    const groups = groupByPeriod([{ time: '09:00' }, { time: '11:30' }, { time: '14:00' }, { time: '18:30' }]);
+    expect(groups.map((g) => [g.period, g.slots.length])).toEqual([
+      ['morning', 2],
+      ['afternoon', 1],
+      ['evening', 1],
+    ]);
+  });
+
+  it('builds initials', () => {
+    expect(initials('Barberia Demo')).toBe('BD');
+    expect(initials(' mario ')).toBe('M');
   });
 });

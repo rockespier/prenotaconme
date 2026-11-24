@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, ElementRef, Injector, afterNextRender, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,7 @@ import { API_CLIENT, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { firstErrorCode } from '../../shared/api-errors';
-import { addDaysIso, formatDay, formatDuration, formatPrice, todayIso } from './booking-format';
+import { addDaysIso, dayParts, formatDay, formatDuration, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
 
 type Step = 'location' | 'service' | 'staff' | 'time' | 'confirm' | 'done';
 type Slot = Schemas['SlotDto'];
@@ -38,6 +38,8 @@ export class BookingPage {
   private readonly auth = inject(AuthService);
   private readonly session = inject(SessionService);
   private readonly transloco = inject(TranslocoService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   /** Route param :slug */
   readonly slug = input.required<string>();
@@ -83,6 +85,23 @@ export class BookingPage {
 
   protected readonly slotsOfDay = computed(() => this.days().find((d) => d.date === this.selectedDay())?.slots ?? []);
 
+  /** Free times of the selected day split into morning / afternoon / evening. */
+  protected readonly periods = computed(() => groupByPeriod(this.slotsOfDay()));
+
+  /** Steps the visitor actually goes through (single location or single staff member are skipped). */
+  protected readonly steps = computed<Step[]>(() => {
+    const steps: Step[] = [];
+    if ((this.options()?.locations.length ?? 0) > 1) steps.push('location');
+    steps.push('service');
+    const staffHere = (this.options()?.staff ?? []).filter((p) => p.locationIds.includes(this.location()?.id ?? ''));
+    if (this.service() ? this.staffForService().length > 1 : staffHere.length > 1) steps.push('staff');
+    steps.push('time', 'confirm');
+    return steps;
+  });
+
+  /** 1-based position of the current step, for "Passo 2 di 4". */
+  protected readonly stepNumber = computed(() => this.steps().indexOf(this.step()) + 1);
+
   /** Who will do the service: the chosen person, or the one assigned by the server for "no preference". */
   protected readonly staffName = computed(() => {
     const chosen = this.staff();
@@ -102,6 +121,8 @@ export class BookingPage {
   protected price = (value: number) => formatPrice(value, this.lang());
   protected day = (iso: string, style: 'long' | 'short' = 'long') => formatDay(iso, this.lang(), style);
   protected duration = formatDuration;
+  protected chip = (iso: string) => dayParts(iso, this.lang());
+  protected initials = initials;
   /** "Via Roma 1, Milano" (either part may be missing). */
   protected place = (l: Schemas['PublicLocationDto'] | null) => [l?.address, l?.city].filter((x) => !!x).join(', ');
 
@@ -272,6 +293,19 @@ export class BookingPage {
     if (!append || !current || !this.days().some((d) => d.date === current && d.slots.length > 0)) {
       this.selectedDay.set(this.days().find((d) => d.slots.length > 0)?.date ?? null);
     }
+    if (!append) this.revealSelectedDay();
+  }
+
+  /** Keeps the selected day chip visible in the horizontally scrolling strip. */
+  private revealSelectedDay(): void {
+    afterNextRender(
+      () => {
+        const strip = this.host.nativeElement.querySelector<HTMLElement>('.days');
+        const chip = strip?.querySelector<HTMLElement>('.day.selected');
+        if (strip && chip) strip.scrollLeft = Math.max(0, chip.offsetLeft - strip.offsetLeft - 16);
+      },
+      { injector: this.injector },
+    );
   }
 
   private async checkPhone(): Promise<void> {

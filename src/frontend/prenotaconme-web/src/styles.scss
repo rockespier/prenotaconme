@@ -1,39 +1,179 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// PrenotaConMe theme: Material 3 with a deep indigo brand (#2a3c97), one family (Figtree), pure white surfaces.
+// Color marks actions and selection only. See DESIGN.md.
 @use '@angular/material' as mat;
+@use './theme/theme-colors' as brand;
 
 html {
   height: 100%;
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: brand.$primary-palette,
+        tertiary: brand.$tertiary-palette,
+        theme-type: light,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: 'Figtree, system-ui, sans-serif',
+        brand-family: 'Figtree, system-ui, sans-serif',
+      ),
       density: 0,
     )
   );
+
+  // Pure white page; the neutral container tones stay for panels and the side nav.
+  @include mat.theme-overrides(
+    (
+      surface: #ffffff,
+      background: #ffffff,
+    )
+  );
+
+  // App tokens (spacing scale, radii, motion).
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 180ms;
+  --touch: 48px;
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+  font: var(--mat-sys-body-large);
   margin: 0;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
 }
-/* You can add global styles to this file, and also import other style files */
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+h1 {
+  font: var(--mat-sys-headline-small);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-4);
+}
+
+h2 {
+  font: var(--mat-sys-title-large);
+  font-weight: 650;
+  margin: 0 0 var(--space-4);
+}
+
+h3 {
+  font: var(--mat-sys-title-medium);
+  font-weight: 600;
+  margin: var(--space-5) 0 var(--space-3);
+}
+
+a {
+  color: var(--mat-sys-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+// Page header used by every backoffice page: title + primary action on one line.
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+// Backoffice data tables: bordered panel, horizontal scroll as a last resort, secondary columns hidden on phones.
+.table-card {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--radius-l);
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    --mat-table-background-color: transparent;
+    --mat-table-header-headline-color: var(--mat-sys-on-surface-variant);
+    --mat-table-row-item-outline-color: var(--mat-sys-outline-variant);
+  }
+
+  tr.mat-mdc-row:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  tr.mat-mdc-row:last-child td {
+    border-bottom: 0;
+  }
+
+  .actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .no-data td {
+    padding: var(--space-6) var(--space-4);
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+@media (max-width: 719px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+// Small status label (Attivo / Non attivo, Invitato / Collegato).
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font: var(--mat-sys-label-medium);
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+
+  &.ok {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+}

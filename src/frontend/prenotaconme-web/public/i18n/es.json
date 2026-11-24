@@ -26,13 +26,29 @@
     "staff": "Staff"
   },
   "home": {
-    "title": "Reserva tu cita",
-    "subtitle": "Peluquerías, barberías, centros de estética y más.",
+    "title": "Las reservas de tu salón, online",
+    "subtitle": "Tus clientes reservan solos desde tu enlace, a cualquier hora. Tú gestionas sedes, servicios y horarios también desde el móvil.",
     "apiStatus": "Estado de la API",
     "status": {
       "checking": "comprobando…",
       "online": "en línea",
       "offline": "no disponible"
+    },
+    "cta": "Registra tu negocio",
+    "signIn": "Ya tengo cuenta",
+    "points": {
+      "link": {
+        "title": "Un enlace propio",
+        "text": "Compártelo en WhatsApp, Instagram y Google: el cliente elige servicio, colaborador y hora."
+      },
+      "calendar": {
+        "title": "Sin reservas duplicadas",
+        "text": "Las horas libres tienen en cuenta turnos, vacaciones y citas ya ocupadas."
+      },
+      "mail": {
+        "title": "Confirmación automática",
+        "text": "Cliente y colaborador reciben un email con la cita para añadir al calendario."
+      }
     }
   },
   "booking": {
@@ -60,7 +76,15 @@
     "phoneHint": "Con prefijo internacional, p. ej. +34 612 345 678. Solo lo usamos para los recordatorios.",
     "confirm": "Confirmar reserva",
     "confirmed": "¡Reserva confirmada!",
-    "bookAnother": "Reservar otro servicio"
+    "bookAnother": "Reservar otro servicio",
+    "notFoundHint": "Revisa el enlace que recibiste: puede que la dirección haya cambiado.",
+    "progress": "Progreso de la reserva",
+    "step": "Paso {{n}} de {{total}}",
+    "chooseDay": "Días disponibles",
+    "morning": "Mañana",
+    "afternoon": "Tarde",
+    "evening": "Noche",
+    "confirmedHint": "Te hemos enviado un email con los detalles y la cita para añadirla a tu calendario."
   },
   "notFound": {
     "title": "Página no encontrada",
@@ -169,7 +193,34 @@
     "signOut": "Cerrar sesión"
   },
   "dashboard": {
-    "publicLink": "Página pública de reservas"
+    "publicLink": "Comparte este enlace con tus clientes: en WhatsApp, Instagram o Google.",
+    "publicLinkTitle": "Tu página de reservas",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado",
+    "open": "Abrir página",
+    "go": "Ir",
+    "setupTitle": "Qué falta para recibir reservas",
+    "setupHint": "Completa estos pasos y tus clientes podrán reservar solos.",
+    "readyTitle": "Todo listo",
+    "readyHint": "Tus clientes ya pueden reservar desde tu enlace.",
+    "steps": {
+      "location": {
+        "title": "Sede con horario de apertura",
+        "hint": "Dirección y días en que abres."
+      },
+      "services": {
+        "title": "Al menos un servicio activo",
+        "hint": "Qué ofreces, cuánto dura y cuánto cuesta."
+      },
+      "staff": {
+        "title": "Al menos un colaborador",
+        "hint": "Quién hace los servicios (puedes ser tú)."
+      },
+      "hours": {
+        "title": "Horario de los colaboradores",
+        "hint": "Las horas en que cada uno atiende citas."
+      }
+    }
   },
   "days": {
     "Monday": "Lunes",
@@ -204,7 +255,8 @@
     "price": "Precio",
     "bookable": "Reservable online",
     "confirmDelete": "¿Eliminar el servicio «{{name}}»?",
-    "inactive": "no reservable"
+    "inactive": "no reservable",
+    "empty": "Ningún servicio. Añade el primero con «Nuevo servicio»."
   },
   "staff": {
     "new": "Nuevo miembro",
@@ -233,6 +285,7 @@
     "reason": "Motivo (opcional)",
     "addTimeOff": "Añadir ausencia",
     "active": "En servicio",
-    "inactive": "fuera de servicio"
+    "inactive": "fuera de servicio",
+    "empty": "Ningún colaborador. Añádete a ti o al primer colaborador."
   }
 }

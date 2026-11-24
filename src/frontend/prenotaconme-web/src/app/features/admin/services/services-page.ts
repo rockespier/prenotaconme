@@ -23,12 +23,13 @@ type Service = Schemas['ServiceDto'];
       <button mat-flat-button (click)="edit(null)"><mat-icon>add</mat-icon>{{ 'services.new' | transloco }}</button>
     </header>
 
+    <div class="table-card">
     <table mat-table [dataSource]="services()">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>{{ 'common.name' | transloco }}</th>
         <td mat-cell *matCellDef="let s">
-          {{ s.name }}
-          @if (!s.isActive) { <small class="muted">({{ 'services.inactive' | transloco }})</small> }
+          <strong>{{ s.name }}</strong>
+          @if (!s.isActive) { <span class="pill">{{ 'services.inactive' | transloco }}</span> }
         </td>
       </ng-container>
       <ng-container matColumnDef="duration">
@@ -40,8 +41,8 @@ type Service = Schemas['ServiceDto'];
         <td mat-cell *matCellDef="let s">{{ s.price | currency: 'EUR' }}</td>
       </ng-container>
       <ng-container matColumnDef="locations">
-        <th mat-header-cell *matHeaderCellDef>{{ 'nav.locations' | transloco }}</th>
-        <td mat-cell *matCellDef="let s">{{ locationNames(s) }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'nav.locations' | transloco }}</th>
+        <td mat-cell *matCellDef="let s" class="hide-sm">{{ locationNames(s) }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
@@ -52,13 +53,14 @@ type Service = Schemas['ServiceDto'];
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      <tr class="mat-mdc-row no-data" *matNoDataRow>
+        <td class="mat-mdc-cell" [attr.colspan]="columns.length">{{ 'services.empty' | transloco }}</td>
+      </tr>
     </table>
+    </div>
   `,
   styles: `
-    .page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    table { width: 100%; }
-    .actions { text-align: right; white-space: nowrap; }
-    .muted { color: var(--mat-sys-on-surface-variant); }
+    strong { font-weight: 600; margin-right: var(--space-2); }
   `,
 })
 export class ServicesPage implements OnInit {

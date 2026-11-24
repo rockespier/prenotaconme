@@ -26,13 +26,29 @@
     "staff": "Collaboratori"
   },
   "home": {
-    "title": "Prenota il tuo appuntamento",
-    "subtitle": "Parrucchieri, barbieri, centri estetici e altro.",
+    "title": "Le prenotazioni del tuo salone, online",
+    "subtitle": "I clienti prenotano da soli dal tuo link, a qualsiasi ora. Tu gestisci sedi, servizi e orari anche dal telefono.",
     "apiStatus": "Stato del servizio",
     "status": {
       "checking": "verifica…",
       "online": "online",
       "offline": "non raggiungibile"
+    },
+    "cta": "Registra la tua attività",
+    "signIn": "Ho già un account",
+    "points": {
+      "link": {
+        "title": "Un link tutto tuo",
+        "text": "Condividilo su WhatsApp, Instagram e Google: il cliente sceglie servizio, collaboratore e orario."
+      },
+      "calendar": {
+        "title": "Niente doppie prenotazioni",
+        "text": "Gli orari liberi tengono conto di turni, ferie e appuntamenti già presi."
+      },
+      "mail": {
+        "title": "Conferma automatica",
+        "text": "Cliente e collaboratore ricevono un'email con l'appuntamento da aggiungere al calendario."
+      }
     }
   },
   "booking": {
@@ -60,7 +76,15 @@
     "phoneHint": "Con il prefisso internazionale, es. +39 333 123 4567. Lo usiamo solo per i promemoria.",
     "confirm": "Conferma prenotazione",
     "confirmed": "Prenotazione confermata!",
-    "bookAnother": "Prenota un altro servizio"
+    "bookAnother": "Prenota un altro servizio",
+    "notFoundHint": "Controlla il link che hai ricevuto: forse l'indirizzo è cambiato.",
+    "progress": "Avanzamento della prenotazione",
+    "step": "Passo {{n}} di {{total}}",
+    "chooseDay": "Giorni disponibili",
+    "morning": "Mattina",
+    "afternoon": "Pomeriggio",
+    "evening": "Sera",
+    "confirmedHint": "Ti abbiamo inviato un'email con i dettagli e l'appuntamento da aggiungere al calendario."
   },
   "notFound": {
     "title": "Pagina non trovata",
@@ -169,7 +193,34 @@
     "signOut": "Esci"
   },
   "dashboard": {
-    "publicLink": "Il link per prenotare (condividilo con i tuoi clienti)"
+    "publicLink": "Condividi questo link con i tuoi clienti: su WhatsApp, Instagram o Google.",
+    "publicLinkTitle": "La tua pagina di prenotazione",
+    "copy": "Copia link",
+    "copied": "Link copiato",
+    "open": "Apri pagina",
+    "go": "Vai",
+    "setupTitle": "Cosa manca per ricevere prenotazioni",
+    "setupHint": "Completa questi passi: poi i clienti potranno prenotare da soli.",
+    "readyTitle": "Tutto pronto",
+    "readyHint": "I clienti possono già prenotare dal tuo link.",
+    "steps": {
+      "location": {
+        "title": "Sede con orario di apertura",
+        "hint": "Indirizzo e giorni in cui sei aperto."
+      },
+      "services": {
+        "title": "Almeno un servizio attivo",
+        "hint": "Cosa offri, quanto dura e quanto costa."
+      },
+      "staff": {
+        "title": "Almeno un collaboratore",
+        "hint": "Chi esegue i servizi (puoi essere anche tu)."
+      },
+      "hours": {
+        "title": "Orari di lavoro dei collaboratori",
+        "hint": "Le ore in cui ognuno è disponibile per gli appuntamenti."
+      }
+    }
   },
   "days": {
     "Monday": "Lunedì",
@@ -204,7 +255,8 @@
     "price": "Prezzo",
     "bookable": "Prenotabile online",
     "confirmDelete": "Eliminare il servizio «{{name}}»?",
-    "inactive": "non prenotabile"
+    "inactive": "non prenotabile",
+    "empty": "Nessun servizio. Aggiungi il primo con «Aggiungi servizio»."
   },
   "staff": {
     "new": "Aggiungi collaboratore",
@@ -233,6 +285,7 @@
     "reason": "Motivo (es. ferie)",
     "addTimeOff": "Aggiungi ferie o permesso",
     "active": "In servizio",
-    "inactive": "non in servizio"
+    "inactive": "non in servizio",
+    "empty": "Nessun collaboratore. Aggiungi te stesso o il primo collaboratore."
   }
 }

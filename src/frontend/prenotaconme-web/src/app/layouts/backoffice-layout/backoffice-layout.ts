@@ -40,6 +40,7 @@ interface NavItem {
   template: `
     <mat-sidenav-container class="container">
       <mat-sidenav #drawer [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()">
+        <div class="nav-brand"><span class="mark" aria-hidden="true"></span>{{ 'app.name' | transloco }}</div>
         <mat-nav-list>
           @for (item of nav(); track item.path) {
             <a
@@ -109,11 +110,56 @@ interface NavItem {
   `,
   styles: `
     .container { height: 100%; }
-    mat-sidenav { width: 240px; }
+
+    mat-sidenav {
+      width: 248px;
+      border-right: 1px solid var(--mat-sys-outline-variant);
+      --mat-sidenav-container-background-color: var(--mat-sys-surface-container-low);
+      --mat-sidenav-container-shape: 0;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      height: 64px;
+      padding: 0 var(--space-5);
+      font: var(--mat-sys-title-small);
+      font-weight: 700;
+      color: var(--mat-sys-on-surface);
+    }
+
+    .mark { width: 12px; height: 12px; border-radius: 4px; background: var(--mat-sys-primary); }
+
+    mat-nav-list {
+      padding: 0 var(--space-3);
+      --mat-list-active-indicator-shape: var(--radius-m);
+      --mat-list-active-indicator-color: var(--mat-sys-primary-container);
+    }
+
+    mat-nav-list a[mat-list-item] { margin-bottom: 2px; }
+
+    mat-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      --mat-toolbar-container-background-color: var(--mat-sys-surface);
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      gap: var(--space-2);
+    }
+
     .spacer { flex: 1; }
-    .business { font: var(--mat-sys-title-medium); }
+    .business { font: var(--mat-sys-title-medium); font-weight: 600; }
     .avatar { width: 32px; height: 32px; border-radius: 50%; }
-    main { padding: 24px; }
+
+    main {
+      max-width: 1120px;
+      padding: var(--space-6) var(--space-6) var(--space-7);
+    }
+
+    @media (max-width: 599px) {
+      main { padding: var(--space-5) var(--space-4) var(--space-7); }
+    }
   `,
 })
 export class BackofficeLayout {
