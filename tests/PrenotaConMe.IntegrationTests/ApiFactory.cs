@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PrenotaConMe.Modules.Notifications;
+using PrenotaConMe.Modules.Notifications.Push;
 using Testcontainers.PostgreSql;
 
 namespace PrenotaConMe.IntegrationTests;
@@ -28,8 +29,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     public const string PlatformAdminUid = "platform-root";
     private const string PlatformAdminEmail = PlatformAdminUid + "@test.local";
 
+    public const string TestPushPublicKey = "test-public-key";
+
     /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
     public CapturingEmailSender Emails { get; } = new();
+
+    /// <summary>Push notifications sent by the app (the push services are replaced).</summary>
+    public CapturingPushSender Pushes { get; } = new();
 
     public async Task InitializeAsync()
     {
@@ -53,10 +59,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("ConnectionStrings:Database", _connectionString);
         builder.UseSetting("Database:MigrateOnStartup", "true");
         builder.UseSetting("Platform:AdminEmails:0", PlatformAdminEmail);
+        builder.UseSetting("Push:PublicKey", TestPushPublicKey);
+        builder.UseSetting("Push:PrivateKey", "test-private-key");
 
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IEmailSender>(Emails);
+            services.AddSingleton<IPushSender>(Pushes);
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o =>

@@ -8,6 +8,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_CLIENT, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
+import { PushToggle } from '../../shared/push-toggle/push-toggle';
 import { addDaysIso, dayParts, formatDay, formatInstant, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
 
 type Appointment = Schemas['MyAppointmentDto'];
@@ -22,7 +23,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-my-appointments',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslocoPipe],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, TranslocoPipe],
   templateUrl: './my-appointments.html',
   styleUrls: ['./booking-page.scss', './my-appointments.scss'],
 })

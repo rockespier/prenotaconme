@@ -3,9 +3,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\PrenotaConMe.Infrastructure\PrenotaConMe.Infrastructure.csproj" />
     <ProjectReference Include="..\..\PrenotaConMe.Shared\PrenotaConMe.Shared.csproj" />
+    <ProjectReference Include="..\PrenotaConMe.Modules.Users\PrenotaConMe.Modules.Users.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lib.Net.Http.WebPush" Version="3.3.1" />
     <PackageReference Include="MailKit" Version="4.18.2" />
   </ItemGroup>
 

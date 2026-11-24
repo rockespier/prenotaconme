@@ -1,6 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { API_CLIENT, Schemas } from '../api/api-client';
 import { AuthService } from '../auth/auth.service';
+import { PushService } from '../push/push.service';
 import { TenantSelection } from './tenant-selection';
 
 type Me = Schemas['MeDto'];
@@ -18,6 +19,7 @@ export class SessionService {
   private readonly api = inject(API_CLIENT);
   private readonly auth = inject(AuthService);
   private readonly tenant = inject(TenantSelection);
+  private readonly push = inject(PushService);
 
   readonly me = signal<Me | null>(null);
 
@@ -64,6 +66,7 @@ export class SessionService {
 
   async signOut(): Promise<void> {
     this.tenant.select(null);
+    await this.push.signOut();
     await this.auth.signOut();
   }
 

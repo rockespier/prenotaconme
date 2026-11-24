@@ -10,8 +10,11 @@ public sealed class SchedulingModule : IModule
 {
     public string Name => "scheduling";
 
-    public void RegisterServices(IServiceCollection services, IConfiguration configuration) =>
+    public void RegisterServices(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddScoped<AvailabilityService>();
+        services.AddScoped<AppointmentEvents>();
+    }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => SchedulingEndpoints.Map(endpoints);
 }

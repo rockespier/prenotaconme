@@ -374,5 +374,16 @@
     "active": "In servizio",
     "inactive": "non in servizio",
     "empty": "Nessun collaboratore. Aggiungi te stesso o il primo collaboratore."
+  },
+  "push": {
+    "title": "Notifiche",
+    "client": "Ricevi un avviso sul telefono quando una prenotazione viene confermata, spostata o annullata.",
+    "staff": "Ricevi un avviso su questo dispositivo per ogni nuova prenotazione, spostamento o annullamento.",
+    "enable": "Attiva notifiche",
+    "disable": "Disattiva",
+    "on": "Notifiche attive su questo dispositivo.",
+    "denied": "Le notifiche sono bloccate per questo sito. Puoi riattivarle dalle impostazioni del browser.",
+    "ios": "Su iPhone aggiungi prima questa pagina alla schermata Home (Condividi → Aggiungi alla schermata Home) e aprila da lì.",
+    "error": "Non è stato possibile attivare le notifiche. Riprova."
   }
 }

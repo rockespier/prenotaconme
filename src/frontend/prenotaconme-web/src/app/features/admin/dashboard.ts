@@ -10,6 +10,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_CLIENT } from '../../core/api/api-client';
 import { SessionService } from '../../core/session/session.service';
 import { Notifier } from '../../shared/api-errors';
+import { PushToggle } from '../../shared/push-toggle/push-toggle';
 
 interface SetupStep {
   key: string;
@@ -23,7 +24,7 @@ interface SetupStep {
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, TranslocoPipe],
+  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, PushToggle, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.dashboard' | transloco }}</h1>
@@ -43,6 +44,8 @@ interface SetupStep {
           </a>
         </div>
       </section>
+
+      <app-push-toggle audience="staff" />
 
       @if (session.isAdmin() && steps(); as list) {
         <section class="setup">

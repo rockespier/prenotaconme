@@ -102,8 +102,8 @@ internal static class CalendarEndpoints
     }
 
     private static async Task<Results<Created<CalendarAppointmentDto>, ValidationProblem, ProblemHttpResult>> CreateAsync(
-        CreateCalendarAppointmentRequest request, AppDbContext db, ITenantContext tenant, ITenantDirectory tenants,
-        IAppointmentNotifier notifier, CancellationToken ct)
+        CreateCalendarAppointmentRequest request, AppDbContext db, ICurrentUser currentUser, AppointmentEvents events,
+        CancellationToken ct)
     {
         var name = request.ClientName?.Trim() ?? string.Empty;
         var phone = request.ClientPhone?.Trim();
@@ -140,20 +140,14 @@ internal static class CalendarEndpoints
         }
 
         // The staff member gets the usual e-mail with the .ics; there is no client e-mail for a guest.
-        var business = (await tenants.GetByIdsAsync([tenant.TenantId!.Value], ct))[tenant.TenantId!.Value];
-        var staff = await db.Set<StaffMember>().AsNoTracking()
-            .Where(s => s.Id == request.StaffId).Select(s => new { s.DisplayName, s.Email }).SingleAsync(ct);
-        notifier.Booked(new AppointmentNotice(
-            appointment.Id, business.Name, business.DefaultLanguage, appointment.ServiceName, appointment.Price,
-            appointment.StartsAt, appointment.EndsAt, location.TimeZone,
-            location.Name, location.Address, location.City, location.Phone,
-            staff.DisplayName, staff.Email, appointment.ClientName, null));
+        await events.PublishAsync(appointment, AppointmentChange.Booked, await currentUser.GetUserIdAsync(ct), ct);
 
         return TypedResults.Created($"/api/scheduling/calendar/appointments/{appointment.Id}", ToDto(appointment, null));
     }
 
     private static async Task<Results<Ok<CalendarAppointmentDto>, NotFound, ValidationProblem, ProblemHttpResult>> MoveAsync(
-        Guid id, MoveCalendarAppointmentRequest request, AppDbContext db, IUserDirectory users, CancellationToken ct)
+        Guid id, MoveCalendarAppointmentRequest request, AppDbContext db, IUserDirectory users, ICurrentUser currentUser,
+        AppointmentEvents events, CancellationToken ct)
     {
         var appointment = await db.Set<Appointment>().SingleOrDefaultAsync(a => a.Id == id, ct);
         if (appointment is null)
@@ -174,6 +168,8 @@ internal static class CalendarEndpoints
             return errors.ToProblem();
         }
 
+        var previousStaffId = appointment.StaffMemberId;
+        var previousStart = appointment.StartsAt;
         appointment.Reschedule(request.StaffId, request.StartsAt);
         try
         {
@@ -184,11 +180,17 @@ internal static class CalendarEndpoints
             return SchedulingEndpoints.SlotTaken("slot.taken");
         }
 
+        if (previousStaffId != appointment.StaffMemberId || previousStart != appointment.StartsAt)
+        {
+            await events.PublishAsync(appointment, AppointmentChange.Rescheduled, await currentUser.GetUserIdAsync(ct), ct, previousStaffId);
+        }
+
         return TypedResults.Ok(await ToDtoAsync(appointment, users, ct));
     }
 
     private static async Task<Results<Ok<CalendarAppointmentDto>, NotFound, ProblemHttpResult>> CancelAsync(
-        Guid id, AppDbContext db, IUserDirectory users, TimeProvider clock, CancellationToken ct)
+        Guid id, AppDbContext db, IUserDirectory users, ICurrentUser currentUser, AppointmentEvents events, TimeProvider clock,
+        CancellationToken ct)
     {
         var appointment = await db.Set<Appointment>().SingleOrDefaultAsync(a => a.Id == id, ct);
         if (appointment is null)
@@ -205,6 +207,7 @@ internal static class CalendarEndpoints
         // The business may cancel at any time (no client notice).
         appointment.Cancel(clock.GetUtcNow());
         await db.SaveChangesAsync(ct);
+        await events.PublishAsync(appointment, AppointmentChange.Cancelled, await currentUser.GetUserIdAsync(ct), ct);
         return TypedResults.Ok(await ToDtoAsync(appointment, users, ct));
     }
 

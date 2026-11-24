@@ -11,29 +11,6 @@ public enum EmailRecipient
     Staff,
 }
 
-/// <summary>
-/// Queues one durable job per recipient, so a retry after an SMTP failure never re-sends the other e-mail.
-/// Enqueueing must not fail the booking, which is already committed.
-/// </summary>
-internal sealed partial class AppointmentNotifier(IBackgroundJobClient jobs, ILogger<AppointmentNotifier> logger) : IAppointmentNotifier
-{
-    public void Booked(AppointmentNotice notice)
-    {
-        try
-        {
-            jobs.Enqueue<AppointmentEmailJob>(j => j.SendAsync(notice, EmailRecipient.Client, CancellationToken.None));
-            jobs.Enqueue<AppointmentEmailJob>(j => j.SendAsync(notice, EmailRecipient.Staff, CancellationToken.None));
-        }
-        catch (Exception ex)
-        {
-            LogEnqueueFailed(logger, ex, notice.AppointmentId);
-        }
-    }
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Could not queue the e-mails for appointment {AppointmentId}")]
-    private static partial void LogEnqueueFailed(ILogger logger, Exception exception, Guid appointmentId);
-}
-
 /// <summary>F1-11 confirmation e-mail, run by Hangfire: SMTP failures are retried with back-off.</summary>
 public sealed partial class AppointmentEmailJob(
     IEmailSender sender, IOptions<NotificationOptions> options, TimeProvider clock, ILogger<AppointmentEmailJob> logger)

@@ -102,7 +102,7 @@ internal static class SchedulingEndpoints
     private static async Task<Results<Created<AppointmentDto>, ValidationProblem, ProblemHttpResult>> BookAsync(
         BookAppointmentRequest request, AvailabilityService availability, AppDbContext db,
         ICurrentUser currentUser, IMembershipWriter memberships, ITenantContext tenant,
-        ITenantDirectory tenants, IAppointmentNotifier notifier, CancellationToken ct)
+        AppointmentEvents events, CancellationToken ct)
     {
         // Recompute the availability of that local day: the requested start must be one of the offered slots.
         var location = await db.Set<PrenotaConMe.Modules.Locations.Domain.Location>().AsNoTracking()
@@ -144,17 +144,8 @@ internal static class SchedulingEndpoints
             return SlotTaken("slot.taken");
         }
 
-        // F1-11: confirmation e-mails are sent in the background.
-        var business = (await tenants.GetByIdsAsync([tenant.TenantId!.Value], ct))[tenant.TenantId!.Value];
-        var staff = await db.Set<StaffMember>().AsNoTracking()
-            .Where(s => s.Id == staffId)
-            .Select(s => new { s.DisplayName, s.Email })
-            .SingleAsync(ct);
-        notifier.Booked(new AppointmentNotice(
-            appointment.Id, business.Name, business.DefaultLanguage, appointment.ServiceName, appointment.Price,
-            appointment.StartsAt, appointment.EndsAt, location.TimeZone,
-            location.Name, location.Address, location.City, location.Phone,
-            staff.DisplayName, staff.Email, currentUser.DisplayName, currentUser.Email));
+        // F1-11 / F2-02: confirmation e-mails and push notifications are sent in the background.
+        await events.PublishAsync(appointment, AppointmentChange.Booked, clientId, ct);
 
         return TypedResults.Created($"/api/scheduling/appointments/{appointment.Id}", ToDto(appointment));
     }
