@@ -15,6 +15,12 @@ public static partial class TenantRules
     /// <summary>Upper bound of the cancellation notice an Admin can set (30 days).</summary>
     public const int MaxCancellationNoticeHours = 720;
 
+    public const int DefaultFirstReminderHours = 24;
+    public const int DefaultSecondReminderHours = 2;
+
+    /// <summary>Upper bound of a reminder (7 days before); 0 turns a reminder off.</summary>
+    public const int MaxReminderHours = 168;
+
     public static readonly IReadOnlySet<string> Languages = new HashSet<string>(StringComparer.Ordinal) { "it", "es", "en" };
 
     /// <summary>

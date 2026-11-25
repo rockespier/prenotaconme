@@ -1,7 +1,9 @@
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Modules.Notifications.Reminders;
 using PrenotaConMe.Modules.Notifications.Telegram;
 using PrenotaConMe.Shared.Notifications;
 
@@ -13,7 +15,8 @@ namespace PrenotaConMe.Modules.Notifications;
 /// which is already committed.
 /// </summary>
 internal sealed partial class AppointmentNotifier(
-    IBackgroundJobClient jobs, IOptions<PushOptions> push, IOptions<NotificationOptions> options, ILogger<AppointmentNotifier> logger)
+    IBackgroundJobClient jobs, AppDbContext db, IOptions<PushOptions> push, IOptions<NotificationOptions> options,
+    ILogger<AppointmentNotifier> logger)
     : IAppointmentNotifier
 {
     public void Notify(AppointmentChange change, AppointmentNotice notice, Guid? actorUserId)
@@ -40,6 +43,17 @@ internal sealed partial class AppointmentNotifier(
         {
             LogEnqueueFailed(logger, ex, change, notice.AppointmentId);
         }
+    }
+
+    public async Task RemindAsync(AppointmentNotice notice, CancellationToken cancellationToken)
+    {
+        if (notice.ClientUserId is not { } clientId || !await ReminderEndpoints.IsEnabledAsync(db, clientId, cancellationToken))
+        {
+            return;
+        }
+
+        jobs.Enqueue<AppointmentEmailJob>(j => j.SendAsync(notice, EmailRecipient.ClientReminder, CancellationToken.None));
+        Message(clientId, PushMessages.BuildReminder(notice));
     }
 
     /// <summary>Push (when configured) and Telegram (the job does nothing when the user has not linked a chat).</summary>

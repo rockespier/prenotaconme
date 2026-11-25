@@ -247,6 +247,9 @@
       },
       "webhookUnavailable": "The server has no public https address configured for Telegram.",
       "notConfigured": "This business has no Telegram bot."
+    },
+    "reminder": {
+      "range": "Choose a value between 0 and 168 hours."
     }
   },
   "backoffice": {
@@ -290,6 +293,13 @@
       "notice": "Minimum notice",
       "anytime": "Any time before it starts",
       "hours": "{{hours}} hours before"
+    },
+    "reminders": {
+      "title": "Client reminders",
+      "hint": "Automatic messages before the appointment (notification, Telegram and e-mail). They apply to new bookings.",
+      "firstReminderHours": "First reminder",
+      "secondReminderHours": "Second reminder",
+      "none": "None"
     }
   },
   "calendar": {
@@ -447,5 +457,10 @@
     "unlink": "Unlink",
     "linkHint": "Get confirmations and announcements in a chat with @{{bot}}.",
     "linked": "Linked: you get messages from @{{bot}}."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "on": "We remind you of your appointments the day before and shortly before.",
+    "off": "You will not get reminders of your appointments."
   }
 }

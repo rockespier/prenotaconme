@@ -255,6 +255,48 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("announcements", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.ReminderPreference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_reminder_preferences");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_reminder_preferences_tenant_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_reminder_preferences_user_id");
+
+                    b.HasIndex("TenantId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_reminder_preferences_tenant_id_user_id");
+
+                    b.ToTable("reminder_preferences", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramBot", b =>
                 {
                     b.Property<Guid>("Id")
@@ -808,6 +850,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(5)")
                         .HasColumnName("default_language");
 
+                    b.Property<int>("FirstReminderHours")
+                        .HasColumnType("integer")
+                        .HasColumnName("first_reminder_hours");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -817,6 +863,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
+
+                    b.Property<int>("SecondReminderHours")
+                        .HasColumnType("integer")
+                        .HasColumnName("second_reminder_hours");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -985,6 +1035,16 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("OpeningHours");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.ReminderPreference", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reminder_preferences_users_user_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramLink", b =>

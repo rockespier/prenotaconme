@@ -1876,6 +1876,54 @@
           }
         }
       }
+    },
+    "/api/notifications/reminders/preference": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetReminderPreference",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderPreferenceDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "SaveReminderPreference",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReminderPreferenceDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderPreferenceDto"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3022,6 +3070,17 @@
           }
         }
       },
+      "ReminderPreferenceDto": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
       "RescheduleAppointmentRequest": {
         "required": [
           "startsAt",
@@ -3433,7 +3492,9 @@
           "slug",
           "timeZone",
           "defaultLanguage",
-          "cancellationNoticeHours"
+          "cancellationNoticeHours",
+          "firstReminderHours",
+          "secondReminderHours"
         ],
         "type": "object",
         "properties": {
@@ -3454,6 +3515,14 @@
             "type": "string"
           },
           "cancellationNoticeHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "firstReminderHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "secondReminderHours": {
             "type": "integer",
             "format": "int32"
           }
@@ -3521,13 +3590,27 @@
         }
       },
       "UpdateTenantSettingsRequest": {
-        "required": [
-          "cancellationNoticeHours"
-        ],
         "type": "object",
         "properties": {
           "cancellationNoticeHours": {
-            "type": "integer",
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "firstReminderHours": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "secondReminderHours": {
+            "type": [
+              "null",
+              "integer"
+            ],
             "format": "int32"
           }
         }

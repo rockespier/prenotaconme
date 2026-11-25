@@ -44,4 +44,10 @@ public interface IAppointmentNotifier
     /// Returns immediately and never throws: a failed message must not undo or delay the change.
     /// </summary>
     void Notify(AppointmentChange change, AppointmentNotice notice, Guid? actorUserId);
+
+    /// <summary>
+    /// F2-06: queues a reminder of an upcoming appointment to the registered client (push, Telegram, e-mail), unless
+    /// they turned reminders off for this business. Guests (no account) get nothing.
+    /// </summary>
+    Task RemindAsync(AppointmentNotice notice, CancellationToken cancellationToken);
 }

@@ -3,13 +3,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PrenotaConMe.Modules.Notifications.Announcements;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Modules.Notifications.Reminders;
 using PrenotaConMe.Modules.Notifications.Telegram;
 using PrenotaConMe.Shared.Modules;
 using PrenotaConMe.Shared.Notifications;
 
 namespace PrenotaConMe.Modules.Notifications;
 
-/// <summary>E-mail (F1-11), Web Push (F2-02) and Telegram (F3-T1/T2) notifications, sent by Hangfire jobs (F2-01). WhatsApp and Telegram come in later phases.</summary>
+/// <summary>E-mail (F1-11), Web Push (F2-02) and Telegram (F3-T1/T2) notifications and client reminders (F2-06), sent by Hangfire jobs (F2-01). WhatsApp and Telegram come in later phases.</summary>
 public sealed class NotificationsModule : IModule
 {
     public string Name => "notifications";
@@ -53,5 +54,6 @@ public sealed class NotificationsModule : IModule
         PushEndpoints.Map(endpoints);
         AnnouncementEndpoints.Map(endpoints);
         TelegramEndpoints.Map(endpoints);
+        ReminderEndpoints.Map(endpoints);
     }
 }
