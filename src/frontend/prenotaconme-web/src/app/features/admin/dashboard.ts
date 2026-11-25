@@ -14,6 +14,8 @@ import { PushToggle } from '../../shared/push-toggle/push-toggle';
 import { TelegramLink } from '../../shared/telegram-link/telegram-link';
 import { TelegramSettings } from './telegram-settings';
 
+type ReminderField = 'firstReminderHours' | 'secondReminderHours';
+
 interface SetupStep {
   key: string;
   done: boolean;
@@ -94,6 +96,23 @@ interface SetupStep {
                 }
               </mat-select>
             </mat-form-field>
+
+            <h3>{{ 'dashboard.reminders.title' | transloco }}</h3>
+            <p class="muted">{{ 'dashboard.reminders.hint' | transloco }}</p>
+            <div class="reminder-fields">
+              @for (field of reminderFields; track field) {
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                  <mat-label>{{ 'dashboard.reminders.' + field | transloco }}</mat-label>
+                  <mat-select [value]="reminders()[field]" (valueChange)="saveReminder(field, $event)">
+                    @for (h of reminderOptions; track h) {
+                      <mat-option [value]="h">
+                        {{ (h === 0 ? 'dashboard.reminders.none' : 'dashboard.rules.hours') | transloco: { hours: h } }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              }
+            </div>
           </section>
         }
 
@@ -133,6 +152,9 @@ interface SetupStep {
 
     .setup, .rules { margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
+    .rules h3 { margin: var(--space-5) 0 var(--space-1); font: var(--mat-sys-title-small); font-weight: 600; }
+    .reminder-fields { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
+    .reminder-fields mat-form-field { width: min(100%, 240px); }
 
     .steps {
       list-style: none;
@@ -190,6 +212,11 @@ export class Dashboard {
   protected noticeOptions = [0, 1, 2, 3, 4, 6, 12, 24, 48, 72];
   private readonly notifier = inject(Notifier);
 
+  /** F2-06: client reminders, hours before the appointment (0 = off). */
+  protected readonly reminders = signal<Record<ReminderField, number>>({ firstReminderHours: 24, secondReminderHours: 2 });
+  protected readonly reminderFields: ReminderField[] = ['firstReminderHours', 'secondReminderHours'];
+  protected reminderOptions = [0, 1, 2, 3, 4, 6, 12, 24, 48, 72];
+
   constructor() {
     // Reload when the selected business changes.
     effect(() => {
@@ -223,12 +250,28 @@ export class Dashboard {
     this.notifier.saved();
   }
 
+  protected async saveReminder(field: ReminderField, hours: number): Promise<void> {
+    const { data, error } = await this.api.PUT('/api/tenancy/tenants/current/settings', { body: { [field]: hours } });
+    if (error) {
+      this.notifier.error(error);
+      return;
+    }
+    this.reminders.set({ firstReminderHours: data.firstReminderHours, secondReminderHours: data.secondReminderHours });
+    this.notifier.saved();
+  }
+
   private async loadSettings(): Promise<void> {
     const { data } = await this.api.GET('/api/tenancy/tenants/current');
     const hours = data?.cancellationNoticeHours ?? null;
     // Keep a non-standard value selectable.
     if (hours !== null && !this.noticeOptions.includes(hours)) {
       this.noticeOptions = [...this.noticeOptions, hours].sort((a, b) => a - b);
+    }
+    if (data) {
+      const reminders = { firstReminderHours: data.firstReminderHours, secondReminderHours: data.secondReminderHours };
+      const extra = Object.values(reminders).filter((h) => !this.reminderOptions.includes(h));
+      if (extra.length) this.reminderOptions = [...new Set([...this.reminderOptions, ...extra])].sort((a, b) => a - b);
+      this.reminders.set(reminders);
     }
     this.noticeHours.set(hours);
   }

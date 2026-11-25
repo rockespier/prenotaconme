@@ -35,24 +35,29 @@ internal static class PushMessages
 {
     private sealed record Texts(
         string Culture, string ClientBooked, string ClientMoved, string ClientCancelled,
-        string StaffBooked, string StaffMoved, string StaffCancelled);
+        string StaffBooked, string StaffMoved, string StaffCancelled, string ClientReminder);
 
     private static readonly Dictionary<string, Texts> ByLanguage = new(StringComparer.OrdinalIgnoreCase)
     {
         ["it"] = new("it-IT", "Prenotazione confermata", "Appuntamento spostato", "Appuntamento annullato",
-            "Nuova prenotazione", "Appuntamento spostato", "Appuntamento annullato"),
+            "Nuova prenotazione", "Appuntamento spostato", "Appuntamento annullato", "Promemoria appuntamento"),
         ["es"] = new("es-ES", "Reserva confirmada", "Cita cambiada", "Cita cancelada",
-            "Nueva reserva", "Cita cambiada", "Cita cancelada"),
+            "Nueva reserva", "Cita cambiada", "Cita cancelada", "Recordatorio de tu cita"),
         ["en"] = new("en-GB", "Booking confirmed", "Appointment moved", "Appointment cancelled",
-            "New booking", "Appointment moved", "Appointment cancelled"),
+            "New booking", "Appointment moved", "Appointment cancelled", "Appointment reminder"),
     };
+
+    /// <summary>F2-06: reminder to the client of an upcoming appointment.</summary>
+    public static PushNotification BuildReminder(AppointmentNotice n)
+    {
+        var (t, when) = Prepare(n);
+        var body = string.Join(" · ", new[] { n.ServiceName, when, n.StaffName, n.BusinessName }.Where(p => !string.IsNullOrWhiteSpace(p)));
+        return new PushNotification(t.ClientReminder, body, $"/{n.BusinessSlug}/prenotazioni", $"appointment-{n.AppointmentId}");
+    }
 
     public static PushNotification Build(AppointmentChange change, AppointmentNotice n, PushAudience audience)
     {
-        var t = ByLanguage.GetValueOrDefault(n.Language) ?? ByLanguage["it"];
-        var culture = CultureInfo.GetCultureInfo(t.Culture);
-        var local = TimeZoneInfo.ConvertTime(n.StartsAt, TimeZoneInfo.FindSystemTimeZoneById(n.TimeZone));
-        var when = local.ToString("ddd d MMM, HH:mm", culture);
+        var (t, when) = Prepare(n);
 
         string title;
         string[] parts;
@@ -82,5 +87,13 @@ internal static class PushMessages
 
         var body = string.Join(" · ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));
         return new PushNotification(title, body, url, $"appointment-{n.AppointmentId}");
+    }
+
+    private static (Texts T, string When) Prepare(AppointmentNotice n)
+    {
+        var t = ByLanguage.GetValueOrDefault(n.Language) ?? ByLanguage["it"];
+        var culture = CultureInfo.GetCultureInfo(t.Culture);
+        var local = TimeZoneInfo.ConvertTime(n.StartsAt, TimeZoneInfo.FindSystemTimeZoneById(n.TimeZone));
+        return (t, local.ToString("ddd d MMM, HH:mm", culture));
     }
 }

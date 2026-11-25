@@ -13,11 +13,17 @@ namespace PrenotaConMe.Modules.Tenancy;
 
 public sealed record RegisterTenantRequest(string Name, string Slug, string TimeZone, string Language);
 
-public sealed record TenantDto(Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
+/// <param name="FirstReminderHours">Hours before the appointment of the first reminder to the client (0 = off).</param>
+/// <param name="SecondReminderHours">Hours before the appointment of the second reminder (0 = off).</param>
+public sealed record TenantDto(
+    Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours,
+    int FirstReminderHours, int SecondReminderHours);
 
 public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
 
-public sealed record UpdateTenantSettingsRequest(int CancellationNoticeHours);
+/// <summary>Only the values sent are changed.</summary>
+public sealed record UpdateTenantSettingsRequest(
+    int? CancellationNoticeHours = null, int? FirstReminderHours = null, int? SecondReminderHours = null);
 
 public sealed record SlugAvailabilityDto(string Slug, bool Available, string? Reason);
 
@@ -143,13 +149,27 @@ internal static class TenancyEndpoints
     private static async Task<Results<Ok<TenantDto>, ValidationProblem>> UpdateSettingsAsync(
         UpdateTenantSettingsRequest request, ITenantContext tenantContext, AppDbContext db, CancellationToken cancellationToken)
     {
-        if (request.CancellationNoticeHours is < 0 or > TenantRules.MaxCancellationNoticeHours)
+        var errors = new ValidationErrors()
+            .AddIf(request.CancellationNoticeHours is < 0 or > TenantRules.MaxCancellationNoticeHours, "cancellationNoticeHours", "cancellationNotice.range")
+            .AddIf(request.FirstReminderHours is < 0 or > TenantRules.MaxReminderHours, "firstReminderHours", "reminder.range")
+            .AddIf(request.SecondReminderHours is < 0 or > TenantRules.MaxReminderHours, "secondReminderHours", "reminder.range");
+        if (!errors.IsValid)
         {
-            return new ValidationErrors().Add("cancellationNoticeHours", "cancellationNotice.range").ToProblem();
+            return errors.ToProblem();
         }
 
         var tenant = await db.Set<Tenant>().SingleAsync(t => t.Id == tenantContext.TenantId, cancellationToken);
-        tenant.SetCancellationNotice(request.CancellationNoticeHours);
+        if (request.CancellationNoticeHours is { } notice)
+        {
+            tenant.SetCancellationNotice(notice);
+        }
+
+        if (request.FirstReminderHours is not null || request.SecondReminderHours is not null)
+        {
+            tenant.SetReminders(
+                request.FirstReminderHours ?? tenant.FirstReminderHours, request.SecondReminderHours ?? tenant.SecondReminderHours);
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ToDto(tenant));
@@ -161,5 +181,6 @@ internal static class TenancyEndpoints
             title: "slug.taken",
             detail: $"The slug '{slug}' is already in use.");
 
-    private static TenantDto ToDto(Tenant t) => new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours);
+    private static TenantDto ToDto(Tenant t) =>
+        new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours, t.FirstReminderHours, t.SecondReminderHours);
 }

@@ -9,9 +9,12 @@ public enum EmailRecipient
 {
     Client,
     Staff,
+
+    /// <summary>F2-06: reminder to the client before the appointment.</summary>
+    ClientReminder,
 }
 
-/// <summary>F1-11 confirmation e-mail, run by Hangfire: SMTP failures are retried with back-off.</summary>
+/// <summary>F1-11 confirmation and F2-06 reminder e-mails, run by Hangfire: SMTP failures are retried with back-off.</summary>
 public sealed partial class AppointmentEmailJob(
     IEmailSender sender, IOptions<NotificationOptions> options, TimeProvider clock, ILogger<AppointmentEmailJob> logger)
 {
@@ -21,9 +24,12 @@ public sealed partial class AppointmentEmailJob(
         EmailMessage? message;
         try
         {
-            message = recipient == EmailRecipient.Client
-                ? AppointmentEmails.ForClient(notice, clock.GetUtcNow())
-                : AppointmentEmails.ForStaff(notice, options.Value.StaffEmail, clock.GetUtcNow());
+            message = recipient switch
+            {
+                EmailRecipient.Client => AppointmentEmails.ForClient(notice, clock.GetUtcNow()),
+                EmailRecipient.ClientReminder => AppointmentEmails.ForClient(notice, clock.GetUtcNow(), reminder: true),
+                _ => AppointmentEmails.ForStaff(notice, options.Value.StaffEmail, clock.GetUtcNow()),
+            };
         }
         catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException or FormatException)
         {
@@ -41,9 +47,9 @@ public sealed partial class AppointmentEmailJob(
         LogSent(logger, recipient, notice.AppointmentId);
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Confirmation e-mail ({Recipient}) sent for appointment {AppointmentId}")]
+    [LoggerMessage(Level = LogLevel.Information, Message = "Appointment e-mail ({Recipient}) sent for appointment {AppointmentId}")]
     private static partial void LogSent(ILogger logger, EmailRecipient recipient, Guid appointmentId);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Could not build the confirmation e-mail for appointment {AppointmentId}")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Could not build the appointment e-mail for appointment {AppointmentId}")]
     private static partial void LogBuildFailed(ILogger logger, Exception exception, Guid appointmentId);
 }

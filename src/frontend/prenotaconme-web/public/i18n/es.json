@@ -247,6 +247,9 @@
       },
       "webhookUnavailable": "El servidor no tiene una dirección pública https configurada para Telegram.",
       "notConfigured": "Este negocio no tiene bot de Telegram."
+    },
+    "reminder": {
+      "range": "Elige un valor entre 0 y 168 horas."
     }
   },
   "backoffice": {
@@ -290,6 +293,13 @@
       "notice": "Antelación mínima",
       "anytime": "Siempre, hasta el inicio",
       "hours": "{{hours}} horas antes"
+    },
+    "reminders": {
+      "title": "Recordatorios a los clientes",
+      "hint": "Mensajes automáticos antes de la cita (notificación, Telegram y email). Se aplican a las reservas nuevas.",
+      "firstReminderHours": "Primer recordatorio",
+      "secondReminderHours": "Segundo recordatorio",
+      "none": "Ninguno"
     }
   },
   "calendar": {
@@ -447,5 +457,10 @@
     "unlink": "Desvincular",
     "linkHint": "Recibe confirmaciones y avisos en el chat con @{{bot}}.",
     "linked": "Vinculado: recibes los mensajes de @{{bot}}."
+  },
+  "reminders": {
+    "title": "Recordatorios",
+    "on": "Te recordamos tus citas el día antes y poco antes.",
+    "off": "No recibirás recordatorios de tus citas."
   }
 }

@@ -43,7 +43,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F1-14 | Ficha de cliente (A) | Listado de clientes del negocio con historial de citas |
 
 ## Fase 2 — Notificaciones y Google Calendar
-> Estado: F2-01 implementada (Hangfire con storage Postgres en el esquema `hangfire`; los emails de confirmación son jobs con reintentos; los jobs conservan el tenant que los encoló; dashboard `/hangfire` solo para P, porque muestra datos de todos los negocios). F2-02 implementada (Web Push VAPID con el service worker de Angular; activación desde Mis citas y el dashboard; push al cliente y al staff al reservar, mover o cancelar, salvo a quien hizo el cambio). F2-03 implementada (avisos en `/admin/avvisi` con vigencia en fechas locales del negocio, banner en la página pública y en Mis citas, envío único a todos los clientes por push + email; WhatsApp queda para F2-04/05). **Demo por Telegram:** F2-04/F2-05 (WhatsApp) se aplazan a la versión final; antes van F3-T1/T2 (hechas: bot por negocio, vinculación con deep link, citas y avisos también por Telegram), después F2-06 + F3-T3 (recordatorios) y el chatbot (F3-03…05). Siguiente: F2-06 Recordatorios.
+> Estado: F2-01 implementada (Hangfire con storage Postgres en el esquema `hangfire`; los emails de confirmación son jobs con reintentos; los jobs conservan el tenant que los encoló; dashboard `/hangfire` solo para P, porque muestra datos de todos los negocios). F2-02 implementada (Web Push VAPID con el service worker de Angular; activación desde Mis citas y el dashboard; push al cliente y al staff al reservar, mover o cancelar, salvo a quien hizo el cambio). F2-03 implementada (avisos en `/admin/avvisi` con vigencia en fechas locales del negocio, banner en la página pública y en Mis citas, envío único a todos los clientes por push + email; WhatsApp queda para F2-04/05). **Demo por Telegram:** F2-04/F2-05 (WhatsApp) se aplazan a la versión final; antes van F3-T1/T2 (hechas: bot por negocio, vinculación con deep link, citas y avisos también por Telegram), F2-06 + F3-T3 hechas (recordatorios 24 h y 2 h configurables por el Admin, por push + Telegram + email; jobs diferidos que se descartan solos si la cita se mueve o cancela; el cliente puede desactivarlos en Mis citas, activados por defecto). Siguiente: chatbot (F3-03…05).
 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
@@ -52,7 +52,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F2-03 | Anuncios del Admin (A→C) | Mensaje a todos los usuarios activos del negocio (push + email; WhatsApp opcional) con vigencia; banner en la página pública. Recargos (p.ej. festivos) solo informativos en el MVP |
 | F2-04 | Cuenta WhatsApp por negocio (A) | Tabla `WhatsAppAccount` (WabaId, PhoneNumberId, token cifrado); configuración manual con **el número del dev** para pruebas |
 | F2-05 | Plantillas WhatsApp | Plantillas utility (confirmación, recordatorio, cancelación) en IT/ES/EN, enviadas a aprobación de Meta |
-| F2-06 | Recordatorios | Jobs programados 24 h y 2 h antes (configurable); se reprograman/cancelan con la cita; opt-in del cliente registrado |
+| F2-06 ✅ | Recordatorios | Jobs programados 24 h y 2 h antes (configurable); se reprograman/cancelan con la cita; opt-in del cliente registrado |
 | F2-07 | Conexión GCal del staff (S) | OAuth Google por staff; tokens cifrados; desconectar |
 | F2-08 | Exportar citas a GCal | Crear/actualizar/borrar evento en GCal al cambiar la cita |
 | F2-09 | Importar ocupado desde GCal | Watch channels + sync tokens; eventos personales bloquean slots; renovación automática de canales |
@@ -64,7 +64,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F3-00 | Abstracción de canal | `IMessagingChannel` + modelo común de mensaje (texto, audio, botones); el motor del chatbot no conoce el canal |
 | F3-T1 ✅ | Bot Telegram | Bot de BotFather, token cifrado por tenant; long polling en dev, webhook con `secret_token` en prod |
 | F3-T2 ✅ | Vinculación Telegram | Deep link `t.me/<bot>?start=<token>` desde "Mi cuenta" en la web (o botón Compartir contacto) vincula `chat_id` al cliente |
-| F3-T3 | Recordatorios por Telegram | Los jobs de F2-06 envían también por Telegram si el cliente está vinculado |
+| F3-T3 ✅ | Recordatorios por Telegram | Los jobs de F2-06 envían también por Telegram si el cliente está vinculado |
 | F3-01 | Webhook Meta (WhatsApp) | Verificación del challenge y firma `X-Hub-Signature-256`; tenant resuelto por `phone_number_id`; idempotencia por message id |
 | F3-02 | Identificación del cliente | Por número de teléfono vinculado a su cuenta (F1-10 pide el teléfono). Si no existe cuenta: el bot envía un enlace a la página pública para registrarse con Google y vincular el número |
 | F3-03 | Mensajes de texto | GPT con tools: `list_services`, `get_availability`, `create_booking`, `reschedule`, `cancel`, `my_appointments`; confirmación explícita antes de reservar |

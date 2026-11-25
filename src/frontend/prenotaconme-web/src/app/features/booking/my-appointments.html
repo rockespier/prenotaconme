@@ -42,6 +42,7 @@
     } @else {
       <app-push-toggle audience="client" />
       <app-telegram-link [slug]="slug()" />
+      <app-reminder-toggle [slug]="slug()" />
       <h2>{{ 'myAppointments.upcoming' | transloco }}</h2>
       @for (a of upcoming(); track a.id) {
         @let w = when(a);

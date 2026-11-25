@@ -10,6 +10,7 @@ import { API_CLIENT, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
+import { ReminderToggle } from '../../shared/reminder-toggle/reminder-toggle';
 import { TelegramLink } from '../../shared/telegram-link/telegram-link';
 import { addDaysIso, dayParts, formatDay, formatInstant, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
 
@@ -25,7 +26,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-my-appointments',
-  imports: [AnnouncementBanner, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, TelegramLink, TranslocoPipe],
+  imports: [AnnouncementBanner, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, ReminderToggle, TelegramLink, TranslocoPipe],
   templateUrl: './my-appointments.html',
   styleUrls: ['./booking-page.scss', './my-appointments.scss'],
 })

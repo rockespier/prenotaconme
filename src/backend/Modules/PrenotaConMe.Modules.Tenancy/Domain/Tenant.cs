@@ -26,6 +26,18 @@ public sealed class Tenant : Entity
 
     public void SetCancellationNotice(int hours) => CancellationNoticeHours = hours;
 
+    /// <summary>F2-06: first reminder to the client, hours before the start (0 = off).</summary>
+    public int FirstReminderHours { get; private set; } = TenantRules.DefaultFirstReminderHours;
+
+    /// <summary>F2-06: second reminder, hours before the start (0 = off).</summary>
+    public int SecondReminderHours { get; private set; } = TenantRules.DefaultSecondReminderHours;
+
+    public void SetReminders(int firstHours, int secondHours)
+    {
+        FirstReminderHours = firstHours;
+        SecondReminderHours = secondHours;
+    }
+
     /// <summary>Inputs must already be validated with <see cref="TenantRules"/>.</summary>
     public static Tenant Create(string name, string normalizedSlug, string timeZone, string language) => new()
     {

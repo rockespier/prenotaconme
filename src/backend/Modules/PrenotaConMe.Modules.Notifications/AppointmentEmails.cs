@@ -11,7 +11,8 @@ internal static class AppointmentEmails
     private sealed record Texts(
         string Culture, string ClientSubject, string StaffSubject, string Hello, string HelloNoName,
         string ClientIntro, string StaffIntro, string Service, string When, string With, string Where,
-        string Price, string PayOnSite, string Client, string CalendarHint, string Footer);
+        string Price, string PayOnSite, string Client, string CalendarHint, string Footer,
+        string ReminderSubject, string ReminderIntro);
 
     private static readonly Dictionary<string, Texts> ByLanguage = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -24,7 +25,9 @@ internal static class AppointmentEmails
             "hai una nuova prenotazione.",
             "Servizio", "Quando", "Con", "Dove", "Prezzo", "da pagare in sede", "Cliente",
             "In allegato trovi l'appuntamento da aggiungere al tuo calendario.",
-            "Email inviata automaticamente da PrenotaConMe."),
+            "Email inviata automaticamente da PrenotaConMe.",
+            "Promemoria: {0}, {1} alle {2}",
+            "ti ricordiamo il tuo appuntamento presso {0}. Se non puoi venire, puoi spostarlo o annullarlo dalla pagina \"Le mie prenotazioni\"."),
         ["es"] = new(
             "es-ES",
             "Reserva confirmada: {0}, {1} a las {2}",
@@ -34,7 +37,9 @@ internal static class AppointmentEmails
             "tienes una nueva reserva.",
             "Servicio", "Cuándo", "Con", "Dónde", "Precio", "se paga en el local", "Cliente",
             "Adjuntamos la cita para que la añadas a tu calendario.",
-            "Correo enviado automáticamente por PrenotaConMe."),
+            "Correo enviado automáticamente por PrenotaConMe.",
+            "Recordatorio: {0}, {1} a las {2}",
+            "te recordamos tu cita en {0}. Si no puedes venir, puedes cambiarla o cancelarla desde la página \"Mis citas\"."),
         ["en"] = new(
             "en-GB",
             "Booking confirmed: {0}, {1} at {2}",
@@ -44,14 +49,17 @@ internal static class AppointmentEmails
             "you have a new booking.",
             "Service", "When", "With", "Where", "Price", "paid on site", "Client",
             "The appointment is attached so you can add it to your calendar.",
-            "E-mail sent automatically by PrenotaConMe."),
+            "E-mail sent automatically by PrenotaConMe.",
+            "Reminder: {0}, {1} at {2}",
+            "this is a reminder of your appointment at {0}. If you cannot make it, you can move or cancel it from the \"My bookings\" page."),
     };
 
     public static IReadOnlyList<EmailMessage> Build(AppointmentNotice n, string? staffEmailOverride, DateTimeOffset now) =>
         new[] { ForClient(n, now), ForStaff(n, staffEmailOverride, now) }.OfType<EmailMessage>().ToList();
 
     /// <summary>Null when the client has no e-mail (e.g. a walk-in entered in the calendar).</summary>
-    public static EmailMessage? ForClient(AppointmentNotice n, DateTimeOffset now)
+    /// <param name="reminder">F2-06: the reminder before the appointment instead of the confirmation.</param>
+    public static EmailMessage? ForClient(AppointmentNotice n, DateTimeOffset now, bool reminder = false)
     {
         if (string.IsNullOrWhiteSpace(n.ClientEmail))
         {
@@ -77,8 +85,8 @@ internal static class AppointmentEmails
             $"{n.ServiceName} – {n.BusinessName}", place, $"{t.With}: {n.StaffName}");
         return Compose(
             n.ClientEmail, n.ClientName, n.BusinessName,
-            Format(culture, t.ClientSubject, n.ServiceName, date, time),
-            Greeting(t, n.ClientName), Format(culture, t.ClientIntro, n.BusinessName), rows, t, ics);
+            Format(culture, reminder ? t.ReminderSubject : t.ClientSubject, n.ServiceName, date, time),
+            Greeting(t, n.ClientName), Format(culture, reminder ? t.ReminderIntro : t.ClientIntro, n.BusinessName), rows, t, ics);
     }
 
     /// <summary>Null when the staff member has no e-mail and there is no override.</summary>
