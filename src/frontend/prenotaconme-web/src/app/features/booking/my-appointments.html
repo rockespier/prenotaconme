@@ -24,6 +24,8 @@
       </div>
     </header>
 
+    <app-announcement-banner [slug]="slug()" />
+
     @if (message()) {
       <p class="notice" role="status"><mat-icon>check_circle</mat-icon>{{ message()! | transloco }}</p>
     }

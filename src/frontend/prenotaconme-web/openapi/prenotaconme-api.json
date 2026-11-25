@@ -1541,6 +1541,223 @@
           }
         }
       }
+    },
+    "/api/notifications/announcements/current": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetCurrentAnnouncements",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicAnnouncementDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/announcements": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "ListAnnouncements",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnnouncementDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "CreateAnnouncement",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnnouncementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/announcements/audience": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetAnnouncementAudience",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementAudienceDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/announcements/{id}": {
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "UpdateAnnouncement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnnouncementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "DeleteAnnouncement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/notifications/announcements/{id}/send": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "SendAnnouncement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1566,6 +1783,69 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "AnnouncementAudienceDto": {
+        "required": [
+          "clients",
+          "withEmail"
+        ],
+        "type": "object",
+        "properties": {
+          "clients": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "withEmail": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AnnouncementDto": {
+        "required": [
+          "id",
+          "title",
+          "message",
+          "startsOn",
+          "endsOn",
+          "sentAt",
+          "recipientCount"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "sentAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "recipientCount": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -2028,6 +2308,35 @@
           }
         }
       },
+      "CreateAnnouncementRequest": {
+        "required": [
+          "title",
+          "message",
+          "startsOn",
+          "endsOn",
+          "notify"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "notify": {
+            "type": "boolean"
+          }
+        }
+      },
       "CreateCalendarAppointmentRequest": {
         "required": [
           "locationId",
@@ -2388,6 +2697,31 @@
           "closes": {
             "type": "string",
             "format": "time"
+          }
+        }
+      },
+      "PublicAnnouncementDto": {
+        "required": [
+          "id",
+          "title",
+          "message",
+          "endsOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
           }
         }
       },
@@ -2976,6 +3310,31 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "UpdateAnnouncementRequest": {
+        "required": [
+          "title",
+          "message",
+          "startsOn",
+          "endsOn"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "startsOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": "string",
+            "format": "date"
           }
         }
       },

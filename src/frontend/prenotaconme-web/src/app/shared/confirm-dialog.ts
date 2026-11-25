@@ -6,6 +6,8 @@ import { firstValueFrom } from 'rxjs';
 
 interface ConfirmData {
   message: string;
+  /** Label of the confirm button (default: "Delete"). */
+  confirm?: string;
 }
 
 @Component({
@@ -15,7 +17,7 @@ interface ConfirmData {
     <mat-dialog-content>{{ data.message }}</mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button [mat-dialog-close]="false">{{ 'common.cancel' | transloco }}</button>
-      <button mat-flat-button [mat-dialog-close]="true">{{ 'common.delete' | transloco }}</button>
+      <button mat-flat-button [mat-dialog-close]="true">{{ data.confirm ?? ('common.delete' | transloco) }}</button>
     </mat-dialog-actions>
   `,
 })
@@ -25,5 +27,10 @@ export class ConfirmDialog {
 
 /** Material confirmation dialog (never the browser's confirm()). */
 export function confirmDelete(dialog: MatDialog, message: string): Promise<boolean> {
-  return firstValueFrom(dialog.open(ConfirmDialog, { data: { message } }).afterClosed()).then((r) => r === true);
+  return confirmAction(dialog, message);
+}
+
+/** Same dialog with another confirm label (e.g. "Send"). */
+export function confirmAction(dialog: MatDialog, message: string, confirm?: string): Promise<boolean> {
+  return firstValueFrom(dialog.open(ConfirmDialog, { data: { message, confirm } }).afterClosed()).then((r) => r === true);
 }

@@ -25,7 +25,8 @@
     "services": "Servicios",
     "staff": "Staff",
     "calendar": "Calendario",
-    "clients": "Clientes"
+    "clients": "Clientes",
+    "announcements": "Avisos"
   },
   "home": {
     "title": "Las reservas de tu salón, online",
@@ -225,6 +226,20 @@
     },
     "range": {
       "invalid": "Rango de fechas no válido."
+    },
+    "announcement": {
+      "title": {
+        "required": "Escribe un título.",
+        "length": "Máximo 100 caracteres."
+      },
+      "message": {
+        "required": "Escribe el mensaje.",
+        "length": "Máximo 1000 caracteres."
+      },
+      "dates": {
+        "invalid": "La fecha de fin debe ser igual o posterior a la de inicio (máximo un año)."
+      },
+      "alreadySent": "Este aviso ya se envió."
     }
   },
   "backoffice": {
@@ -385,5 +400,29 @@
     "denied": "Las notificaciones están bloqueadas para este sitio. Puedes reactivarlas en los ajustes del navegador.",
     "ios": "En iPhone añade primero esta página a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde allí.",
     "error": "No se pudieron activar las notificaciones. Inténtalo de nuevo."
+  },
+  "announcements": {
+    "intro": "Comunica cierres, horarios de fiestas o recargos a tus clientes. El aviso aparece en tu página de reservas en los días elegidos y puedes enviarlo una vez a todos los clientes por notificación y email.",
+    "new": "Nuevo aviso",
+    "edit": "Editar aviso",
+    "titleLabel": "Título",
+    "titlePlaceholder": "Ej. Horario de Navidad",
+    "message": "Mensaje",
+    "messagePlaceholder": "Ej. El 24 de diciembre cerramos a las 14. Los festivos tienen un recargo del 10%.",
+    "from": "Visible desde",
+    "to": "hasta",
+    "periodHint": "Las fechas están incluidas.",
+    "notify": "Enviar ahora a todos los clientes por notificación y email ({{count}} clientes)",
+    "saveAndSend": "Guardar y enviar",
+    "send": "Enviar a los clientes",
+    "confirmSend": "¿Enviar este aviso a {{count}} clientes por notificación y email? Solo se puede enviar una vez.",
+    "sent": "Enviado a {{count}} clientes el {{date}}",
+    "confirmDelete": "¿Eliminar el aviso \"{{title}}\"?",
+    "empty": "No hay avisos. Crea el primero para informar a tus clientes.",
+    "status": {
+      "active": "Visible",
+      "scheduled": "Programado",
+      "ended": "Terminado"
+    }
   }
 }

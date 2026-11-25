@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { AnnouncementBanner } from './announcement-banner';
 import { API_CLIENT, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
@@ -27,7 +28,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-booking-page',
-  imports: [
+  imports: [AnnouncementBanner, 
     ReactiveFormsModule, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslocoPipe,
   ],
