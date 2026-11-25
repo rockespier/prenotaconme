@@ -1,3 +1,4 @@
+using System.Globalization;
 using Hangfire;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -5,12 +6,13 @@ using Microsoft.Extensions.Logging;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Notifications.Domain;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Shared.Chatbot;
 
 namespace PrenotaConMe.Modules.Notifications.Telegram;
 
 /// <summary>F3-T2: sends a message to a user's linked chat through the business's bot (no-op when not linked).</summary>
 public sealed partial class TelegramJob(
-    AppDbContext db, ITelegramApi api, IDataProtectionProvider protection, ILogger<TelegramJob> logger)
+    AppDbContext db, ITelegramApi api, IDataProtectionProvider protection, IChatbot chatbot, ILogger<TelegramJob> logger)
 {
     /// <summary>Same content as the push notification, as plain text with the absolute link.</summary>
     public static string TextOf(PushNotification n, string? publicUrl) =>
@@ -38,6 +40,25 @@ public sealed partial class TelegramJob(
             await db.SaveChangesAsync(cancellationToken);
             LogBlocked(logger, userId);
         }
+    }
+
+    /// <summary>
+    /// F3-03: a client's message to the business bot, answered by the booking assistant. Not retried: the
+    /// assistant may already have booked, and it answers errors with an apology itself.
+    /// </summary>
+    [AutomaticRetry(Attempts = 0)]
+    public async Task ChatAsync(Guid userId, long chatId, string text, CancellationToken cancellationToken)
+    {
+        var bot = await db.Set<TelegramBot>().AsNoTracking().SingleOrDefaultAsync(cancellationToken);
+        if (bot is null)
+        {
+            return;
+        }
+
+        var reply = await chatbot.ReplyAsync(
+            new ChatbotMessage("telegram", chatId.ToString(CultureInfo.InvariantCulture), userId, text), cancellationToken);
+        var token = protection.CreateProtector(TelegramService.TokenPurpose).Unprotect(bot.ProtectedToken);
+        await api.SendMessageAsync(token, chatId, reply, cancellationToken);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "User {UserId} blocked the Telegram bot; link removed")]

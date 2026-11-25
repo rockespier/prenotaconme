@@ -7,7 +7,6 @@ using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
-using PrenotaConMe.Shared.Notifications;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
 
@@ -100,55 +99,25 @@ internal static class SchedulingEndpoints
     }
 
     private static async Task<Results<Created<AppointmentDto>, ValidationProblem, ProblemHttpResult>> BookAsync(
-        BookAppointmentRequest request, AvailabilityService availability, AppDbContext db,
-        ICurrentUser currentUser, IMembershipWriter memberships, ITenantContext tenant,
-        AppointmentEvents events, CancellationToken ct)
+        BookAppointmentRequest request, ClientBookingService booking, ICurrentUser currentUser, CancellationToken ct)
     {
-        // Recompute the availability of that local day: the requested start must be one of the offered slots.
-        var location = await db.Set<PrenotaConMe.Modules.Locations.Domain.Location>().AsNoTracking()
-            .SingleOrDefaultAsync(l => l.Id == request.LocationId, ct);
-        if (location is null)
+        var result = await booking.BookAsync(await currentUser.GetUserIdAsync(ct), request, ct);
+        if (result.Error is { } error)
         {
-            return new ValidationErrors().Add("locationId", "location.notFound").ToProblem();
+            return error.Kind == BookingErrorKind.Invalid ? Invalid(error) : Problem(error);
         }
 
-        var date = AvailabilityService.LocalDate(request.StartsAt, location.TimeZone);
-        var result = await availability.GetAsync(new AvailabilityQuery(request.LocationId, request.ServiceId, request.StaffId, date, date), ct);
-        if (result.Error is not null)
-        {
-            return new ValidationErrors().Add("availability", result.Error).ToProblem();
-        }
-
-        var slot = result.Slots.FirstOrDefault(s => s.StartsAt == request.StartsAt.ToUniversalTime());
-        if (slot is null)
-        {
-            return SlotTaken("slot.unavailable");
-        }
-
-        var staffId = request.StaffId ?? await LeastBusyAsync(db, slot.StaffIds, request.StartsAt, location.TimeZone, ct);
-        var clientId = await currentUser.GetUserIdAsync(ct);
-        var service = result.Service!;
-
-        var appointment = Appointment.Book(
-            request.LocationId, service.Id, service.Name, service.Price, staffId, clientId, slot.StartsAt, service.DurationMinutes);
-        db.Add(appointment);
-        await memberships.EnsureAsync(tenant.TenantId!.Value, clientId, TenantRole.Client, ct);
-
-        try
-        {
-            await db.SaveChangesAsync(ct);
-        }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
-        {
-            // Someone booked the same staff member at an overlapping time in the meantime.
-            return SlotTaken("slot.taken");
-        }
-
-        // F1-11 / F2-02: confirmation e-mails and push notifications are sent in the background.
-        await events.PublishAsync(appointment, AppointmentChange.Booked, clientId, ct);
-
-        return TypedResults.Created($"/api/scheduling/appointments/{appointment.Id}", ToDto(appointment));
+        return TypedResults.Created($"/api/scheduling/appointments/{result.Appointment!.Id}", ToDto(result.Appointment));
     }
+
+    internal static ValidationProblem Invalid(BookingError error) =>
+        new ValidationErrors().Add(error.Field ?? "request", error.Code).ToProblem();
+
+    /// <summary>404 or 409 with the error code as title.</summary>
+    internal static ProblemHttpResult Problem(BookingError error) =>
+        TypedResults.Problem(
+            statusCode: error.Kind == BookingErrorKind.NotFound ? StatusCodes.Status404NotFound : StatusCodes.Status409Conflict,
+            title: error.Code, detail: error.Detail);
 
     /// <summary>"Any staff": the free person with the fewest appointments that local day (ties: stable by id).</summary>
     internal static async Task<Guid> LeastBusyAsync(

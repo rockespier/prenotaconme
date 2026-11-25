@@ -45,6 +45,9 @@ public interface ITelegramApi
     Task<IReadOnlyList<JsonElement>> GetUpdatesAsync(string token, long offset, int timeoutSeconds, CancellationToken cancellationToken);
 
     Task<TelegramSendResult> SendMessageAsync(string token, long chatId, string text, CancellationToken cancellationToken);
+
+    /// <summary>Shows "typing…" in the chat for a few seconds (best effort, never throws).</summary>
+    Task SendTypingAsync(string token, long chatId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -110,6 +113,18 @@ internal sealed class HttpTelegramApi(HttpClient http) : ITelegramApi
 
         EnsureOk(status, "sendMessage");
         return TelegramSendResult.Sent;
+    }
+
+    public async Task SendTypingAsync(string token, long chatId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await CallAsync(token, "sendChatAction", new { chat_id = chatId, action = "typing" }, cancellationToken);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException)
+        {
+            // Only a hint for the user.
+        }
     }
 
     private async Task<(HttpStatusCode Status, JsonElement Result)> CallAsync(

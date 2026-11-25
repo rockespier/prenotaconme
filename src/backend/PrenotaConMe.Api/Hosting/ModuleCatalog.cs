@@ -1,4 +1,5 @@
 using PrenotaConMe.Modules.Catalog;
+using PrenotaConMe.Modules.Chatbot;
 using PrenotaConMe.Modules.Locations;
 using PrenotaConMe.Modules.Notifications;
 using PrenotaConMe.Modules.Scheduling;
@@ -21,5 +22,6 @@ internal static class ModuleCatalog
         new StaffModule(),
         new SchedulingModule(),
         new NotificationsModule(),
+        new ChatbotModule(),
     ];
 }

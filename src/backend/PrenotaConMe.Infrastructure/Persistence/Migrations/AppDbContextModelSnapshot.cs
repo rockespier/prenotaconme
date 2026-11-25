@@ -139,6 +139,78 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("service_locations", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Chatbot.Domain.ChatConversation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("LastMessageAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_message_at");
+
+                    b.Property<int>("MessageCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("message_count");
+
+                    b.Property<string>("Messages")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("messages");
+
+                    b.Property<string>("PendingAction")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("pending_action");
+
+                    b.Property<int>("PendingAt")
+                        .HasColumnType("integer")
+                        .HasColumnName("pending_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_conversations");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_chat_conversations_tenant_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_chat_conversations_user_id");
+
+                    b.HasIndex("TenantId", "Channel", "ConversationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chat_conversations_tenant_id_channel_conversation_id");
+
+                    b.ToTable("chat_conversations", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1003,6 +1075,16 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_service_locations_services_service_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Chatbot.Domain.ChatConversation", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_conversations_users_user_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>

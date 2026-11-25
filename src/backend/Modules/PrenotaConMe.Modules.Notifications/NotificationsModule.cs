@@ -43,7 +43,8 @@ public sealed class NotificationsModule : IModule
         services.AddHttpClient<ITelegramApi, HttpTelegramApi>().RemoveAllLoggers();
         services.AddScoped<TelegramService>();
         services.AddScoped<TelegramUpdateHandler>();
-        if (configuration.GetSection("Telegram").Get<TelegramOptions>()?.Mode is not TelegramMode.Webhook)
+        if (configuration.GetSection("Telegram").Get<TelegramOptions>()?.Mode is not TelegramMode.Webhook
+            && !string.IsNullOrWhiteSpace(configuration.GetConnectionString("Database")))
         {
             services.AddHostedService<TelegramPoller>();
         }

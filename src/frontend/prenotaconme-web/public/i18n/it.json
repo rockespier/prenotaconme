@@ -455,8 +455,8 @@
     "confirmRemove": "Scollegare il bot? Clienti e staff non riceveranno più messaggi su Telegram finché non ne colleghi uno.",
     "link": "Collega",
     "unlink": "Scollega",
-    "linkHint": "Ricevi conferme e avvisi in chat con @{{bot}}.",
-    "linked": "Collegato: ricevi i messaggi da @{{bot}}."
+    "linkHint": "Ricevi conferme e avvisi in chat con @{{bot}} e prenota scrivendogli.",
+    "linked": "Collegato: ricevi i messaggi da @{{bot}} e puoi prenotare in chat."
   },
   "reminders": {
     "title": "Promemoria",

@@ -1,15 +1,18 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Notifications.Domain;
+using PrenotaConMe.Shared.Chatbot;
 
 namespace PrenotaConMe.Modules.Notifications.Telegram;
 
 /// <summary>
 /// F3-T2: messages people send to the business's bot (webhook or polling, already in the bot's tenant).
 /// "/start &lt;token&gt;" links the chat to the user who created the token; "/stop" unlinks it.
-/// Booking by chat arrives with the chatbot (F3-03).
+/// Any other text goes to the booking assistant (F3-03) in a background job when the chat is linked to an account.
 /// </summary>
-internal sealed class TelegramUpdateHandler(AppDbContext db, ITelegramApi api, TelegramService telegram, TimeProvider clock)
+internal sealed class TelegramUpdateHandler(
+    AppDbContext db, ITelegramApi api, TelegramService telegram, IChatbot chatbot, IBackgroundJobClient jobs, TimeProvider clock)
 {
     public async Task HandleAsync(TelegramBot bot, TelegramUpdate update, CancellationToken ct)
     {
@@ -45,9 +48,21 @@ internal sealed class TelegramUpdateHandler(AppDbContext db, ITelegramApi api, T
             await db.Set<TelegramLink>().Where(l => l.ChatId == chatId).ExecuteDeleteAsync(ct);
             reply = TelegramTexts.Format(texts.Unlinked, business.Name, null);
         }
-        else
+        else if (!chatbot.IsEnabled)
         {
             reply = TelegramTexts.Format(texts.NotYet, business.Name, telegram.PublicUrl($"/{business.Slug}"));
+        }
+        else if (await db.Set<TelegramLink>().AsNoTracking().SingleOrDefaultAsync(l => l.ChatId == chatId, ct) is { } link)
+        {
+            // The model takes seconds: answer from a job so the webhook returns at once (Telegram retries slow ones).
+            var userId = link.UserId;
+            jobs.Enqueue<TelegramJob>(j => j.ChatAsync(userId, chatId, text, CancellationToken.None));
+            await api.SendTypingAsync(telegram.Unprotect(bot), chatId, ct);
+            return;
+        }
+        else
+        {
+            reply = TelegramTexts.Format(texts.LinkFirst, business.Name, myBookings);
         }
 
         await api.SendMessageAsync(telegram.Unprotect(bot), chatId, reply, ct);

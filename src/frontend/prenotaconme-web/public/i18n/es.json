@@ -455,8 +455,8 @@
     "confirmRemove": "¿Desconectar el bot? Clientes y equipo dejarán de recibir mensajes por Telegram hasta que conectes otro.",
     "link": "Vincular",
     "unlink": "Desvincular",
-    "linkHint": "Recibe confirmaciones y avisos en el chat con @{{bot}}.",
-    "linked": "Vinculado: recibes los mensajes de @{{bot}}."
+    "linkHint": "Recibe confirmaciones y avisos en el chat con @{{bot}} y reserva escribiéndole.",
+    "linked": "Vinculado: recibes los mensajes de @{{bot}} y puedes reservar por chat."
   },
   "reminders": {
     "title": "Recordatorios",
