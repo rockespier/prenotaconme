@@ -125,7 +125,8 @@
     "title": "Acceder",
     "subtitle": "Usa tu cuenta de Google para continuar.",
     "google": "Continuar con Google",
-    "error": "No se pudo iniciar sesión. Inténtalo de nuevo."
+    "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo."
   },
   "register": {
     "title": "Registra tu negocio",
@@ -462,5 +463,11 @@
     "title": "Recordatorios",
     "on": "Te recordamos tus citas el día antes y poco antes.",
     "off": "No recibirás recordatorios de tus citas."
+  },
+  "inAppBrowser": {
+    "title": "Abre esta página en el navegador",
+    "hint": "Dentro de Telegram y otras apps el acceso con Google no funciona. Toca ••• arriba y elige \"Abrir en Safari\" (o en el navegador), o copia el enlace y pégalo en Safari o Chrome.",
+    "copy": "Copiar enlace",
+    "copied": "Enlace copiado"
   }
 }
