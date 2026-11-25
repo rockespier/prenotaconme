@@ -1,5 +1,7 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -14,7 +16,12 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
       <a routerLink="/" class="brand"><span class="mark" aria-hidden="true"></span>{{ 'app.name' | transloco }}</a>
       <span class="spacer"></span>
       <app-language-switcher />
-      @if (auth.ready()) {
+      @if (business(); as b) {
+        <!-- On a business page the client's way in is "my bookings" (sign-in happens there), never the owners' login. -->
+        @if (!b.onMyBookings) {
+          <a mat-button [routerLink]="['/', b.slug, 'prenotazioni']">{{ 'myAppointments.link' | transloco }}</a>
+        }
+      } @else if (auth.ready()) {
         @if (auth.isSignedIn()) {
           <a mat-button routerLink="/admin">{{ 'public.backoffice' | transloco }}</a>
         } @else {
@@ -45,4 +52,22 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
 })
 export class PublicLayout {
   protected readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  /** Fixed public pages; any other first segment is a business slug (/:slug, /:slug/prenotazioni). */
+  private static readonly AppPages = new Set(['', 'login', 'registra-attivita', 'admin', 'b']);
+
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  protected readonly business = computed(() => {
+    const [slug = '', page] = this.url().split(/[?#]/)[0].split('/').filter(Boolean);
+    return PublicLayout.AppPages.has(slug) ? null : { slug, onMyBookings: page === 'prenotazioni' };
+  });
 }
