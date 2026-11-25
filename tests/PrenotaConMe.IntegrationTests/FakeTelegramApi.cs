@@ -43,10 +43,17 @@ public sealed class FakeTelegramApi : ITelegramApi
 
     public Task SendTypingAsync(string token, long chatId, CancellationToken cancellationToken) => Task.CompletedTask;
 
-    /// <summary>Waits up to 15 s: under a full parallel test run jobs can take a few seconds to be picked up.</summary>
+    /// <summary>Bytes of a voice file: its id as UTF-8 (the fake transcriber reads it back).</summary>
+    public Task<byte[]> DownloadFileAsync(string token, string fileId, CancellationToken cancellationToken) =>
+        Task.FromResult(System.Text.Encoding.UTF8.GetBytes(fileId));
+
+    /// <summary>
+    /// Waits up to 30 s: a job enqueued while the Hangfire server is still starting can miss the LISTEN/NOTIFY
+    /// wake-up and wait for the next queue poll (15 s).
+    /// </summary>
     public async Task<IReadOnlyList<SentMessage>> WaitForAsync(long chatId, int count)
     {
-        for (var i = 0; i < 300; i++)
+        for (var i = 0; i < 600; i++)
         {
             var found = Sent.Where(m => m.ChatId == chatId).ToList();
             if (found.Count >= count)

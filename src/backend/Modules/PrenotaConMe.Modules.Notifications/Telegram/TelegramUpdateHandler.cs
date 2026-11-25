@@ -9,14 +9,14 @@ namespace PrenotaConMe.Modules.Notifications.Telegram;
 /// <summary>
 /// F3-T2: messages people send to the business's bot (webhook or polling, already in the bot's tenant).
 /// "/start &lt;token&gt;" links the chat to the user who created the token; "/stop" unlinks it.
-/// Any other text goes to the booking assistant (F3-03) in a background job when the chat is linked to an account.
+/// Any other text or voice message goes to the booking assistant (F3-03/F3-04) in a background job when the chat is linked to an account.
 /// </summary>
 internal sealed class TelegramUpdateHandler(
     AppDbContext db, ITelegramApi api, TelegramService telegram, IChatbot chatbot, IBackgroundJobClient jobs, TimeProvider clock)
 {
     public async Task HandleAsync(TelegramBot bot, TelegramUpdate update, CancellationToken ct)
     {
-        if (update.ChatId is not { } chatId || string.IsNullOrWhiteSpace(update.Text))
+        if (update.ChatId is not { } chatId || (string.IsNullOrWhiteSpace(update.Text) && update.Voice is null))
         {
             return;
         }
@@ -24,7 +24,7 @@ internal sealed class TelegramUpdateHandler(
         var business = await telegram.BusinessAsync(ct);
         var texts = TelegramTexts.For(business.DefaultLanguage);
         var myBookings = telegram.PublicUrl($"/{business.Slug}/prenotazioni");
-        var text = update.Text.Trim();
+        var text = update.Text?.Trim() ?? string.Empty;
         string reply;
 
         if (text.StartsWith("/start", StringComparison.OrdinalIgnoreCase))
@@ -52,11 +52,24 @@ internal sealed class TelegramUpdateHandler(
         {
             reply = TelegramTexts.Format(texts.NotYet, business.Name, telegram.PublicUrl($"/{business.Slug}"));
         }
+        else if (update.Voice is { } tooLong && tooLong.DurationSeconds > ISpeechToText.MaxDuration.TotalSeconds)
+        {
+            reply = TelegramTexts.Format(texts.VoiceTooLong, business.Name, null);
+        }
         else if (await db.Set<TelegramLink>().AsNoTracking().SingleOrDefaultAsync(l => l.ChatId == chatId, ct) is { } link)
         {
             // The model takes seconds: answer from a job so the webhook returns at once (Telegram retries slow ones).
             var userId = link.UserId;
-            jobs.Enqueue<TelegramJob>(j => j.ChatAsync(userId, chatId, text, CancellationToken.None));
+            if (update.Voice is { } voice)
+            {
+                var fileId = voice.FileId;
+                jobs.Enqueue<TelegramJob>(j => j.VoiceAsync(userId, chatId, fileId, CancellationToken.None));
+            }
+            else
+            {
+                jobs.Enqueue<TelegramJob>(j => j.ChatAsync(userId, chatId, text, CancellationToken.None));
+            }
+
             await api.SendTypingAsync(telegram.Unprotect(bot), chatId, ct);
             return;
         }

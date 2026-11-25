@@ -19,6 +19,7 @@ public sealed class ChatbotTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
     private async Task<Setup> CreateAsync()
     {
+        factory.ChatModel.Reset();
         var business = await TestBusiness.CreateAsync(factory);
         var location = (await business.GetAsync<List<LocationDto>>("/api/locations"))[0];
         var haircut = (await business.GetAsync<List<ServiceDto>>("/api/catalog/services")).Single(s => s.Name == "Taglio capelli");
@@ -48,6 +49,20 @@ public sealed class ChatbotTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var request = new HttpRequestMessage(HttpMethod.Post, new Uri(s.WebhookPath, UriKind.Relative))
         {
             Content = JsonContent.Create(new { update_id = Random.Shared.Next(), message = new { chat = new { id = chatId }, text } }),
+        };
+        request.Headers.Add("X-Telegram-Bot-Api-Secret-Token", s.Secret);
+        (await factory.CreateClient().SendAsync(request)).EnsureSuccessStatusCode();
+    }
+
+    private async Task SendVoiceAsync(Setup s, long chatId, string fileId, int duration)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, new Uri(s.WebhookPath, UriKind.Relative))
+        {
+            Content = JsonContent.Create(new
+            {
+                update_id = Random.Shared.Next(),
+                message = new { chat = new { id = chatId }, voice = new { file_id = fileId, duration } },
+            }),
         };
         request.Headers.Add("X-Telegram-Bot-Api-Secret-Token", s.Secret);
         (await factory.CreateClient().SendAsync(request)).EnsureSuccessStatusCode();
@@ -143,5 +158,32 @@ public sealed class ChatbotTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         Assert.StartsWith("Per prenotare qui in chat collega prima il tuo account", replies[0].Text, StringComparison.Ordinal);
         Assert.EndsWith($"/{s.Business.Slug}/prenotazioni", replies[0].Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Voice_messages_are_transcribed_and_answered_like_text()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+
+        factory.ChatModel.Script(Say("Non hai appuntamenti in programma."));
+        await SendVoiceAsync(s, chatId, "Ho qualche appuntamento?", 4);
+        var answered = await factory.Telegram.WaitForAsync(chatId, 2);
+        var heard = factory.ChatModel.Calls.Last().Conversation[^1].Text;
+
+        factory.ChatModel.Script(Say("Scusa, puoi ripetere o scrivermi?"));
+        await SendVoiceAsync(s, chatId, FakeSpeechToText.Unreadable + "-1", 3);
+        await factory.Telegram.WaitForAsync(chatId, 3);
+        var unreadable = factory.ChatModel.Calls.Last().Conversation[^1].Text;
+
+        var calls = factory.ChatModel.Calls.Count;
+        await SendVoiceAsync(s, chatId, "Un messaggio lunghissimo", 600);
+        var replies = await factory.Telegram.WaitForAsync(chatId, 4);
+
+        Assert.Equal("Non hai appuntamenti in programma.", answered[1].Text);
+        Assert.Equal("Ho qualche appuntamento?", heard);
+        Assert.Equal(PrenotaConMe.Shared.Chatbot.ChatbotMessage.Unintelligible, unreadable);
+        Assert.StartsWith("Il messaggio vocale è troppo lungo", replies[3].Text, StringComparison.Ordinal);
+        Assert.Equal(calls, factory.ChatModel.Calls.Count);
     }
 }

@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Chatbot;
 using PrenotaConMe.Modules.Notifications;
 using PrenotaConMe.Modules.Notifications.Push;
 using PrenotaConMe.Modules.Notifications.Telegram;
+using PrenotaConMe.Shared.Chatbot;
 using Testcontainers.PostgreSql;
 
 namespace PrenotaConMe.IntegrationTests;
@@ -82,6 +83,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddSingleton<IPushSender>(Pushes);
             services.AddSingleton<ITelegramApi>(Telegram);
             services.AddSingleton<IChatModel>(ChatModel);
+            services.AddSingleton<ISpeechToText, FakeSpeechToText>();
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o =>

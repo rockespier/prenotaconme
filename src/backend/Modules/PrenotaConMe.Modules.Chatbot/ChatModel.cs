@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
+using OpenAI.Audio;
 using OpenAI.Chat;
+using PrenotaConMe.Shared.Chatbot;
 
 namespace PrenotaConMe.Modules.Chatbot;
 
@@ -44,6 +46,21 @@ public sealed class ChatbotOptions
 
     /// <summary>Chat model with function calling.</summary>
     public string Model { get; set; } = "gpt-4.1-mini";
+
+    /// <summary>F3-04: speech-to-text model for voice messages.</summary>
+    public string TranscriptionModel { get; set; } = "whisper-1";
+}
+
+/// <summary>F3-04: OpenAI transcription (Whisper); the language is detected from the audio.</summary>
+internal sealed class OpenAiSpeechToText(ChatbotOptions options) : ISpeechToText
+{
+    private readonly Lazy<AudioClient> _client = new(() => new AudioClient(options.TranscriptionModel, options.ApiKey));
+
+    public async Task<string?> TranscribeAsync(Stream audio, string fileName, CancellationToken cancellationToken)
+    {
+        AudioTranscription transcription = await _client.Value.TranscribeAudioAsync(audio, fileName, cancellationToken: cancellationToken);
+        return string.IsNullOrWhiteSpace(transcription.Text) ? null : transcription.Text.Trim();
+    }
 }
 
 /// <summary>OpenAI chat completions with function calling.</summary>

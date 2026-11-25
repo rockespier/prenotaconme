@@ -6,7 +6,11 @@ namespace PrenotaConMe.Shared.Chatbot;
 /// <param name="Channel">"telegram" now, "whatsapp" later: the engine only uses it to keep conversations apart.</param>
 /// <param name="ConversationId">The channel's id of the chat (Telegram chat id, WhatsApp phone number).</param>
 /// <param name="UserId">Local user linked to the chat: bookings are made for them.</param>
-public sealed record ChatbotMessage(string Channel, string ConversationId, Guid UserId, string Text);
+public sealed record ChatbotMessage(string Channel, string ConversationId, Guid UserId, string Text)
+{
+    /// <summary>F3-04: sent as the text of a voice message that could not be transcribed.</summary>
+    public const string Unintelligible = "[voice message that could not be understood]";
+}
 
 /// <summary>
 /// F3-03: the booking assistant (implemented by the Chatbot module). Channel-agnostic: the channel delivers the

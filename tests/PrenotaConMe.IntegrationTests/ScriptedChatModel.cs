@@ -13,6 +13,13 @@ public sealed class ScriptedChatModel : IChatModel
 
     public ConcurrentQueue<Call> Calls { get; } = new();
 
+    /// <summary>Drops replies and calls left by an earlier test of the same class.</summary>
+    public void Reset()
+    {
+        _replies.Clear();
+        Calls.Clear();
+    }
+
     public void Script(params ChatModelReply[] replies)
     {
         foreach (var reply in replies)
