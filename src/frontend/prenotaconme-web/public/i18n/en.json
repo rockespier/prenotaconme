@@ -240,6 +240,13 @@
         "invalid": "The end date must be on or after the start date (at most one year)."
       },
       "alreadySent": "This announcement was already sent."
+    },
+    "telegram": {
+      "token": {
+        "invalid": "Invalid token. Copy it again from @BotFather."
+      },
+      "webhookUnavailable": "The server has no public https address configured for Telegram.",
+      "notConfigured": "This business has no Telegram bot."
     }
   },
   "backoffice": {
@@ -424,5 +431,21 @@
       "scheduled": "Scheduled",
       "ended": "Ended"
     }
+  },
+  "telegram": {
+    "botTitle": "Telegram bot",
+    "botHint": "With a Telegram bot your clients and staff get confirmations, changes and announcements in a chat.",
+    "step1": "Open @BotFather in Telegram and send /newbot.",
+    "step2": "Pick a name (e.g. your business name) and a username ending in \"bot\".",
+    "step3": "Copy the token BotFather gives you and paste it below.",
+    "token": "Bot token",
+    "connect": "Connect bot",
+    "botConnected": "The bot is active. Clients link it from \"My bookings\", staff from the dashboard.",
+    "remove": "Disconnect bot",
+    "confirmRemove": "Disconnect the bot? Clients and staff will stop getting Telegram messages until you connect another one.",
+    "link": "Link",
+    "unlink": "Unlink",
+    "linkHint": "Get confirmations and announcements in a chat with @{{bot}}.",
+    "linked": "Linked: you get messages from @{{bot}}."
   }
 }

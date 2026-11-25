@@ -23,6 +23,29 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "btree_gist");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("text")
+                        .HasColumnName("friendly_name");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("text")
+                        .HasColumnName("xml");
+
+                    b.HasKey("Id")
+                        .HasName("pk_data_protection_keys");
+
+                    b.ToTable("data_protection_keys", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.Service", b =>
                 {
                     b.Property<Guid>("Id")
@@ -230,6 +253,150 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_announcements_tenant_id_ends_on");
 
                     b.ToTable("announcements", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramBot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("BotUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("bot_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ProtectedToken")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("protected_token");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("username");
+
+                    b.Property<string>("WebhookSecret")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("webhook_secret");
+
+                    b.HasKey("Id")
+                        .HasName("pk_telegram_bots");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_telegram_bots_tenant_unique");
+
+                    b.ToTable("telegram_bots", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("chat_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_telegram_links");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_telegram_links_tenant_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_telegram_links_user_id");
+
+                    b.HasIndex("TenantId", "ChatId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_telegram_links_tenant_id_chat_id");
+
+                    b.HasIndex("TenantId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_telegram_links_tenant_id_user_id");
+
+                    b.ToTable("telegram_links", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramLinkToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("token");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_telegram_link_tokens");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_telegram_link_tokens_tenant_id");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("ix_telegram_link_tokens_token");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_telegram_link_tokens_user_id");
+
+                    b.ToTable("telegram_link_tokens", (string)null);
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.WebPushSubscription", b =>
@@ -818,6 +985,26 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("OpeningHours");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramLink", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_telegram_links_users_user_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.TelegramLinkToken", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Users.Domain.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_telegram_link_tokens_users_user_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Notifications.Domain.WebPushSubscription", b =>

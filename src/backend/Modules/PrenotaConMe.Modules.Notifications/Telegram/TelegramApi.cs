@@ -1,0 +1,137 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace PrenotaConMe.Modules.Notifications.Telegram;
+
+public sealed record TelegramBotInfo(long Id, string Username);
+
+/// <summary>The parts of a Telegram update the app uses (private text messages).</summary>
+public sealed record TelegramUpdate(long UpdateId, long? ChatId, string? Text)
+{
+    public static TelegramUpdate Parse(JsonElement update)
+    {
+        var id = update.TryGetProperty("update_id", out var u) ? u.GetInt64() : 0;
+        if (!update.TryGetProperty("message", out var message))
+        {
+            return new TelegramUpdate(id, null, null);
+        }
+
+        long? chatId = message.TryGetProperty("chat", out var chat) && chat.TryGetProperty("id", out var c) ? c.GetInt64() : null;
+        var text = message.TryGetProperty("text", out var t) ? t.GetString() : null;
+        return new TelegramUpdate(id, chatId, text);
+    }
+}
+
+public enum TelegramSendResult
+{
+    Sent,
+
+    /// <summary>The user blocked the bot or deleted the chat (403): stop writing to this chat.</summary>
+    Blocked,
+}
+
+/// <summary>The Telegram Bot API methods the app calls (https://core.telegram.org/bots/api).</summary>
+public interface ITelegramApi
+{
+    /// <summary>Null when Telegram rejects the token.</summary>
+    Task<TelegramBotInfo?> GetMeAsync(string token, CancellationToken cancellationToken);
+
+    Task SetWebhookAsync(string token, string url, string secret, CancellationToken cancellationToken);
+
+    Task DeleteWebhookAsync(string token, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<JsonElement>> GetUpdatesAsync(string token, long offset, int timeoutSeconds, CancellationToken cancellationToken);
+
+    Task<TelegramSendResult> SendMessageAsync(string token, long chatId, string text, CancellationToken cancellationToken);
+}
+
+/// <summary>
+/// Plain HttpClient implementation. The token is part of the URL, so this client's request logging is removed
+/// and its requests are excluded from tracing (see the Api's observability setup).
+/// </summary>
+internal sealed class HttpTelegramApi(HttpClient http) : ITelegramApi
+{
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
+
+    private static readonly string[] MessageUpdates = ["message"];
+
+    public async Task<TelegramBotInfo?> GetMeAsync(string token, CancellationToken cancellationToken)
+    {
+        if (!LooksLikeToken(token))
+        {
+            return null;
+        }
+
+        var (status, result) = await CallAsync(token, "getMe", new { }, cancellationToken);
+        if (status is HttpStatusCode.Unauthorized or HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        EnsureOk(status, "getMe");
+        return new TelegramBotInfo(result.GetProperty("id").GetInt64(), result.GetProperty("username").GetString()!);
+    }
+
+    public async Task SetWebhookAsync(string token, string url, string secret, CancellationToken cancellationToken)
+    {
+        var (status, _) = await CallAsync(token, "setWebhook",
+            new { url, secret_token = secret, allowed_updates = MessageUpdates, drop_pending_updates = true }, cancellationToken);
+        EnsureOk(status, "setWebhook");
+    }
+
+    public async Task DeleteWebhookAsync(string token, CancellationToken cancellationToken)
+    {
+        var (status, _) = await CallAsync(token, "deleteWebhook", new { }, cancellationToken);
+        EnsureOk(status, "deleteWebhook");
+    }
+
+    public async Task<IReadOnlyList<JsonElement>> GetUpdatesAsync(string token, long offset, int timeoutSeconds, CancellationToken cancellationToken)
+    {
+        var (status, result) = await CallAsync(token, "getUpdates",
+            new { offset, timeout = timeoutSeconds, allowed_updates = MessageUpdates }, cancellationToken);
+        EnsureOk(status, "getUpdates");
+        return result.EnumerateArray().Select(e => e.Clone()).ToList();
+    }
+
+    public async Task<TelegramSendResult> SendMessageAsync(string token, long chatId, string text, CancellationToken cancellationToken)
+    {
+        var (status, _) = await CallAsync(token, "sendMessage",
+            new { chat_id = chatId, text, link_preview_options = new { is_disabled = true } }, cancellationToken);
+        if (status == HttpStatusCode.Forbidden)
+        {
+            return TelegramSendResult.Blocked;
+        }
+
+        EnsureOk(status, "sendMessage");
+        return TelegramSendResult.Sent;
+    }
+
+    private async Task<(HttpStatusCode Status, JsonElement Result)> CallAsync(
+        string token, string method, object body, CancellationToken cancellationToken)
+    {
+        using var response = await http.PostAsJsonAsync(new Uri($"https://api.telegram.org/bot{token}/{method}"), body, Json, cancellationToken);
+        using var json = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken), cancellationToken: cancellationToken);
+        var result = json.RootElement.TryGetProperty("result", out var r) ? r.Clone() : default;
+        return (response.StatusCode, result);
+    }
+
+    /// <summary>Never put the token (it is in the URL) in the exception.</summary>
+    private static void EnsureOk(HttpStatusCode status, string method)
+    {
+        if ((int)status is < 200 or >= 300)
+        {
+            throw new HttpRequestException($"Telegram {method} failed with {(int)status}.", null, status);
+        }
+    }
+
+    /// <summary>"123456:ABC-…": avoids sending garbage (or a URL) as the path.</summary>
+    private static bool LooksLikeToken(string token) =>
+        token.Length is > 20 and < 100 && token.Contains(':', StringComparison.Ordinal)
+        && token.All(c => char.IsAsciiLetterOrDigit(c) || c is ':' or '_' or '-');
+}

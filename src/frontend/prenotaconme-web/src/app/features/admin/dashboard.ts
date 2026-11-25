@@ -11,6 +11,8 @@ import { API_CLIENT } from '../../core/api/api-client';
 import { SessionService } from '../../core/session/session.service';
 import { Notifier } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
+import { TelegramLink } from '../../shared/telegram-link/telegram-link';
+import { TelegramSettings } from './telegram-settings';
 
 interface SetupStep {
   key: string;
@@ -24,7 +26,7 @@ interface SetupStep {
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, PushToggle, TranslocoPipe],
+  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, PushToggle, TelegramLink, TelegramSettings, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.dashboard' | transloco }}</h1>
@@ -46,6 +48,7 @@ interface SetupStep {
       </section>
 
       <app-push-toggle audience="staff" />
+      <app-telegram-link />
 
       @if (session.isAdmin() && steps(); as list) {
         <section class="setup">
@@ -93,6 +96,8 @@ interface SetupStep {
             </mat-form-field>
           </section>
         }
+
+        <app-telegram-settings />
       }
     }
   `,

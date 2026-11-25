@@ -2,6 +2,7 @@ using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Modules.Notifications.Telegram;
 using PrenotaConMe.Shared.Notifications;
 
 namespace PrenotaConMe.Modules.Notifications;
@@ -12,7 +13,8 @@ namespace PrenotaConMe.Modules.Notifications;
 /// which is already committed.
 /// </summary>
 internal sealed partial class AppointmentNotifier(
-    IBackgroundJobClient jobs, IOptions<PushOptions> push, ILogger<AppointmentNotifier> logger) : IAppointmentNotifier
+    IBackgroundJobClient jobs, IOptions<PushOptions> push, IOptions<NotificationOptions> options, ILogger<AppointmentNotifier> logger)
+    : IAppointmentNotifier
 {
     public void Notify(AppointmentChange change, AppointmentNotice notice, Guid? actorUserId)
     {
@@ -24,27 +26,32 @@ internal sealed partial class AppointmentNotifier(
                 jobs.Enqueue<AppointmentEmailJob>(j => j.SendAsync(notice, EmailRecipient.Staff, CancellationToken.None));
             }
 
-            if (!push.Value.Enabled)
-            {
-                return;
-            }
-
             if (notice.ClientUserId is { } clientId && clientId != actorUserId)
             {
-                var message = PushMessages.Build(change, notice, PushAudience.Client);
-                jobs.Enqueue<PushJob>(j => j.SendToUserAsync(clientId, message, CancellationToken.None));
+                Message(clientId, PushMessages.Build(change, notice, PushAudience.Client));
             }
 
             if (notice.StaffUserId is { } staffId && staffId != actorUserId)
             {
-                var message = PushMessages.Build(change, notice, PushAudience.Staff);
-                jobs.Enqueue<PushJob>(j => j.SendToUserAsync(staffId, message, CancellationToken.None));
+                Message(staffId, PushMessages.Build(change, notice, PushAudience.Staff));
             }
         }
         catch (Exception ex)
         {
             LogEnqueueFailed(logger, ex, change, notice.AppointmentId);
         }
+    }
+
+    /// <summary>Push (when configured) and Telegram (the job does nothing when the user has not linked a chat).</summary>
+    private void Message(Guid userId, PushNotification message)
+    {
+        if (push.Value.Enabled)
+        {
+            jobs.Enqueue<PushJob>(j => j.SendToUserAsync(userId, message, CancellationToken.None));
+        }
+
+        var text = TelegramJob.TextOf(message, options.Value.PublicUrl);
+        jobs.Enqueue<TelegramJob>(j => j.SendToUserAsync(userId, text, CancellationToken.None));
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Could not queue the {Change} messages for appointment {AppointmentId}")]

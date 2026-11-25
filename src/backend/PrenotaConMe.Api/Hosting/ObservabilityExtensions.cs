@@ -22,7 +22,8 @@ internal static class ObservabilityExtensions
             {
                 tracing
                     .AddAspNetCoreInstrumentation(o => o.Filter = ctx => !ctx.Request.Path.StartsWithSegments("/health"))
-                    .AddHttpClientInstrumentation()
+                    // The Telegram Bot API carries the bot token in the URL path: never trace those requests.
+                    .AddHttpClientInstrumentation(o => o.FilterHttpRequestMessage = r => r.RequestUri?.Host != "api.telegram.org")
                     .AddNpgsql();
 
                 if (!string.IsNullOrWhiteSpace(otlpEndpoint))

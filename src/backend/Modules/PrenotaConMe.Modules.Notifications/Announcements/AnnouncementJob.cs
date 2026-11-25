@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Notifications.Domain;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Modules.Notifications.Telegram;
 using PrenotaConMe.Modules.Users.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
@@ -42,6 +43,7 @@ public sealed partial class AnnouncementJob(
         var recipients = await RecipientsAsync(db, cancellationToken);
         var notification = new PushNotification(
             announcement.Title, $"{business.Name} · {announcement.Message}", $"/{business.Slug}", $"announcement-{announcement.Id}");
+        var telegramText = TelegramJob.TextOf(notification with { Body = announcement.Message }, options.Value.PublicUrl);
 
         foreach (var r in recipients)
         {
@@ -51,11 +53,13 @@ public sealed partial class AnnouncementJob(
                 jobs.Enqueue<AnnouncementJob>(j => j.SendEmailAsync(announcementId, to, CancellationToken.None));
             }
 
+            var userId = r.UserId;
             if (push.Value.Enabled)
             {
-                var userId = r.UserId;
                 jobs.Enqueue<PushJob>(j => j.SendToUserAsync(userId, notification, CancellationToken.None));
             }
+
+            jobs.Enqueue<TelegramJob>(j => j.SendToUserAsync(userId, telegramText, CancellationToken.None));
         }
 
         LogQueued(logger, announcementId, recipients.Count);

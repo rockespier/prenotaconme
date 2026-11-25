@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using PrenotaConMe.Modules.Notifications;
 using PrenotaConMe.Modules.Notifications.Push;
+using PrenotaConMe.Modules.Notifications.Telegram;
 using Testcontainers.PostgreSql;
 
 namespace PrenotaConMe.IntegrationTests;
@@ -30,6 +31,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private const string PlatformAdminEmail = PlatformAdminUid + "@test.local";
 
     public const string TestPushPublicKey = "test-public-key";
+    public const string PublicUrl = "https://prenota.test";
+
+    /// <summary>The Telegram Bot API (replaced).</summary>
+    public FakeTelegramApi Telegram { get; } = new();
 
     /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
     public CapturingEmailSender Emails { get; } = new();
@@ -61,11 +66,16 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Platform:AdminEmails:0", PlatformAdminEmail);
         builder.UseSetting("Push:PublicKey", TestPushPublicKey);
         builder.UseSetting("Push:PrivateKey", "test-private-key");
+        builder.UseSetting("Telegram:Mode", "Webhook");
+        // Every test class runs its own app (and Hangfire server) in parallel: keep each one's DB connections low.
+        builder.UseSetting("Jobs:WorkerCount", "2");
+        builder.UseSetting("Notifications:PublicUrl", PublicUrl);
 
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<IPushSender>(Pushes);
+            services.AddSingleton<ITelegramApi>(Telegram);
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o =>

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PrenotaConMe.Shared.Domain;
 using PrenotaConMe.Shared.Tenancy;
@@ -12,7 +13,7 @@ namespace PrenotaConMe.Infrastructure.Persistence;
 public sealed class AppDbContext(
     DbContextOptions<AppDbContext> options,
     ITenantContext tenantContext,
-    IEnumerable<ModelAssembly> modelAssemblies) : DbContext(options)
+    IEnumerable<ModelAssembly> modelAssemblies) : DbContext(options), IDataProtectionKeyContext
 {
     public const string TenantFilter = "Tenant";
 
@@ -21,6 +22,9 @@ public sealed class AppDbContext(
 
     // Referenced by the query filter; EF evaluates it per query, so each scope sees its own tenant.
     private Guid? CurrentTenantId => tenantContext.TenantId;
+
+    /// <summary>ASP.NET Data Protection key ring (encrypted secrets such as bot tokens, auth cookies), shared by every instance.</summary>
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

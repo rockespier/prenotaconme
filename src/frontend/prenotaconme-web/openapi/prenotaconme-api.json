@@ -1758,6 +1758,124 @@
           }
         }
       }
+    },
+    "/api/notifications/telegram/bot": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetTelegramBot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelegramBotDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "SaveTelegramBot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveTelegramBotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelegramBotDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "DeleteTelegramBot",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/notifications/telegram/link": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "GetTelegramLink",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelegramLinkDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "CreateTelegramLink",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelegramLinkUrlDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "operationId": "DeleteTelegramLink",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3077,6 +3195,17 @@
           }
         }
       },
+      "SaveTelegramBotRequest": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        }
+      },
       "ServiceDto": {
         "required": [
           "id",
@@ -3243,6 +3372,59 @@
             }
           }
         }
+      },
+      "TelegramBotDto": {
+        "required": [
+          "username",
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "mode": {
+            "$ref": "#/components/schemas/TelegramMode"
+          }
+        }
+      },
+      "TelegramLinkDto": {
+        "required": [
+          "botUsername",
+          "linked"
+        ],
+        "type": "object",
+        "properties": {
+          "botUsername": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "linked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TelegramLinkUrlDto": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "TelegramMode": {
+        "enum": [
+          "Polling",
+          "Webhook"
+        ]
       },
       "TenantDto": {
         "required": [

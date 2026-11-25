@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,14 @@ public static class DependencyInjection
             ConfigureNpgsql(options, connectionString);
             options.AddInterceptors(sp.GetRequiredService<AuditingInterceptor>());
         });
+
+        // Keys in the database: encrypted values stay readable after restarts and redeploys. Skipped without a
+        // connection string (OpenAPI document generation at build time).
+        var dataProtection = services.AddDataProtection().SetApplicationName("PrenotaConMe");
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            dataProtection.PersistKeysToDbContext<AppDbContext>();
+        }
 
         services.AddJobs(configuration, connectionString);
         return services;

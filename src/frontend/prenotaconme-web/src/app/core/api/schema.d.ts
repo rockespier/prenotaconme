@@ -612,6 +612,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notifications/telegram/bot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTelegramBot"];
+        put: operations["SaveTelegramBot"];
+        post?: never;
+        delete: operations["DeleteTelegramBot"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/telegram/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTelegramLink"];
+        put?: never;
+        post: operations["CreateTelegramLink"];
+        delete: operations["DeleteTelegramLink"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -965,6 +997,9 @@ export interface components {
             locationIds: null | string[];
             serviceIds: null | string[];
         };
+        SaveTelegramBotRequest: {
+            token: string;
+        };
         ServiceDto: {
             /** Format: uuid */
             id: string;
@@ -1005,6 +1040,19 @@ export interface components {
             workingHours: components["schemas"]["WorkingHoursDto"][];
             timeOff: components["schemas"]["TimeOffDto"][];
         };
+        TelegramBotDto: {
+            username: null | string;
+            mode: components["schemas"]["TelegramMode"];
+        };
+        TelegramLinkDto: {
+            botUsername: null | string;
+            linked: boolean;
+        };
+        TelegramLinkUrlDto: {
+            url: string;
+        };
+        /** @enum {unknown} */
+        TelegramMode: "Polling" | "Webhook";
         TenantDto: {
             /** Format: uuid */
             id: string;
@@ -2501,6 +2549,135 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetTelegramBot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramBotDto"];
+                };
+            };
+        };
+    };
+    SaveTelegramBot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveTelegramBotRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramBotDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteTelegramBot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetTelegramLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramLinkDto"];
+                };
+            };
+        };
+    };
+    CreateTelegramLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramLinkUrlDto"];
+                };
+            };
+        };
+    };
+    DeleteTelegramLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
