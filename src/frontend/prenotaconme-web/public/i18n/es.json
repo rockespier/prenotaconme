@@ -240,6 +240,13 @@
         "invalid": "La fecha de fin debe ser igual o posterior a la de inicio (máximo un año)."
       },
       "alreadySent": "Este aviso ya se envió."
+    },
+    "telegram": {
+      "token": {
+        "invalid": "Token no válido. Cópialo de nuevo de @BotFather."
+      },
+      "webhookUnavailable": "El servidor no tiene una dirección pública https configurada para Telegram.",
+      "notConfigured": "Este negocio no tiene bot de Telegram."
     }
   },
   "backoffice": {
@@ -424,5 +431,21 @@
       "scheduled": "Programado",
       "ended": "Terminado"
     }
+  },
+  "telegram": {
+    "botTitle": "Bot de Telegram",
+    "botHint": "Con un bot de Telegram tus clientes y tu equipo reciben confirmaciones, cambios y avisos en el chat.",
+    "step1": "Abre @BotFather en Telegram y escribe /newbot.",
+    "step2": "Elige el nombre (p. ej. el de tu negocio) y un usuario que termine en \"bot\".",
+    "step3": "Copia el token que te da BotFather y pégalo aquí debajo.",
+    "token": "Token del bot",
+    "connect": "Conectar bot",
+    "botConnected": "El bot está activo. Los clientes lo vinculan desde \"Mis citas\" y el equipo desde el panel.",
+    "remove": "Desconectar bot",
+    "confirmRemove": "¿Desconectar el bot? Clientes y equipo dejarán de recibir mensajes por Telegram hasta que conectes otro.",
+    "link": "Vincular",
+    "unlink": "Desvincular",
+    "linkHint": "Recibe confirmaciones y avisos en el chat con @{{bot}}.",
+    "linked": "Vinculado: recibes los mensajes de @{{bot}}."
   }
 }

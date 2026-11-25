@@ -240,6 +240,13 @@
         "invalid": "La data di fine deve essere uguale o successiva a quella di inizio (massimo un anno)."
       },
       "alreadySent": "Questo avviso è già stato inviato."
+    },
+    "telegram": {
+      "token": {
+        "invalid": "Token non valido. Copialo di nuovo da @BotFather."
+      },
+      "webhookUnavailable": "Il server non ha un indirizzo pubblico https configurato per Telegram.",
+      "notConfigured": "Questa attività non ha un bot Telegram."
     }
   },
   "backoffice": {
@@ -424,5 +431,21 @@
       "scheduled": "Programmato",
       "ended": "Concluso"
     }
+  },
+  "telegram": {
+    "botTitle": "Bot Telegram",
+    "botHint": "Con un bot Telegram i tuoi clienti e il tuo staff ricevono conferme, modifiche e avvisi in chat.",
+    "step1": "Apri @BotFather su Telegram e scrivi /newbot.",
+    "step2": "Scegli il nome (es. il nome della tua attività) e un username che finisca con \"bot\".",
+    "step3": "Copia il token che ti dà BotFather e incollalo qui sotto.",
+    "token": "Token del bot",
+    "connect": "Collega bot",
+    "botConnected": "Il bot è attivo. I clienti lo collegano da \"Le mie prenotazioni\", lo staff dalla dashboard.",
+    "remove": "Scollega bot",
+    "confirmRemove": "Scollegare il bot? Clienti e staff non riceveranno più messaggi su Telegram finché non ne colleghi uno.",
+    "link": "Collega",
+    "unlink": "Scollega",
+    "linkHint": "Ricevi conferme e avvisi in chat con @{{bot}}.",
+    "linked": "Collegato: ricevi i messaggi da @{{bot}}."
   }
 }
