@@ -163,7 +163,7 @@ interface SetupStep {
     }
     app-telegram-settings { display: block; margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
-    .rules h3 { margin: var(--space-5) 0 var(--space-1); font: var(--mat-sys-title-small); font-weight: 600; }
+    .rules h3 { margin: var(--space-6) 0 var(--space-1); font: var(--mat-sys-title-medium); font-weight: 600; }
     .reminder-fields { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
     .reminder-fields mat-form-field { width: min(100%, 240px); }
 
