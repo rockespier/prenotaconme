@@ -126,6 +126,7 @@ interface SetupStep {
     h2 { margin: 0 0 var(--space-1); }
 
     .link-panel {
+      margin-bottom: var(--space-5);
       display: flex;
       flex-wrap: wrap;
       align-items: flex-end;
@@ -151,6 +152,7 @@ interface SetupStep {
     .link-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
     .setup, .rules { margin-top: var(--space-6); }
+    app-telegram-settings { display: block; margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
     .rules h3 { margin: var(--space-5) 0 var(--space-1); font: var(--mat-sys-title-small); font-weight: 600; }
     .reminder-fields { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
