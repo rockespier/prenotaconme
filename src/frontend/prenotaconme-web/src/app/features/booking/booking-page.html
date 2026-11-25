@@ -220,6 +220,9 @@
           </mat-form-field>
         }
 
+        @if (!signedIn()) {
+          <app-in-app-browser-notice />
+        }
         <div class="cta">
           @if (!signedIn()) {
             <button mat-flat-button class="primary" (click)="signIn()">

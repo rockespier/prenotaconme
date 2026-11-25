@@ -125,7 +125,8 @@
     "title": "Sign in",
     "subtitle": "Use your Google account to continue.",
     "google": "Continue with Google",
-    "error": "Sign-in failed. Please try again."
+    "error": "Sign-in failed. Please try again.",
+    "errorInApp": "Sign-in failed. If you opened this page from Telegram, Instagram or another app, open it in Safari or Chrome and try again."
   },
   "register": {
     "title": "Register your business",
@@ -462,5 +463,11 @@
     "title": "Reminders",
     "on": "We remind you of your appointments the day before and shortly before.",
     "off": "You will not get reminders of your appointments."
+  },
+  "inAppBrowser": {
+    "title": "Open this page in your browser",
+    "hint": "Google sign-in does not work inside Telegram and other apps. Tap ••• at the top and choose \"Open in Safari\" (or in the browser), or copy the link and paste it into Safari or Chrome.",
+    "copy": "Copy link",
+    "copied": "Link copied"
   }
 }

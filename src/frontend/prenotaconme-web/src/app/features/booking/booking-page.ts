@@ -1,3 +1,5 @@
+import { signInErrorKey } from '../../core/auth/in-app-browser';
+import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
 import { Component, ElementRef, Injector, afterNextRender, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,7 +30,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-booking-page',
-  imports: [AnnouncementBanner, 
+  imports: [AnnouncementBanner, InAppBrowserNotice, 
     ReactiveFormsModule, RouterLink, MatButtonModule, MatCardModule, MatFormFieldModule, MatIconModule, MatInputModule,
     MatProgressSpinnerModule, TranslocoPipe,
   ],
@@ -184,7 +186,7 @@ export class BookingPage {
       await this.auth.signInWithGoogle();
       await this.checkPhone();
     } catch {
-      this.error.set('login.error');
+      this.error.set(signInErrorKey());
     }
   }
 

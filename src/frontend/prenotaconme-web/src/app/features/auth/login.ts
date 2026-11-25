@@ -5,16 +5,19 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../core/auth/auth.service';
+import { signInErrorKey } from '../../core/auth/in-app-browser';
+import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
 
 @Component({
   selector: 'app-login',
-  imports: [MatButtonModule, MatCardModule, MatIconModule, TranslocoPipe],
+  imports: [InAppBrowserNotice, MatButtonModule, MatCardModule, MatIconModule, TranslocoPipe],
   template: `
     <section class="panel">
       <h1>{{ 'login.title' | transloco }}</h1>
       <p class="muted">{{ 'login.subtitle' | transloco }}</p>
-      @if (error()) {
-        <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ 'login.error' | transloco }}</p>
+      <app-in-app-browser-notice />
+      @if (error(); as key) {
+        <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ key | transloco }}</p>
       }
       <button mat-flat-button class="google" (click)="signIn()" [disabled]="busy()">
         <mat-icon>login</mat-icon>
@@ -49,16 +52,16 @@ export class Login {
   readonly returnUrl = input<string>();
 
   protected readonly busy = signal(false);
-  protected readonly error = signal(false);
+  protected readonly error = signal<string | null>(null);
 
   protected async signIn(): Promise<void> {
     this.busy.set(true);
-    this.error.set(false);
+    this.error.set(null);
     try {
       await this.auth.signInWithGoogle();
       await this.router.navigateByUrl(this.safeReturnUrl());
     } catch {
-      this.error.set(true);
+      this.error.set(signInErrorKey());
     } finally {
       this.busy.set(false);
     }

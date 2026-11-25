@@ -125,7 +125,8 @@
     "title": "Accedi",
     "subtitle": "Usa il tuo account Google per continuare.",
     "google": "Continua con Google",
-    "error": "Accesso non riuscito. Riprova."
+    "error": "Accesso non riuscito. Riprova.",
+    "errorInApp": "Accesso non riuscito. Se hai aperto questa pagina da Telegram, Instagram o un'altra app, aprila in Safari o Chrome e riprova."
   },
   "register": {
     "title": "Registra la tua attività",
@@ -462,5 +463,11 @@
     "title": "Promemoria",
     "on": "Ti ricordiamo i tuoi appuntamenti il giorno prima e poco prima.",
     "off": "Non riceverai promemoria dei tuoi appuntamenti."
+  },
+  "inAppBrowser": {
+    "title": "Apri questa pagina nel browser",
+    "hint": "Dentro Telegram e altre app l'accesso con Google non funziona. Tocca ••• in alto e scegli \"Apri in Safari\" (o nel browser), oppure copia il link e incollalo in Safari o Chrome.",
+    "copy": "Copia link",
+    "copied": "Link copiato"
   }
 }
