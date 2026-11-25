@@ -43,7 +43,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F1-14 | Ficha de cliente (A) | Listado de clientes del negocio con historial de citas |
 
 ## Fase 2 — Notificaciones y Google Calendar
-> Estado: F2-01 implementada (Hangfire con storage Postgres en el esquema `hangfire`; los emails de confirmación son jobs con reintentos; los jobs conservan el tenant que los encoló; dashboard `/hangfire` solo para P, porque muestra datos de todos los negocios). F2-02 implementada (Web Push VAPID con el service worker de Angular; activación desde Mis citas y el dashboard; push al cliente y al staff al reservar, mover o cancelar, salvo a quien hizo el cambio). Siguiente: F2-03 Anuncios del Admin.
+> Estado: F2-01 implementada (Hangfire con storage Postgres en el esquema `hangfire`; los emails de confirmación son jobs con reintentos; los jobs conservan el tenant que los encoló; dashboard `/hangfire` solo para P, porque muestra datos de todos los negocios). F2-02 implementada (Web Push VAPID con el service worker de Angular; activación desde Mis citas y el dashboard; push al cliente y al staff al reservar, mover o cancelar, salvo a quien hizo el cambio). F2-03 implementada (avisos en `/admin/avvisi` con vigencia en fechas locales del negocio, banner en la página pública y en Mis citas, envío único a todos los clientes por push + email; WhatsApp queda para F2-04/05). Siguiente: F2-04 Cuenta WhatsApp por negocio.
 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PrenotaConMe.Modules.Notifications.Announcements;
 using PrenotaConMe.Modules.Notifications.Push;
 using PrenotaConMe.Shared.Modules;
 using PrenotaConMe.Shared.Notifications;
@@ -36,5 +37,9 @@ public sealed class NotificationsModule : IModule
         services.AddHttpClient<IPushSender, VapidPushSender>();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder endpoints) => PushEndpoints.Map(endpoints);
+    public void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        PushEndpoints.Map(endpoints);
+        AnnouncementEndpoints.Map(endpoints);
+    }
 }

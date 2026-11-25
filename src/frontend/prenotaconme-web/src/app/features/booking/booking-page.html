@@ -33,6 +33,10 @@
     </header>
 
     @if (step() !== 'done') {
+      <app-announcement-banner [slug]="slug()" />
+    }
+
+    @if (step() !== 'done') {
       <nav class="progress" [attr.aria-label]="'booking.progress' | transloco">
         @if (canGoBack()) {
           <button mat-icon-button class="back" (click)="back()" [attr.aria-label]="'booking.back' | transloco">

@@ -25,7 +25,8 @@
     "services": "Servizi",
     "staff": "Collaboratori",
     "calendar": "Calendario",
-    "clients": "Clienti"
+    "clients": "Clienti",
+    "announcements": "Avvisi"
   },
   "home": {
     "title": "Le prenotazioni del tuo salone, online",
@@ -225,6 +226,20 @@
     },
     "range": {
       "invalid": "Intervallo di date non valido."
+    },
+    "announcement": {
+      "title": {
+        "required": "Inserisci un titolo.",
+        "length": "Massimo 100 caratteri."
+      },
+      "message": {
+        "required": "Scrivi il messaggio.",
+        "length": "Massimo 1000 caratteri."
+      },
+      "dates": {
+        "invalid": "La data di fine deve essere uguale o successiva a quella di inizio (massimo un anno)."
+      },
+      "alreadySent": "Questo avviso è già stato inviato."
     }
   },
   "backoffice": {
@@ -385,5 +400,29 @@
     "denied": "Le notifiche sono bloccate per questo sito. Puoi riattivarle dalle impostazioni del browser.",
     "ios": "Su iPhone aggiungi prima questa pagina alla schermata Home (Condividi → Aggiungi alla schermata Home) e aprila da lì.",
     "error": "Non è stato possibile attivare le notifiche. Riprova."
+  },
+  "announcements": {
+    "intro": "Comunica chiusure, orari delle feste o maggiorazioni ai tuoi clienti. L'avviso compare nella tua pagina di prenotazione nei giorni scelti e puoi inviarlo una volta a tutti i clienti con notifica ed email.",
+    "new": "Nuovo avviso",
+    "edit": "Modifica avviso",
+    "titleLabel": "Titolo",
+    "titlePlaceholder": "Es. Orari di Natale",
+    "message": "Messaggio",
+    "messagePlaceholder": "Es. Il 24 dicembre chiudiamo alle 14. Nei giorni festivi è prevista una maggiorazione del 10%.",
+    "from": "Visibile dal",
+    "to": "al",
+    "periodHint": "Le date sono incluse.",
+    "notify": "Invia subito a tutti i clienti con notifica ed email ({{count}} clienti)",
+    "saveAndSend": "Salva e invia",
+    "send": "Invia ai clienti",
+    "confirmSend": "Inviare questo avviso a {{count}} clienti con notifica ed email? Si può inviare una sola volta.",
+    "sent": "Inviato a {{count}} clienti il {{date}}",
+    "confirmDelete": "Eliminare l'avviso \"{{title}}\"?",
+    "empty": "Nessun avviso. Crea il primo per informare i tuoi clienti.",
+    "status": {
+      "active": "Visibile",
+      "scheduled": "Programmato",
+      "ended": "Concluso"
+    }
   }
 }

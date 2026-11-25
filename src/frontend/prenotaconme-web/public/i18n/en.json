@@ -25,7 +25,8 @@
     "services": "Services",
     "staff": "Staff",
     "calendar": "Calendar",
-    "clients": "Clients"
+    "clients": "Clients",
+    "announcements": "Announcements"
   },
   "home": {
     "title": "Your salon's bookings, online",
@@ -225,6 +226,20 @@
     },
     "range": {
       "invalid": "Invalid date range."
+    },
+    "announcement": {
+      "title": {
+        "required": "Enter a title.",
+        "length": "At most 100 characters."
+      },
+      "message": {
+        "required": "Write the message.",
+        "length": "At most 1000 characters."
+      },
+      "dates": {
+        "invalid": "The end date must be on or after the start date (at most one year)."
+      },
+      "alreadySent": "This announcement was already sent."
     }
   },
   "backoffice": {
@@ -385,5 +400,29 @@
     "denied": "Notifications are blocked for this site. You can allow them again in the browser settings.",
     "ios": "On iPhone, first add this page to the Home Screen (Share → Add to Home Screen) and open it from there.",
     "error": "Notifications could not be turned on. Please try again."
+  },
+  "announcements": {
+    "intro": "Tell your clients about closures, holiday hours or surcharges. The announcement shows on your booking page on the chosen days, and you can send it once to all clients by notification and e-mail.",
+    "new": "New announcement",
+    "edit": "Edit announcement",
+    "titleLabel": "Title",
+    "titlePlaceholder": "E.g. Christmas opening hours",
+    "message": "Message",
+    "messagePlaceholder": "E.g. On 24 December we close at 2 pm. Public holidays carry a 10% surcharge.",
+    "from": "Visible from",
+    "to": "to",
+    "periodHint": "Both dates are included.",
+    "notify": "Send now to all clients by notification and e-mail ({{count}} clients)",
+    "saveAndSend": "Save and send",
+    "send": "Send to clients",
+    "confirmSend": "Send this announcement to {{count}} clients by notification and e-mail? It can only be sent once.",
+    "sent": "Sent to {{count}} clients on {{date}}",
+    "confirmDelete": "Delete the announcement \"{{title}}\"?",
+    "empty": "No announcements yet. Create the first one to keep your clients informed.",
+    "status": {
+      "active": "Visible",
+      "scheduled": "Scheduled",
+      "ended": "Ended"
+    }
   }
 }

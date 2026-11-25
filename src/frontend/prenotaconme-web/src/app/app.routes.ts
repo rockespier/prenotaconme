@@ -39,6 +39,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/clients/client-page').then((m) => m.ClientPage),
       },
       {
+        path: 'avvisi',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/announcements/announcements-page').then((m) => m.AnnouncementsPage),
+      },
+      {
         path: 'staff/:id',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/staff/staff-schedule-page').then((m) => m.StaffSchedulePage),

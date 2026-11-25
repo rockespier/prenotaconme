@@ -2,7 +2,9 @@ namespace PrenotaConMe.Shared.Tenancy;
 
 /// <param name="DefaultLanguage">ISO 639-1 code (it/es/en) used for messages to clients and staff.</param>
 /// <param name="CancellationNoticeHours">Minimum notice for a client to cancel or reschedule.</param>
-public sealed record TenantSummary(Guid Id, string Slug, string Name, bool IsActive, string DefaultLanguage, int CancellationNoticeHours);
+/// <param name="TimeZone">IANA id of the business (local dates such as announcement validity).</param>
+public sealed record TenantSummary(
+    Guid Id, string Slug, string Name, bool IsActive, string DefaultLanguage, int CancellationNoticeHours, string TimeZone);
 
 /// <summary>Read-only lookup of tenants for other modules (implemented by the Tenancy module).</summary>
 public interface ITenantDirectory

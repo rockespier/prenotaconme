@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { AnnouncementBanner } from './announcement-banner';
 import { API_CLIENT, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
@@ -23,7 +24,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-my-appointments',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, TranslocoPipe],
+  imports: [AnnouncementBanner, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, TranslocoPipe],
   templateUrl: './my-appointments.html',
   styleUrls: ['./booking-page.scss', './my-appointments.scss'],
 })

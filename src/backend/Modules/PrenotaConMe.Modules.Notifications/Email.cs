@@ -47,6 +47,9 @@ public sealed class NotificationOptions
 {
     /// <summary>For testing: when set, every e-mail meant for staff goes to this address instead.</summary>
     public string? StaffEmail { get; set; }
+
+    /// <summary>Public site URL (e.g. https://prenotaconme.rtres.net), for links to the booking pages in e-mails.</summary>
+    public string? PublicUrl { get; set; }
 }
 
 internal sealed class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
