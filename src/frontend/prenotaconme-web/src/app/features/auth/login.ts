@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,8 +13,8 @@ import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-n
   imports: [InAppBrowserNotice, MatButtonModule, MatCardModule, MatIconModule, TranslocoPipe],
   template: `
     <section class="panel">
-      <h1>{{ 'login.title' | transloco }}</h1>
-      <p class="muted">{{ 'login.subtitle' | transloco }}</p>
+      <h1>{{ (registering() ? 'login.registerTitle' : 'login.title') | transloco }}</h1>
+      <p class="muted">{{ (registering() ? 'login.registerSubtitle' : 'login.subtitle') | transloco }}</p>
       <app-in-app-browser-notice />
       @if (error(); as key) {
         <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ key | transloco }}</p>
@@ -50,6 +50,9 @@ export class Login {
 
   /** Bound from ?returnUrl= */
   readonly returnUrl = input<string>();
+
+  /** Came from "Registra la tua attività": say why Google sign-in is needed. */
+  protected readonly registering = computed(() => this.returnUrl()?.startsWith('/registra-attivita') ?? false);
 
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);

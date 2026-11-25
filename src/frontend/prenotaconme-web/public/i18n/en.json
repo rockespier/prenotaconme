@@ -126,7 +126,9 @@
     "subtitle": "Use your Google account to continue.",
     "google": "Continue with Google",
     "error": "Sign-in failed. Please try again.",
-    "errorInApp": "Sign-in failed. If you opened this page from Telegram, Instagram or another app, open it in Safari or Chrome and try again."
+    "errorInApp": "Sign-in failed. If you opened this page from Telegram, Instagram or another app, open it in Safari or Chrome and try again.",
+    "registerTitle": "Register your business",
+    "registerSubtitle": "Sign in with your Google account: it will be the admin account of your business."
   },
   "register": {
     "title": "Register your business",

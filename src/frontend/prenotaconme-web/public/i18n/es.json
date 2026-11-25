@@ -126,7 +126,9 @@
     "subtitle": "Usa tu cuenta de Google para continuar.",
     "google": "Continuar con Google",
     "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
-    "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo."
+    "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo.",
+    "registerTitle": "Registra tu negocio",
+    "registerSubtitle": "Entra con tu cuenta de Google: será la cuenta administradora de tu negocio."
   },
   "register": {
     "title": "Registra tu negocio",
