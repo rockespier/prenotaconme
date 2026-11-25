@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { PricePipe } from '../../../shared/price.pipe';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -12,7 +12,7 @@ import { appointmentDate, shortDate } from './client-format';
 /** F1-14: one client's contact details, numbers and appointment history. Route /admin/clienti/scheda?key=... */
 @Component({
   selector: 'app-client-page',
-  imports: [CurrencyPipe, RouterLink, MatButtonModule, MatIconModule, MatTableModule, TranslocoPipe],
+  imports: [PricePipe, RouterLink, MatButtonModule, MatIconModule, MatTableModule, TranslocoPipe],
   template: `
     <a mat-button routerLink="/admin/clienti" class="back"><mat-icon>arrow_back</mat-icon>{{ 'nav.clients' | transloco }}</a>
 
@@ -36,7 +36,7 @@ import { appointmentDate, shortDate } from './client-format';
 
       <dl class="stats">
         <div><dt>{{ 'clients.visits' | transloco }}</dt><dd>{{ d.client.visits }}</dd></div>
-        <div><dt>{{ 'clients.spent' | transloco }}</dt><dd>{{ d.client.spent | currency: 'EUR' }}</dd></div>
+        <div><dt>{{ 'clients.spent' | transloco }}</dt><dd>{{ d.client.spent | price }}</dd></div>
         <div><dt>{{ 'clients.lastVisit' | transloco }}</dt><dd>{{ date(d.client.lastVisit) }}</dd></div>
         <div><dt>{{ 'clients.next' | transloco }}</dt><dd>{{ date(d.client.nextAppointment) }}</dd></div>
         <div><dt>{{ 'clients.cancelled' | transloco }}</dt><dd>{{ d.client.cancelled }}</dd></div>
@@ -58,7 +58,7 @@ import { appointmentDate, shortDate } from './client-format';
           </ng-container>
           <ng-container matColumnDef="price">
             <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'services.price' | transloco }}</th>
-            <td mat-cell *matCellDef="let a" class="hide-sm">{{ a.price | currency: 'EUR' }}</td>
+            <td mat-cell *matCellDef="let a" class="hide-sm">{{ a.price | price }}</td>
           </ng-container>
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef></th>
