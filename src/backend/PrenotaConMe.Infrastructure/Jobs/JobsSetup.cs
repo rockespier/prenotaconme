@@ -52,7 +52,8 @@ public static class JobsSetup
             sp.GetRequiredService<IJobFilterProvider>()));
         services.AddScoped<IBackgroundJobClient, TenantBackgroundJobClient>();
 
-        if (options.Server)
+        // No processing without a database (OpenAPI document generation at build time starts hosted services).
+        if (options.Server && !string.IsNullOrWhiteSpace(connectionString))
         {
             services.AddHangfireServer(o => o.WorkerCount = options.WorkerCount);
         }

@@ -41,9 +41,12 @@ public sealed class FakeTelegramApi : ITelegramApi
         return Task.FromResult(TelegramSendResult.Sent);
     }
 
+    public Task SendTypingAsync(string token, long chatId, CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>Waits up to 15 s: under a full parallel test run jobs can take a few seconds to be picked up.</summary>
     public async Task<IReadOnlyList<SentMessage>> WaitForAsync(long chatId, int count)
     {
-        for (var i = 0; i < 100; i++)
+        for (var i = 0; i < 300; i++)
         {
             var found = Sent.Where(m => m.ChatId == chatId).ToList();
             if (found.Count >= count)

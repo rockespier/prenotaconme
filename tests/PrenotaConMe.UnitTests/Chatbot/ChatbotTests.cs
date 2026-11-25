@@ -1,0 +1,78 @@
+using PrenotaConMe.Modules.Chatbot;
+using PrenotaConMe.Modules.Chatbot.Domain;
+
+namespace PrenotaConMe.UnitTests.Chatbot;
+
+public sealed class ChatbotTests
+{
+    private static readonly DateTimeOffset Now = new(2026, 12, 1, 9, 0, 0, TimeSpan.Zero);
+
+    [Fact]
+    public void An_action_is_confirmed_only_by_a_later_client_message()
+    {
+        var user = Guid.NewGuid();
+        var conversation = ChatConversation.Start("telegram", "1", user);
+        conversation.Receive(user, "Un taglio alle 10", Now);
+        conversation.Propose("book-10");
+
+        var sameMessage = conversation.IsConfirmed("book-10");
+        conversation.Receive(user, "sì", Now.AddMinutes(1));
+
+        Assert.False(sameMessage);
+        Assert.False(conversation.IsConfirmed("book-11"));
+        Assert.True(conversation.IsConfirmed("book-10"));
+    }
+
+    [Fact]
+    public void Conversation_starts_over_after_24_hours_or_for_another_user()
+    {
+        var user = Guid.NewGuid();
+        var conversation = ChatConversation.Start("telegram", "1", user);
+        conversation.Save(conversation.Receive(user, "ciao", Now));
+        conversation.Propose("book-10");
+
+        var nextDay = conversation.Receive(user, "di nuovo", Now + ChatConversation.Lifetime + TimeSpan.FromMinutes(1));
+        conversation.Save(nextDay);
+        var otherUser = conversation.Receive(Guid.NewGuid(), "sono un altro", Now.AddDays(1).AddHours(1));
+
+        Assert.Single(nextDay);
+        Assert.False(conversation.IsConfirmed("book-10"));
+        Assert.Single(otherUser);
+    }
+
+    [Fact]
+    public void Old_messages_are_dropped_from_a_client_message_so_tool_results_keep_their_call()
+    {
+        var user = Guid.NewGuid();
+        var conversation = ChatConversation.Start("telegram", "1", user);
+        var turns = new List<ChatTurn>();
+        for (var i = 0; i < 15; i++)
+        {
+            turns.Add(new ChatTurn(ChatTurnRole.User, $"m{i}"));
+            turns.Add(new ChatTurn(ChatTurnRole.Assistant, null, [new ToolCall($"c{i}", "list_services", "{}")]));
+            turns.Add(new ChatTurn(ChatTurnRole.Tool, "{}", ToolCallId: $"c{i}"));
+        }
+
+        conversation.Save(turns);
+        var kept = conversation.ReadMessages();
+
+        Assert.True(kept.Count <= ChatConversation.MaxTurns);
+        Assert.Equal(ChatTurnRole.User, kept[0].Role);
+        Assert.Equal("m14", kept[^3].Text);
+        Assert.Equal("c14", kept[^1].ToolCallId);
+    }
+
+    [Theory]
+    [InlineData("2026-12-02T10:30", "2026-12-02T09:30:00+00:00")]
+    [InlineData("2026-07-01 10:30", "2026-07-01T08:30:00+00:00")]
+    [InlineData("2026-12-02T10:30:00+01:00", "2026-12-02T09:30:00+00:00")]
+    public void Local_times_are_read_in_the_business_time_zone(string value, string utc) =>
+        Assert.Equal(DateTimeOffset.Parse(utc, System.Globalization.CultureInfo.InvariantCulture),
+            BookingTools.ToInstant(value, "Europe/Rome")!.Value.Utc);
+
+    [Theory]
+    [InlineData("2026-03-29T02:30")] // skipped by the change to summer time
+    [InlineData("tomorrow at 10")]
+    public void Invalid_or_skipped_times_are_refused(string value) =>
+        Assert.Null(BookingTools.ToInstant(value, "Europe/Rome"));
+}

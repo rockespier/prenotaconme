@@ -52,7 +52,7 @@ public sealed class ReminderTests(ApiFactory factory) : IClassFixture<ApiFactory
         return new Setup(business, factory.CreateUserClient(uid, business.Slug), $"{uid}@test.local", mario, day);
     }
 
-    private async Task<AppointmentDto> BookAsync(Setup s, int hour)
+    private static async Task<AppointmentDto> BookAsync(Setup s, int hour)
     {
         var location = (await s.Business.GetAsync<List<LocationDto>>("/api/locations"))[0];
         var haircut = (await s.Business.GetAsync<List<ServiceDto>>("/api/catalog/services")).Single(x => x.Name == "Taglio capelli");

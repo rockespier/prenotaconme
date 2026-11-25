@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using PrenotaConMe.Modules.Chatbot;
 using PrenotaConMe.Modules.Notifications;
 using PrenotaConMe.Modules.Notifications.Push;
 using PrenotaConMe.Modules.Notifications.Telegram;
@@ -35,6 +36,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     /// <summary>The Telegram Bot API (replaced).</summary>
     public FakeTelegramApi Telegram { get; } = new();
+
+    /// <summary>The chatbot's language model (replaced by a script the tests fill).</summary>
+    public ScriptedChatModel ChatModel { get; } = new();
 
     /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
     public CapturingEmailSender Emails { get; } = new();
@@ -70,12 +74,14 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         // Every test class runs its own app (and Hangfire server) in parallel: keep each one's DB connections low.
         builder.UseSetting("Jobs:WorkerCount", "2");
         builder.UseSetting("Notifications:PublicUrl", PublicUrl);
+        builder.UseSetting("OpenAI:ApiKey", "test-key");
 
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<IPushSender>(Pushes);
             services.AddSingleton<ITelegramApi>(Telegram);
+            services.AddSingleton<IChatModel>(ChatModel);
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
             services.PostConfigure<AuthenticationOptions>(o =>

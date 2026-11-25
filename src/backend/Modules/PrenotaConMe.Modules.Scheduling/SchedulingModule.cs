@@ -14,6 +14,7 @@ public sealed class SchedulingModule : IModule
     {
         services.AddScoped<AvailabilityService>();
         services.AddScoped<AppointmentEvents>();
+        services.AddScoped<ClientBookingService>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => SchedulingEndpoints.Map(endpoints);

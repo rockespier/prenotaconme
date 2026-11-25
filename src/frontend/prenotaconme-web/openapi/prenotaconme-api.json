@@ -1141,9 +1141,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       }
@@ -1185,9 +1182,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "description": "Not Found"
           },
           "400": {
             "description": "Bad Request",

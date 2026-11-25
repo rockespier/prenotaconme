@@ -455,8 +455,8 @@
     "confirmRemove": "Disconnect the bot? Clients and staff will stop getting Telegram messages until you connect another one.",
     "link": "Link",
     "unlink": "Unlink",
-    "linkHint": "Get confirmations and announcements in a chat with @{{bot}}.",
-    "linked": "Linked: you get messages from @{{bot}}."
+    "linkHint": "Get confirmations and announcements in a chat with @{{bot}}, and book by writing to it.",
+    "linked": "Linked: you get messages from @{{bot}} and can book in the chat."
   },
   "reminders": {
     "title": "Reminders",

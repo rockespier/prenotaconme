@@ -75,98 +75,25 @@ internal static class MyAppointmentsEndpoints
             appointments.Select(a => ToDto(a, locations[a.LocationId], staff[a.StaffMemberId], notice, now)).ToList()));
     }
 
-    private static async Task<Results<Ok<AppointmentDto>, NotFound, ProblemHttpResult>> CancelAsync(
-        Guid id, AppDbContext db, ICurrentUser currentUser, ITenantContext tenant, ITenantDirectory tenants,
-        AppointmentEvents events, TimeProvider clock, CancellationToken ct)
+    private static async Task<Results<Ok<AppointmentDto>, ProblemHttpResult>> CancelAsync(
+        Guid id, ClientBookingService booking, ICurrentUser currentUser, CancellationToken ct)
     {
-        var appointment = await FindOwnAsync(db, currentUser, id, ct);
-        if (appointment is null)
-        {
-            return TypedResults.NotFound();
-        }
-
-        var now = clock.GetUtcNow();
-        if (await CheckChangeableAsync(appointment, tenant, tenants, now, ct) is { } refused)
-        {
-            return refused;
-        }
-
-        appointment.Cancel(now);
-        await db.SaveChangesAsync(ct);
-        await events.PublishAsync(appointment, AppointmentChange.Cancelled, appointment.ClientUserId, ct);
-        return TypedResults.Ok(SchedulingEndpoints.ToDto(appointment));
+        var result = await booking.CancelAsync(await currentUser.GetUserIdAsync(ct), id, ct);
+        return result.Error is { } error
+            ? SchedulingEndpoints.Problem(error)
+            : TypedResults.Ok(SchedulingEndpoints.ToDto(result.Appointment!));
     }
 
-    private static async Task<Results<Ok<AppointmentDto>, NotFound, ValidationProblem, ProblemHttpResult>> RescheduleAsync(
-        Guid id, RescheduleAppointmentRequest request, AvailabilityService availability, AppDbContext db,
-        ICurrentUser currentUser, ITenantContext tenant, ITenantDirectory tenants, AppointmentEvents events, TimeProvider clock,
-        CancellationToken ct)
+    private static async Task<Results<Ok<AppointmentDto>, ValidationProblem, ProblemHttpResult>> RescheduleAsync(
+        Guid id, RescheduleAppointmentRequest request, ClientBookingService booking, ICurrentUser currentUser, CancellationToken ct)
     {
-        var appointment = await FindOwnAsync(db, currentUser, id, ct);
-        if (appointment is null)
+        var result = await booking.RescheduleAsync(await currentUser.GetUserIdAsync(ct), id, request, ct);
+        if (result.Error is { } error)
         {
-            return TypedResults.NotFound();
+            return error.Kind == BookingErrorKind.Invalid ? SchedulingEndpoints.Invalid(error) : SchedulingEndpoints.Problem(error);
         }
 
-        if (await CheckChangeableAsync(appointment, tenant, tenants, clock.GetUtcNow(), ct) is { } refused)
-        {
-            return refused;
-        }
-
-        var location = await db.Set<Location>().AsNoTracking().SingleAsync(l => l.Id == appointment.LocationId, ct);
-        var date = AvailabilityService.LocalDate(request.StartsAt, location.TimeZone);
-        var result = await availability.GetAsync(
-            new AvailabilityQuery(appointment.LocationId, appointment.ServiceId, request.StaffId, date, date, appointment.Id), ct);
-        if (result.Error is not null)
-        {
-            return new ValidationErrors().Add("availability", result.Error).ToProblem();
-        }
-
-        var slot = result.Slots.FirstOrDefault(s => s.StartsAt == request.StartsAt.ToUniversalTime());
-        if (slot is null)
-        {
-            return SchedulingEndpoints.SlotTaken("slot.unavailable");
-        }
-
-        var staffId = request.StaffId
-            ?? await SchedulingEndpoints.LeastBusyAsync(db, slot.StaffIds, slot.StartsAt, location.TimeZone, ct, appointment.Id);
-        var previousStaffId = appointment.StaffMemberId;
-        appointment.Reschedule(staffId, slot.StartsAt);
-
-        try
-        {
-            await db.SaveChangesAsync(ct);
-        }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
-        {
-            return SchedulingEndpoints.SlotTaken("slot.taken");
-        }
-
-        await events.PublishAsync(appointment, AppointmentChange.Rescheduled, appointment.ClientUserId, ct, previousStaffId);
-
-        return TypedResults.Ok(SchedulingEndpoints.ToDto(appointment));
-    }
-
-    /// <summary>Only the client's own appointments; anyone else's id looks like a missing one.</summary>
-    private static async Task<Appointment?> FindOwnAsync(AppDbContext db, ICurrentUser currentUser, Guid id, CancellationToken ct)
-    {
-        var userId = await currentUser.GetUserIdAsync(ct);
-        return await db.Set<Appointment>().SingleOrDefaultAsync(a => a.Id == id && a.ClientUserId == userId, ct);
-    }
-
-    /// <summary>409 when the appointment is no longer confirmed or the notice deadline has passed.</summary>
-    private static async Task<ProblemHttpResult?> CheckChangeableAsync(
-        Appointment appointment, ITenantContext tenant, ITenantDirectory tenants, DateTimeOffset now, CancellationToken ct)
-    {
-        if (appointment.Status != AppointmentStatus.Confirmed)
-        {
-            return Conflict("appointment.notConfirmed", "The appointment is no longer active.");
-        }
-
-        var notice = await NoticeHoursAsync(tenant, tenants, ct);
-        return appointment.CanChange(now, notice)
-            ? null
-            : Conflict("appointment.tooLate", $"Changes are allowed up to {notice} hours before the appointment.");
+        return TypedResults.Ok(SchedulingEndpoints.ToDto(result.Appointment!));
     }
 
     private static async Task<int> NoticeHoursAsync(ITenantContext tenant, ITenantDirectory tenants, CancellationToken ct)
@@ -174,9 +101,6 @@ internal static class MyAppointmentsEndpoints
         var id = tenant.TenantId!.Value;
         return (await tenants.GetByIdsAsync([id], ct))[id].CancellationNoticeHours;
     }
-
-    private static ProblemHttpResult Conflict(string code, string detail) =>
-        TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: code, detail: detail);
 
     private static MyAppointmentDto ToDto(Appointment a, Location location, string staffName, int notice, DateTimeOffset now) => new(
         a.Id, a.LocationId, location.Name, location.Address, location.City, location.TimeZone,
