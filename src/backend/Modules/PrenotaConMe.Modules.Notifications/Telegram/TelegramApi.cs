@@ -7,8 +7,11 @@ namespace PrenotaConMe.Modules.Notifications.Telegram;
 
 public sealed record TelegramBotInfo(long Id, string Username);
 
-/// <summary>The parts of a Telegram update the app uses (private text messages).</summary>
-public sealed record TelegramUpdate(long UpdateId, long? ChatId, string? Text)
+/// <summary>A voice message: the file is downloaded with getFile.</summary>
+public sealed record TelegramVoice(string FileId, int DurationSeconds);
+
+/// <summary>The parts of a Telegram update the app uses (private text and voice messages).</summary>
+public sealed record TelegramUpdate(long UpdateId, long? ChatId, string? Text, TelegramVoice? Voice = null)
 {
     public static TelegramUpdate Parse(JsonElement update)
     {
@@ -20,7 +23,13 @@ public sealed record TelegramUpdate(long UpdateId, long? ChatId, string? Text)
 
         long? chatId = message.TryGetProperty("chat", out var chat) && chat.TryGetProperty("id", out var c) ? c.GetInt64() : null;
         var text = message.TryGetProperty("text", out var t) ? t.GetString() : null;
-        return new TelegramUpdate(id, chatId, text);
+        TelegramVoice? voice = null;
+        if (message.TryGetProperty("voice", out var v) && v.TryGetProperty("file_id", out var fileId))
+        {
+            voice = new TelegramVoice(fileId.GetString()!, v.TryGetProperty("duration", out var d) ? d.GetInt32() : 0);
+        }
+
+        return new TelegramUpdate(id, chatId, text, voice);
     }
 }
 
@@ -48,6 +57,9 @@ public interface ITelegramApi
 
     /// <summary>Shows "typing…" in the chat for a few seconds (best effort, never throws).</summary>
     Task SendTypingAsync(string token, long chatId, CancellationToken cancellationToken);
+
+    /// <summary>F3-04: downloads a file sent to the bot (getFile, then the file URL; bots can download up to 20 MB).</summary>
+    Task<byte[]> DownloadFileAsync(string token, string fileId, CancellationToken cancellationToken);
 }
 
 /// <summary>
@@ -125,6 +137,17 @@ internal sealed class HttpTelegramApi(HttpClient http) : ITelegramApi
         {
             // Only a hint for the user.
         }
+    }
+
+    public async Task<byte[]> DownloadFileAsync(string token, string fileId, CancellationToken cancellationToken)
+    {
+        var (status, result) = await CallAsync(token, "getFile", new { file_id = fileId }, cancellationToken);
+        EnsureOk(status, "getFile");
+        var path = result.GetProperty("file_path").GetString()!;
+
+        using var response = await http.GetAsync(new Uri($"https://api.telegram.org/file/bot{token}/{path}"), cancellationToken);
+        EnsureOk(response.StatusCode, "file download");
+        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
     }
 
     private async Task<(HttpStatusCode Status, JsonElement Result)> CallAsync(

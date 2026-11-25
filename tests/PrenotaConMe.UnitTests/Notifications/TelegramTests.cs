@@ -18,6 +18,14 @@ public sealed class TelegramTests
     }
 
     [Fact]
+    public void Update_parsing_reads_voice_messages()
+    {
+        using var voice = JsonDocument.Parse("""{"update_id":9,"message":{"chat":{"id":5},"voice":{"file_id":"AwAD","duration":7}}}""");
+
+        Assert.Equal(new TelegramUpdate(9, 5, null, new TelegramVoice("AwAD", 7)), TelegramUpdate.Parse(voice.RootElement));
+    }
+
+    [Fact]
     public void Message_text_is_the_push_content_with_an_absolute_link()
     {
         var push = new PushNotification("Prenotazione confermata", "Taglio · mer 2 dic, 10:30", "/barberia/prenotazioni", "t");
