@@ -38,7 +38,11 @@ public sealed class TelegramTests
     }
 
     [Fact]
-    public void Replies_follow_the_business_language_and_drop_a_missing_link() =>
-        Assert.Equal("Por ahora aquí recibes los avisos de Barbería. Para reservar:",
+    public void Replies_follow_the_business_language_and_put_the_link_on_its_own_line()
+    {
+        Assert.Equal("Por ahora no puedo tomar reservas por chat: aquí recibes los avisos de Barbería. Para reservar usa el sitio.",
             TelegramTexts.Format(TelegramTexts.For("es").NotYet, "Barbería", null));
+        Assert.EndsWith("usa el sitio.\nhttps://site.test/barberia",
+            TelegramTexts.Format(TelegramTexts.For("es").NotYet, "Barbería", "https://site.test/barberia"), StringComparison.Ordinal);
+    }
 }
