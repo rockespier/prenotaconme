@@ -31,12 +31,6 @@
   "home": {
     "title": "Le prenotazioni del tuo salone, online",
     "subtitle": "I clienti prenotano da soli dal tuo link, a qualsiasi ora. Tu gestisci sedi, servizi e orari anche dal telefono.",
-    "apiStatus": "Stato del servizio",
-    "status": {
-      "checking": "verifica…",
-      "online": "online",
-      "offline": "non raggiungibile"
-    },
     "cta": "Registra la tua attività",
     "signIn": "Ho già un account",
     "points": {
@@ -48,9 +42,13 @@
         "title": "Niente doppie prenotazioni",
         "text": "Gli orari liberi tengono conto di turni, ferie e appuntamenti già presi."
       },
-      "mail": {
-        "title": "Conferma automatica",
-        "text": "Cliente e collaboratore ricevono un'email con l'appuntamento da aggiungere al calendario."
+      "reminders": {
+        "title": "Conferme e promemoria automatici",
+        "text": "Email, notifiche e Telegram: il cliente riceve la conferma e un promemoria prima dell'appuntamento."
+      },
+      "chat": {
+        "title": "Prenotazioni anche in chat",
+        "text": "Il tuo bot Telegram risponde ai clienti e prenota, sposta o annulla per loro, anche con i messaggi vocali."
       }
     }
   },

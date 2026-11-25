@@ -31,12 +31,6 @@
   "home": {
     "title": "Your salon's bookings, online",
     "subtitle": "Clients book on their own from your link, any time. You manage locations, services and hours, even from your phone.",
-    "apiStatus": "API status",
-    "status": {
-      "checking": "checking…",
-      "online": "online",
-      "offline": "unreachable"
-    },
     "cta": "Register your business",
     "signIn": "I already have an account",
     "points": {
@@ -48,9 +42,13 @@
         "title": "No double bookings",
         "text": "Free times account for shifts, holidays and existing appointments."
       },
-      "mail": {
-        "title": "Automatic confirmation",
-        "text": "Client and staff get an e-mail with the appointment to add to their calendar."
+      "reminders": {
+        "title": "Automatic confirmations and reminders",
+        "text": "E-mail, notifications and Telegram: clients get a confirmation and a reminder before the appointment."
+      },
+      "chat": {
+        "title": "Bookings by chat too",
+        "text": "Your Telegram bot answers clients and books, moves or cancels for them, even from voice messages."
       }
     }
   },
