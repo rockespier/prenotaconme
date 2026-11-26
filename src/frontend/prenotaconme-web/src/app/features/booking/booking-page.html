@@ -226,8 +226,11 @@
         }
         <div class="cta">
           @if (!signedIn()) {
-            <button mat-flat-button class="primary" (click)="signIn()">
+            <button mat-flat-button class="primary" (click)="signIn('google')">
               <mat-icon>login</mat-icon>{{ 'login.google' | transloco }}
+            </button>
+            <button mat-stroked-button class="primary secondary" (click)="signIn('microsoft')">
+              {{ 'login.microsoft' | transloco }}
             </button>
           } @else {
             <button mat-flat-button class="primary" (click)="confirm()" [disabled]="busy() || (needsPhone() && phone.invalid)">

@@ -74,7 +74,7 @@
     "where": "Dónde",
     "price": "Precio",
     "payOnSite": "(se paga en el local)",
-    "signInToConfirm": "Para confirmar, accede con tu cuenta de Google: así podrás ver y gestionar tus reservas.",
+    "signInToConfirm": "Para confirmar, accede con tu cuenta de Google o Microsoft: así podrás ver y gestionar tus reservas.",
     "phone": "Tu número de móvil",
     "phoneHint": "Con prefijo internacional, p. ej. +34 612 345 678. Solo lo usamos para los recordatorios.",
     "confirm": "Confirmar reserva",
@@ -92,7 +92,7 @@
   "myAppointments": {
     "title": "Mis citas",
     "link": "Mis citas",
-    "signInHint": "Inicia sesión con la misma cuenta de Google que usaste para reservar.",
+    "signInHint": "Inicia sesión con la misma cuenta (Google o Microsoft) que usaste para reservar.",
     "upcoming": "Próximas citas",
     "past": "Historial",
     "none": "No tienes citas programadas.",
@@ -123,12 +123,14 @@
   },
   "login": {
     "title": "Acceder",
-    "subtitle": "Usa tu cuenta de Google para continuar.",
+    "subtitle": "Usa tu cuenta de Google o Microsoft para continuar.",
     "google": "Continuar con Google",
     "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
     "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo.",
     "registerTitle": "Registra tu negocio",
-    "registerSubtitle": "Entra con tu cuenta de Google: será la cuenta administradora de tu negocio."
+    "registerSubtitle": "Entra con tu cuenta de Google o Microsoft: será la cuenta administradora de tu negocio.",
+    "microsoft": "Continuar con Microsoft",
+    "useGoogleFirst": "Este correo ya entra con Google. Entra una vez con Google: a partir de ahí también funcionará Microsoft."
   },
   "register": {
     "title": "Registra tu negocio",

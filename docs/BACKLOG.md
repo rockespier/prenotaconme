@@ -28,7 +28,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
 | F1-01 | Registro de negocio (P/A) | Alta con nombre, slug único, zona horaria, idioma; crea tenant + usuario Admin |
-| F1-02 | Autenticación | Firebase Auth con Google SSO (`@angular/fire`); la API valida el ID token de Firebase (JwtBearer); al primer login se crea el perfil local |
+| F1-02 | Autenticación | Firebase Auth con Google SSO (y Microsoft, mismo proyecto Firebase) (`@angular/fire`); la API valida el ID token de Firebase (JwtBearer); al primer login se crea el perfil local |
 | F1-03 | Roles por tenant | Tabla `UserMembership` (FirebaseUid, TenantId, Rol); autorización por policy en cada endpoint; un usuario puede ser cliente de varios negocios |
 | F1-04 | Gestión de sedes (A) | CRUD sedes con dirección, zona horaria, horario de apertura |
 | F1-05 | Catálogo de servicios (A) | CRUD servicios: nombre, duración configurable (múltiplos de 30 min), precio, sedes donde se ofrece; seed: Corte 30', Barba 30', Corte+Barba 60' |
