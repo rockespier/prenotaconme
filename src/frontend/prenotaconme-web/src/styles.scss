@@ -158,6 +158,34 @@ a {
   .hide-sm {
     display: none;
   }
+
+  // Phones: tighter cells so name + actions fit without horizontal scroll.
+  .table-card {
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      padding: 0 var(--space-2);
+    }
+
+    .mat-mdc-header-cell:first-child,
+    .mat-mdc-cell:first-child {
+      padding-left: var(--space-3);
+    }
+
+    .mat-mdc-cell {
+      overflow-wrap: anywhere;
+    }
+
+    .actions .mat-mdc-icon-button {
+      --mat-icon-button-state-layer-size: 40px;
+      padding: 8px;
+    }
+  }
+}
+
+@media (min-width: 720px) {
+  .show-sm {
+    display: none !important;
+  }
 }
 
 // Small status label (Attivo / Non attivo, Invitato / Collegato).

@@ -31,6 +31,9 @@ type Staff = Schemas['StaffDto'];
         <td mat-cell *matCellDef="let s">
           <strong>{{ s.displayName }}</strong>
           @if (!s.isActive) { <span class="pill">{{ 'staff.inactive' | transloco }}</span> }
+          <span class="show-sm status-sm">
+            <span class="pill" [class.ok]="s.isLinked">{{ (s.isLinked ? 'staff.linked' : 'staff.invited') | transloco }}</span>
+          </span>
         </td>
       </ng-container>
       <ng-container matColumnDef="email">
@@ -38,8 +41,8 @@ type Staff = Schemas['StaffDto'];
         <td mat-cell *matCellDef="let s" class="hide-sm">{{ s.email }}</td>
       </ng-container>
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>{{ 'staff.status' | transloco }}</th>
-        <td mat-cell *matCellDef="let s">
+        <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'staff.status' | transloco }}</th>
+        <td mat-cell *matCellDef="let s" class="hide-sm">
           <span class="pill" [class.ok]="s.isLinked">{{ (s.isLinked ? 'staff.linked' : 'staff.invited') | transloco }}</span>
         </td>
       </ng-container>
@@ -50,7 +53,8 @@ type Staff = Schemas['StaffDto'];
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let s" class="actions">
-          <a mat-button [routerLink]="['/admin/staff', s.id]"><mat-icon>schedule</mat-icon>{{ 'staff.schedule' | transloco }}</a>
+          <a mat-button class="hide-sm" [routerLink]="['/admin/staff', s.id]"><mat-icon>schedule</mat-icon>{{ 'staff.schedule' | transloco }}</a>
+          <a mat-icon-button class="show-sm" [routerLink]="['/admin/staff', s.id]" [attr.aria-label]="'staff.schedule' | transloco"><mat-icon>schedule</mat-icon></a>
           <button mat-icon-button (click)="edit(s)" [attr.aria-label]="'common.edit' | transloco"><mat-icon>edit</mat-icon></button>
           <button mat-icon-button (click)="remove(s)" [attr.aria-label]="'common.delete' | transloco"><mat-icon>delete</mat-icon></button>
         </td>
@@ -65,6 +69,7 @@ type Staff = Schemas['StaffDto'];
   `,
   styles: `
     strong { font-weight: 600; margin-right: var(--space-2); }
+    .status-sm { display: block; margin-top: var(--space-1); }
   `,
 })
 export class StaffPage implements OnInit {

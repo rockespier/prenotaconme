@@ -37,19 +37,23 @@ type Client = Schemas['ClientSummaryDto'];
             <strong>{{ c.name || ('clients.noName' | transloco) }}</strong>
             @if (c.isGuest) { <span class="pill">{{ 'calendar.guest' | transloco }}</span> }
             <span class="contact muted">{{ contact(c) }}</span>
+            <span class="contact muted show-sm">
+              {{ 'clients.visits' | transloco }}: {{ c.visits }}
+              @if (c.nextAppointment) { · {{ 'clients.next' | transloco }}: {{ date(c.nextAppointment) }} }
+            </span>
           </td>
         </ng-container>
         <ng-container matColumnDef="visits">
-          <th mat-header-cell *matHeaderCellDef>{{ 'clients.visits' | transloco }}</th>
-          <td mat-cell *matCellDef="let c">{{ c.visits }}</td>
+          <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'clients.visits' | transloco }}</th>
+          <td mat-cell *matCellDef="let c" class="hide-sm">{{ c.visits }}</td>
         </ng-container>
         <ng-container matColumnDef="last">
           <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'clients.lastVisit' | transloco }}</th>
           <td mat-cell *matCellDef="let c" class="hide-sm">{{ date(c.lastVisit) }}</td>
         </ng-container>
         <ng-container matColumnDef="next">
-          <th mat-header-cell *matHeaderCellDef>{{ 'clients.next' | transloco }}</th>
-          <td mat-cell *matCellDef="let c">{{ date(c.nextAppointment) }}</td>
+          <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'clients.next' | transloco }}</th>
+          <td mat-cell *matCellDef="let c" class="hide-sm">{{ date(c.nextAppointment) }}</td>
         </ng-container>
         <ng-container matColumnDef="spent">
           <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'clients.spent' | transloco }}</th>
