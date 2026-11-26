@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 
 # Angular build copied in at deploy time
 src/backend/PrenotaConMe.Api/wwwroot/
+.gstack/
