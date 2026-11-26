@@ -4,8 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AuthService } from '../../core/auth/auth.service';
-import { signInErrorKey } from '../../core/auth/in-app-browser';
+import { AuthService, signInError, SignInProvider } from '../../core/auth/auth.service';
 import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
 
 @Component({
@@ -19,9 +18,12 @@ import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-n
       @if (error(); as key) {
         <p class="error" role="alert"><mat-icon>error_outline</mat-icon>{{ key | transloco }}</p>
       }
-      <button mat-flat-button class="google" (click)="signIn()" [disabled]="busy()">
+      <button mat-flat-button class="provider" (click)="signIn('google')" [disabled]="busy()">
         <mat-icon>login</mat-icon>
         {{ 'login.google' | transloco }}
+      </button>
+      <button mat-stroked-button class="provider" (click)="signIn('microsoft')" [disabled]="busy()">
+        {{ 'login.microsoft' | transloco }}
       </button>
     </section>
   `,
@@ -35,7 +37,8 @@ import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-n
     }
     h1 { margin-bottom: var(--space-2); }
     .muted { margin: 0 0 var(--space-5); }
-    .google { width: 100%; height: 48px; }
+    .provider { width: 100%; height: 48px; }
+    .provider + .provider { margin-top: var(--space-2); }
     .error {
       display: flex; gap: var(--space-2); align-items: flex-start;
       margin: 0 0 var(--space-4); padding: var(--space-3);
@@ -57,14 +60,14 @@ export class Login {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  protected async signIn(): Promise<void> {
+  protected async signIn(provider: SignInProvider): Promise<void> {
     this.busy.set(true);
     this.error.set(null);
     try {
-      await this.auth.signInWithGoogle();
+      await this.auth.signIn(provider);
       await this.router.navigateByUrl(this.safeReturnUrl());
-    } catch {
-      this.error.set(signInErrorKey());
+    } catch (e) {
+      this.error.set(signInError(e));
     } finally {
       this.busy.set(false);
     }

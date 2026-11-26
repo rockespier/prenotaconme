@@ -74,7 +74,7 @@
     "where": "Dove",
     "price": "Prezzo",
     "payOnSite": "(si paga in sede)",
-    "signInToConfirm": "Per confermare accedi con il tuo account Google: così potrai ritrovare e gestire le tue prenotazioni.",
+    "signInToConfirm": "Per confermare accedi con il tuo account Google o Microsoft: così potrai ritrovare e gestire le tue prenotazioni.",
     "phone": "Il tuo numero di cellulare",
     "phoneHint": "Con il prefisso internazionale, es. +39 333 123 4567. Lo usiamo solo per i promemoria.",
     "confirm": "Conferma prenotazione",
@@ -92,7 +92,7 @@
   "myAppointments": {
     "title": "Le mie prenotazioni",
     "link": "Le mie prenotazioni",
-    "signInHint": "Accedi con lo stesso account Google usato per prenotare.",
+    "signInHint": "Accedi con lo stesso account (Google o Microsoft) usato per prenotare.",
     "upcoming": "Prossimi appuntamenti",
     "past": "Storico",
     "none": "Non hai appuntamenti in programma.",
@@ -123,12 +123,14 @@
   },
   "login": {
     "title": "Accedi",
-    "subtitle": "Usa il tuo account Google per continuare.",
+    "subtitle": "Usa il tuo account Google o Microsoft per continuare.",
     "google": "Continua con Google",
     "error": "Accesso non riuscito. Riprova.",
     "errorInApp": "Accesso non riuscito. Se hai aperto questa pagina da Telegram, Instagram o un'altra app, aprila in Safari o Chrome e riprova.",
     "registerTitle": "Registra la tua attività",
-    "registerSubtitle": "Accedi con il tuo account Google: sarà l'account amministratore della tua attività."
+    "registerSubtitle": "Accedi con il tuo account Google o Microsoft: sarà l'account amministratore della tua attività.",
+    "microsoft": "Continua con Microsoft",
+    "useGoogleFirst": "Questa email usa già l'accesso con Google. Accedi con Google una volta: da lì in poi funzionerà anche Microsoft."
   },
   "register": {
     "title": "Registra la tua attività",

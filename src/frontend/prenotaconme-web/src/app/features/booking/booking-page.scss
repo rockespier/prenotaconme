@@ -390,6 +390,8 @@ h2 {
     font-weight: 600;
   }
 
+  .secondary { margin-top: var(--space-2); }
+
   @media (min-width: 600px) {
     position: static;
     margin: var(--space-5) 0 0;

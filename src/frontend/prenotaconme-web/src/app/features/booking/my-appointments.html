@@ -38,7 +38,10 @@
         <mat-icon>lock</mat-icon>
         <p>{{ 'myAppointments.signInHint' | transloco }}</p>
         <app-in-app-browser-notice />
-        <button mat-flat-button (click)="signIn()">{{ 'login.google' | transloco }}</button>
+        <div class="sign-in">
+          <button mat-flat-button (click)="signIn('google')">{{ 'login.google' | transloco }}</button>
+          <button mat-stroked-button (click)="signIn('microsoft')">{{ 'login.microsoft' | transloco }}</button>
+        </div>
       </div>
     } @else {
       <app-push-toggle audience="client" />
