@@ -42,7 +42,7 @@ interface NavItem {
   template: `
     <mat-sidenav-container class="container">
       <mat-sidenav #drawer [mode]="isHandset() ? 'over' : 'side'" [opened]="!isHandset()">
-        <div class="nav-brand"><span class="mark" aria-hidden="true"></span>{{ 'app.name' | transloco }}</div>
+        <div class="nav-brand"><img src="brand/prenotaconme-logo.svg" [alt]="'app.name' | transloco" width="172" height="28" /></div>
         <mat-nav-list>
           @for (item of nav(); track item.path) {
             <a
@@ -137,7 +137,7 @@ interface NavItem {
       color: var(--mat-sys-on-surface);
     }
 
-    .mark { width: 12px; height: 12px; border-radius: 4px; background: var(--mat-sys-primary); }
+    .nav-brand img { display: block; height: 28px; width: auto; }
 
     mat-nav-list {
       padding: 0 var(--space-3);
