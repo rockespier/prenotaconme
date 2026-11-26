@@ -1968,6 +1968,59 @@
           }
         }
       }
+    },
+    "/api/calendar/google/status": {
+      "get": {
+        "tags": [
+          "calendar"
+        ],
+        "operationId": "GetGoogleCalendarStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleCalendarStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/google/connect": {
+      "post": {
+        "tags": [
+          "calendar"
+        ],
+        "operationId": "ConnectGoogleCalendar",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleConnectDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/google/connection": {
+      "delete": {
+        "tags": [
+          "calendar"
+        ],
+        "operationId": "DisconnectGoogleCalendar",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2595,6 +2648,54 @@
           "Friday",
           "Saturday"
         ]
+      },
+      "GoogleCalendarStatusDto": {
+        "required": [
+          "configured",
+          "enabledByBusiness",
+          "hasStaffProfile",
+          "connected",
+          "googleEmail",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "enabledByBusiness": {
+            "type": "boolean"
+          },
+          "hasStaffProfile": {
+            "type": "boolean"
+          },
+          "connected": {
+            "type": "boolean"
+          },
+          "googleEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "GoogleConnectDto": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        }
       },
       "HandoffDto": {
         "required": [
@@ -3609,7 +3710,8 @@
           "defaultLanguage",
           "cancellationNoticeHours",
           "firstReminderHours",
-          "secondReminderHours"
+          "secondReminderHours",
+          "googleCalendarSync"
         ],
         "type": "object",
         "properties": {
@@ -3640,6 +3742,9 @@
           "secondReminderHours": {
             "type": "integer",
             "format": "int32"
+          },
+          "googleCalendarSync": {
+            "type": "boolean"
           }
         }
       },
@@ -3727,6 +3832,12 @@
               "integer"
             ],
             "format": "int32"
+          },
+          "googleCalendarSync": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -3785,6 +3896,9 @@
     },
     {
       "name": "chatbot"
+    },
+    {
+      "name": "calendar"
     }
   ]
 }

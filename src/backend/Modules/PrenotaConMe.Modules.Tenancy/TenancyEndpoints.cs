@@ -15,15 +15,17 @@ public sealed record RegisterTenantRequest(string Name, string Slug, string Time
 
 /// <param name="FirstReminderHours">Hours before the appointment of the first reminder to the client (0 = off).</param>
 /// <param name="SecondReminderHours">Hours before the appointment of the second reminder (0 = off).</param>
+/// <param name="GoogleCalendarSync">F2-07: staff may connect Google Calendar.</param>
 public sealed record TenantDto(
     Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours,
-    int FirstReminderHours, int SecondReminderHours);
+    int FirstReminderHours, int SecondReminderHours, bool GoogleCalendarSync);
 
 public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
 
 /// <summary>Only the values sent are changed.</summary>
 public sealed record UpdateTenantSettingsRequest(
-    int? CancellationNoticeHours = null, int? FirstReminderHours = null, int? SecondReminderHours = null);
+    int? CancellationNoticeHours = null, int? FirstReminderHours = null, int? SecondReminderHours = null,
+    bool? GoogleCalendarSync = null);
 
 public sealed record SlugAvailabilityDto(string Slug, bool Available, string? Reason);
 
@@ -170,6 +172,11 @@ internal static class TenancyEndpoints
                 request.FirstReminderHours ?? tenant.FirstReminderHours, request.SecondReminderHours ?? tenant.SecondReminderHours);
         }
 
+        if (request.GoogleCalendarSync is { } sync)
+        {
+            tenant.SetGoogleCalendarSync(sync);
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok(ToDto(tenant));
@@ -182,5 +189,6 @@ internal static class TenancyEndpoints
             detail: $"The slug '{slug}' is already in use.");
 
     private static TenantDto ToDto(Tenant t) =>
-        new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours, t.FirstReminderHours, t.SecondReminderHours);
+        new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours, t.FirstReminderHours, t.SecondReminderHours,
+            t.GoogleCalendarSync);
 }

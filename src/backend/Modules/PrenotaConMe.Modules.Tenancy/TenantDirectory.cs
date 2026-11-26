@@ -24,7 +24,7 @@ internal sealed class TenantDirectory(AppDbContext db, IMemoryCache cache) : ITe
             .AsNoTracking()
             .Where(t => t.Slug == normalized)
             .Select(t => new TenantSummary(t.Id, t.Slug, t.Name, t.IsActive, t.DefaultLanguage, t.CancellationNoticeHours, t.TimeZone,
-                t.FirstReminderHours, t.SecondReminderHours))
+                t.FirstReminderHours, t.SecondReminderHours, t.GoogleCalendarSync))
             .SingleOrDefaultAsync(cancellationToken);
 
         // Only positive hits are cached so a newly registered slug is usable immediately.
@@ -48,7 +48,7 @@ internal sealed class TenantDirectory(AppDbContext db, IMemoryCache cache) : ITe
             .AsNoTracking()
             .Where(t => ids.Contains(t.Id))
             .Select(t => new TenantSummary(t.Id, t.Slug, t.Name, t.IsActive, t.DefaultLanguage, t.CancellationNoticeHours, t.TimeZone,
-                t.FirstReminderHours, t.SecondReminderHours))
+                t.FirstReminderHours, t.SecondReminderHours, t.GoogleCalendarSync))
             .ToDictionaryAsync(t => t.Id, cancellationToken);
     }
 

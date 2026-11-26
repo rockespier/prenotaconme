@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Scheduling\PrenotaConMe.Modules.Scheduling.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Notifications\PrenotaConMe.Modules.Notifications.csproj" />
     <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Chatbot\PrenotaConMe.Modules.Chatbot.csproj" />
+    <ProjectReference Include="..\Modules\PrenotaConMe.Modules.Calendar\PrenotaConMe.Modules.Calendar.csproj" />
   </ItemGroup>
 
   <ItemGroup>

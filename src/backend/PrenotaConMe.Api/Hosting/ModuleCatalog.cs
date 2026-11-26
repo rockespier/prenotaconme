@@ -1,3 +1,4 @@
+using PrenotaConMe.Modules.Calendar;
 using PrenotaConMe.Modules.Catalog;
 using PrenotaConMe.Modules.Chatbot;
 using PrenotaConMe.Modules.Locations;
@@ -23,5 +24,6 @@ internal static class ModuleCatalog
         new SchedulingModule(),
         new NotificationsModule(),
         new ChatbotModule(),
+        new CalendarModule(),
     ];
 }

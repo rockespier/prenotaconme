@@ -692,6 +692,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/calendar/google/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetGoogleCalendarStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calendar/google/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ConnectGoogleCalendar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calendar/google/connection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["DisconnectGoogleCalendar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -873,6 +921,17 @@ export interface components {
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+        GoogleCalendarStatusDto: {
+            configured: boolean;
+            enabledByBusiness: boolean;
+            hasStaffProfile: boolean;
+            connected: boolean;
+            googleEmail: null | string;
+            error: null | string;
+        };
+        GoogleConnectDto: {
+            url: string;
+        };
         HandoffDto: {
             /** Format: uuid */
             id: string;
@@ -1133,6 +1192,7 @@ export interface components {
             firstReminderHours: number;
             /** Format: int32 */
             secondReminderHours: number;
+            googleCalendarSync: boolean;
         };
         /** @enum {unknown} */
         TenantRole: "Admin" | "Staff" | "Client";
@@ -1160,6 +1220,7 @@ export interface components {
             firstReminderHours?: null | number;
             /** Format: int32 */
             secondReminderHours?: null | number;
+            googleCalendarSync?: null | boolean;
         };
         WorkingHoursDto: {
             /** Format: uuid */
@@ -2830,6 +2891,64 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetGoogleCalendarStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleCalendarStatusDto"];
+                };
+            };
+        };
+    };
+    ConnectGoogleCalendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoogleConnectDto"];
+                };
+            };
+        };
+    };
+    DisconnectGoogleCalendar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };

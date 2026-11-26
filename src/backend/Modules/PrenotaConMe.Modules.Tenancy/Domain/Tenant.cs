@@ -38,6 +38,14 @@ public sealed class Tenant : Entity
         SecondReminderHours = secondHours;
     }
 
+    /// <summary>
+    /// F2-07: the business lets its staff connect Google Calendar (appointments exported, personal events block
+    /// free times). Off by default: the backoffice calendar is enough for many businesses.
+    /// </summary>
+    public bool GoogleCalendarSync { get; private set; }
+
+    public void SetGoogleCalendarSync(bool enabled) => GoogleCalendarSync = enabled;
+
     /// <summary>Inputs must already be validated with <see cref="TenantRules"/>.</summary>
     public static Tenant Create(string name, string normalizedSlug, string timeZone, string language) => new()
     {

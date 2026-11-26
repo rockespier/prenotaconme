@@ -46,6 +46,111 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("data_protection_keys", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Calendar.Domain.CalendarEventLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("appointment_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("event_id");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_event_links");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_calendar_event_links_appointment_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_calendar_event_links_tenant_id");
+
+                    b.ToTable("calendar_event_links", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Calendar.Domain.GoogleCalendarConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CalendarId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("calendar_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("error");
+
+                    b.Property<string>("GoogleEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("google_email");
+
+                    b.Property<string>("ProtectedRefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("protected_refresh_token");
+
+                    b.Property<Guid>("StaffMemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_member_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_google_calendar_connections");
+
+                    b.HasIndex("StaffMemberId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_google_calendar_connections_staff_member_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_google_calendar_connections_tenant_id");
+
+                    b.ToTable("google_calendar_connections", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.Service", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1002,6 +1107,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("first_reminder_hours");
 
+                    b.Property<bool>("GoogleCalendarSync")
+                        .HasColumnType("boolean")
+                        .HasColumnName("google_calendar_sync");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -1134,6 +1243,26 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_user_memberships_tenant_id_user_id_role");
 
                     b.ToTable("user_memberships", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Calendar.Domain.CalendarEventLink", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Scheduling.Domain.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_calendar_event_links_appointments_appointment_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Calendar.Domain.GoogleCalendarConnection", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Staff.Domain.StaffMember", null)
+                        .WithMany()
+                        .HasForeignKey("StaffMemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_google_calendar_connections_staff_members_staff_member_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Catalog.Domain.ServiceLocation", b =>
