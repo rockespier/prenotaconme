@@ -68,6 +68,13 @@ public sealed class BookingTools(AppDbContext db, AvailabilityService availabili
               "staff_id":{"type":"string","description":"Omit to keep anyone free"}},
              "required":["appointment_id","start"],"additionalProperties":false}
             """),
+        new("handoff",
+            "Hands the chat to a person at the business and pauses you in this chat. Use it when the client asks for a person, complains, or needs something the other tools cannot do. Not for a time that is not free: offer other times instead.",
+            """
+            {"type":"object","properties":{
+              "reason":{"type":"string","description":"What the client needs, one short sentence for the business owner"}},
+             "required":["reason"],"additionalProperties":false}
+            """),
     ];
 
     /// <summary>Runs one call and returns its JSON result for the model. Bad arguments come back as errors, never exceptions.</summary>
@@ -94,6 +101,7 @@ public sealed class BookingTools(AppDbContext db, AvailabilityService availabili
                 "book" => await BookAsync(args, conversation, culture, ct),
                 "cancel" => await CancelAsync(args, conversation, culture, ct),
                 "reschedule" => await RescheduleAsync(args, conversation, culture, ct),
+                "handoff" => Handoff(args, conversation),
                 _ => Error("unknown_tool", $"There is no tool named {call.Name}."),
             };
         }
@@ -101,6 +109,13 @@ public sealed class BookingTools(AppDbContext db, AvailabilityService availabili
         {
             return Error("invalid_arguments", ex.Message);
         }
+    }
+
+    /// <summary>F3-06: the engine sees <see cref="ChatConversation.IsHandedOff"/>, alerts the Admins and replies itself.</summary>
+    private string Handoff(Args args, ChatConversation conversation)
+    {
+        conversation.Handoff(args.String("reason"), clock.GetUtcNow());
+        return Serialize(new { Status = "handed_off" });
     }
 
     private async Task<string> ListServicesAsync(CancellationToken ct)

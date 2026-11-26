@@ -1918,6 +1918,56 @@
           }
         }
       }
+    },
+    "/api/chatbot/handoffs": {
+      "get": {
+        "tags": [
+          "chatbot"
+        ],
+        "operationId": "ListHandoffs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HandoffDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chatbot/handoffs/{id}/resume": {
+      "post": {
+        "tags": [
+          "chatbot"
+        ],
+        "operationId": "ResumeHandoff",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2545,6 +2595,77 @@
           "Friday",
           "Saturday"
         ]
+      },
+      "HandoffDto": {
+        "required": [
+          "id",
+          "channel",
+          "handoffAt",
+          "reason",
+          "clientName",
+          "clientPhone",
+          "clientEmail",
+          "messages"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "handoffAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientPhone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "clientEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HandoffMessageDto"
+            }
+          }
+        }
+      },
+      "HandoffMessageDto": {
+        "required": [
+          "fromClient",
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "fromClient": {
+            "type": "boolean"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
       },
       "HttpValidationProblemDetails": {
         "type": "object",
@@ -3661,6 +3782,9 @@
     },
     {
       "name": "notifications"
+    },
+    {
+      "name": "chatbot"
     }
   ]
 }

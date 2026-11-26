@@ -26,7 +26,8 @@
     "staff": "Staff",
     "calendar": "Calendario",
     "clients": "Clientes",
-    "announcements": "Avisos"
+    "announcements": "Avisos",
+    "handoffs": "Solicitudes de contacto"
   },
   "home": {
     "title": "Las reservas de tu salón, online",
@@ -469,5 +470,14 @@
     "hint": "Dentro de Telegram y otras apps el acceso con Google no funciona. Toca ••• arriba y elige \"Abrir en Safari\" (o en el navegador), o copia el enlace y pégalo en Safari o Chrome.",
     "copy": "Copiar enlace",
     "copied": "Enlace copiado"
+  },
+  "handoffs": {
+    "intro": "Clientes que en el chat pidieron hablar con una persona. El asistente automático queda en pausa en su chat hasta que lo reactives (o durante 24 horas).",
+    "unknownClient": "Cliente",
+    "reason": "Motivo",
+    "chat": "Conversación ({{count}} mensajes)",
+    "paused": "Asistente en pausa",
+    "resume": "Reactivar asistente",
+    "empty": "No hay solicitudes pendientes."
   }
 }

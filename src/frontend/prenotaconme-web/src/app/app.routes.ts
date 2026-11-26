@@ -44,6 +44,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/announcements/announcements-page').then((m) => m.AnnouncementsPage),
       },
       {
+        path: 'conversazioni',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/handoffs/handoffs-page').then((m) => m.HandoffsPage),
+      },
+      {
         path: 'staff/:id',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/staff/staff-schedule-page').then((m) => m.StaffSchedulePage),

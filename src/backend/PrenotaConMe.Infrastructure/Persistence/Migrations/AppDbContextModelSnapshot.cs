@@ -161,6 +161,15 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTimeOffset?>("HandoffAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("handoff_at");
+
+                    b.Property<string>("HandoffReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("handoff_reason");
+
                     b.Property<DateTimeOffset>("LastMessageAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_message_at");

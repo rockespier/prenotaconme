@@ -12,6 +12,7 @@ public sealed class ChatConversation : TenantEntity
     public const int ChannelMaxLength = 20;
     public const int ConversationIdMaxLength = 64;
     public const int PendingActionMaxLength = 1000;
+    public const int HandoffReasonMaxLength = 300;
 
     /// <summary>Same window as WhatsApp's customer service window.</summary>
     public static readonly TimeSpan Lifetime = TimeSpan.FromHours(24);
@@ -63,6 +64,15 @@ public sealed class ChatConversation : TenantEntity
     /// <summary>F3-07: messages received on <see cref="RateDay"/>, refused ones included.</summary>
     public int RateDayCount { get; private set; }
 
+    /// <summary>
+    /// F3-06: when the client was handed to a person. Until an Admin resumes the assistant (or <see cref="Lifetime"/>
+    /// passes) the assistant stays silent in this chat; the client's messages are still kept for the Admin to read.
+    /// </summary>
+    public DateTimeOffset? HandoffAt { get; private set; }
+
+    /// <summary>F3-06: what the client needs, for the Admin.</summary>
+    public string? HandoffReason { get; private set; }
+
     public static ChatConversation Start(string channel, string conversationId, Guid userId) =>
         new() { Channel = channel, ConversationId = conversationId, UserId = userId };
 
@@ -79,6 +89,13 @@ public sealed class ChatConversation : TenantEntity
         if (expired)
         {
             PendingAction = null;
+        }
+
+        // F3-06: a handoff nobody closed ends by itself, even if the client keeps writing.
+        if (expired || now - HandoffAt > Lifetime)
+        {
+            HandoffAt = null;
+            HandoffReason = null;
         }
 
         UserId = userId;
@@ -154,6 +171,35 @@ public sealed class ChatConversation : TenantEntity
     }
 
     public void ClearPending() => PendingAction = null;
+
+    public bool IsHandedOff => HandoffAt is not null;
+
+    /// <summary>The handoff will end with the next message (<see cref="Receive"/> clears it).</summary>
+    public bool HandoffExpired(DateTimeOffset now) => now - HandoffAt > Lifetime || now - LastMessageAt > Lifetime;
+
+    /// <summary>F3-06: pauses the assistant in this chat; returns false when it was already paused.</summary>
+    public bool Handoff(string reason, DateTimeOffset now)
+    {
+        if (IsHandedOff)
+        {
+            return false;
+        }
+
+        reason = reason.Trim();
+        HandoffAt = now;
+        HandoffReason = reason.Length > HandoffReasonMaxLength ? reason[..HandoffReasonMaxLength] : reason;
+        PendingAction = null;
+        return true;
+    }
+
+    /// <summary>F3-06: an Admin turned the assistant back on; it starts with a clean history.</summary>
+    public void Resume()
+    {
+        HandoffAt = null;
+        HandoffReason = null;
+        PendingAction = null;
+        Messages = "[]";
+    }
 }
 
 /// <summary>F3-07: outcome of <see cref="ChatConversation.Count"/>.</summary>

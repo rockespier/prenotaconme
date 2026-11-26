@@ -26,7 +26,8 @@
     "staff": "Staff",
     "calendar": "Calendar",
     "clients": "Clients",
-    "announcements": "Announcements"
+    "announcements": "Announcements",
+    "handoffs": "Contact requests"
   },
   "home": {
     "title": "Your salon's bookings, online",
@@ -469,5 +470,14 @@
     "hint": "Google sign-in does not work inside Telegram and other apps. Tap ••• at the top and choose \"Open in Safari\" (or in the browser), or copy the link and paste it into Safari or Chrome.",
     "copy": "Copy link",
     "copied": "Link copied"
+  },
+  "handoffs": {
+    "intro": "Clients who asked in the chat to talk to a person. The automatic assistant stays paused in their chat until you turn it back on (or for 24 hours).",
+    "unknownClient": "Client",
+    "reason": "Reason",
+    "chat": "Conversation ({{count}} messages)",
+    "paused": "Assistant paused",
+    "resume": "Turn assistant back on",
+    "empty": "No pending requests."
   }
 }
