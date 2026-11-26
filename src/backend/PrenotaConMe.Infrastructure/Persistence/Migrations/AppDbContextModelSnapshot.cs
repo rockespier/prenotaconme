@@ -183,6 +183,22 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("pending_at");
 
+                    b.Property<DateOnly>("RateDay")
+                        .HasColumnType("date")
+                        .HasColumnName("rate_day");
+
+                    b.Property<int>("RateDayCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("rate_day_count");
+
+                    b.Property<int>("RateMinuteCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("rate_minute_count");
+
+                    b.Property<DateTimeOffset>("RateMinuteStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("rate_minute_start");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_id");
@@ -209,6 +225,57 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_chat_conversations_tenant_id_channel_conversation_id");
 
                     b.ToTable("chat_conversations", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Chatbot.Domain.ChatUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("AudioSeconds")
+                        .HasColumnType("bigint")
+                        .HasColumnName("audio_seconds");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date")
+                        .HasColumnName("day");
+
+                    b.Property<long>("InputTokens")
+                        .HasColumnType("bigint")
+                        .HasColumnName("input_tokens");
+
+                    b.Property<int>("Messages")
+                        .HasColumnType("integer")
+                        .HasColumnName("messages");
+
+                    b.Property<long>("OutputTokens")
+                        .HasColumnType("bigint")
+                        .HasColumnName("output_tokens");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_usage");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_chat_usage_tenant_id");
+
+                    b.HasIndex("TenantId", "Day")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chat_usage_tenant_id_day");
+
+                    b.ToTable("chat_usage", (string)null);
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>

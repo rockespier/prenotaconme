@@ -28,8 +28,11 @@ public sealed record ChatTurn(
 /// <summary>A function the model may call; <paramref name="Parameters"/> is a JSON schema.</summary>
 public sealed record ChatToolDefinition(string Name, string Description, string Parameters);
 
-/// <summary>Either text for the client or tool calls to run before asking the model again.</summary>
-public sealed record ChatModelReply(string? Text, IReadOnlyList<ToolCall> ToolCalls);
+/// <summary>
+/// Either text for the client or tool calls to run before asking the model again, with the tokens the call used
+/// (F3-07; zero in tests).
+/// </summary>
+public sealed record ChatModelReply(string? Text, IReadOnlyList<ToolCall> ToolCalls, int InputTokens = 0, int OutputTokens = 0);
 
 /// <summary>The language model behind the chatbot (OpenAI; a scripted fake in tests).</summary>
 public interface IChatModel
@@ -47,11 +50,14 @@ public sealed class ChatbotOptions
     /// <summary>Chat model with function calling.</summary>
     public string Model { get; set; } = "gpt-4.1-mini";
 
-    /// <summary>F3-04: speech-to-text model for voice messages.</summary>
-    public string TranscriptionModel { get; set; } = "whisper-1";
+    /// <summary>F3-04: speech-to-text model for voice messages (F3-07: half the price per minute of whisper-1).</summary>
+    public string TranscriptionModel { get; set; } = "gpt-4o-mini-transcribe";
+
+    /// <summary>F3-07: cap on each reply (chat answers are short; output tokens cost the most).</summary>
+    public int MaxOutputTokens { get; set; } = 300;
 }
 
-/// <summary>F3-04: OpenAI transcription (Whisper); the language is detected from the audio.</summary>
+/// <summary>F3-04: OpenAI transcription (gpt-4o-mini-transcribe by default); the language is detected from the audio.</summary>
 internal sealed class OpenAiSpeechToText(ChatbotOptions options) : ISpeechToText
 {
     private readonly Lazy<AudioClient> _client = new(() => new AudioClient(options.TranscriptionModel, options.ApiKey));
@@ -75,7 +81,7 @@ internal sealed class OpenAiChatModel(ChatbotOptions options) : IChatModel
         var messages = new List<ChatMessage> { new SystemChatMessage(systemPrompt) };
         messages.AddRange(conversation.Select(ToMessage));
 
-        var completionOptions = new ChatCompletionOptions();
+        var completionOptions = new ChatCompletionOptions { MaxOutputTokenCount = options.MaxOutputTokens };
         foreach (var tool in tools)
         {
             completionOptions.Tools.Add(ChatTool.CreateFunctionTool(tool.Name, tool.Description, BinaryData.FromString(tool.Parameters)));
@@ -86,7 +92,9 @@ internal sealed class OpenAiChatModel(ChatbotOptions options) : IChatModel
             .Select(c => new ToolCall(c.Id, c.FunctionName, c.FunctionArguments.ToString()))
             .ToList();
         var text = string.Concat(completion.Content.Where(p => p.Kind == ChatMessageContentPartKind.Text).Select(p => p.Text));
-        return new ChatModelReply(string.IsNullOrWhiteSpace(text) ? null : text, calls);
+        return new ChatModelReply(
+            string.IsNullOrWhiteSpace(text) ? null : text, calls,
+            completion.Usage?.InputTokenCount ?? 0, completion.Usage?.OutputTokenCount ?? 0);
     }
 
     private static ChatMessage ToMessage(ChatTurn turn) => turn.Role switch

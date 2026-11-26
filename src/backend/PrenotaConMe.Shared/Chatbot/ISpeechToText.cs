@@ -4,7 +4,7 @@ namespace PrenotaConMe.Shared.Chatbot;
 public interface ISpeechToText
 {
     /// <summary>Longest voice message transcribed (cost and latency limit).</summary>
-    public static readonly TimeSpan MaxDuration = TimeSpan.FromMinutes(2);
+    public static readonly TimeSpan MaxDuration = TimeSpan.FromMinutes(1);
 
     /// <param name="fileName">With the format's extension (e.g. "voice.ogg"): the provider uses it to read the audio.</param>
     /// <returns>The text, or null when nothing could be understood.</returns>

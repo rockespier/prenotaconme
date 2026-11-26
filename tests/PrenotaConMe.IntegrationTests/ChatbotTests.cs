@@ -1,5 +1,9 @@
 using System.Net.Http.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Catalog;
+using PrenotaConMe.Modules.Chatbot;
 using PrenotaConMe.Modules.Locations;
 using PrenotaConMe.Modules.Notifications.Telegram;
 using PrenotaConMe.Modules.Scheduling;
@@ -185,5 +189,107 @@ public sealed class ChatbotTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(PrenotaConMe.Shared.Chatbot.ChatbotMessage.Unintelligible, unreadable);
         Assert.StartsWith("Il messaggio vocale è troppo lungo", replies[3].Text, StringComparison.Ordinal);
         Assert.Equal(calls, factory.ChatModel.Calls.Count);
+    }
+
+    [Fact]
+    public async Task Bare_greetings_get_a_fixed_reply_without_the_model()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+
+        await SendAsync(s, chatId, "Ciao! 👋");
+        var replies = await factory.Telegram.WaitForAsync(chatId, 2);
+
+        Assert.StartsWith("Ciao anna-", replies[1].Text, StringComparison.Ordinal);
+        Assert.Contains("prenotare", replies[1].Text, StringComparison.Ordinal);
+        Assert.Empty(factory.ChatModel.Calls);
+    }
+
+    [Fact]
+    public async Task A_chat_writing_too_fast_is_told_to_wait_once()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+        factory.ChatModel.Script(Enumerable.Range(0, 6).Select(i => Say($"Risposta {i}")).ToArray());
+
+        for (var i = 0; i < 7; i++)
+        {
+            await SendAsync(s, chatId, $"Domanda {i}");
+        }
+
+        var replies = await factory.Telegram.WaitForAsync(chatId, 8);
+
+        Assert.Single(replies, r => r.Text.StartsWith("Stai scrivendo molto in fretta", StringComparison.Ordinal));
+        Assert.Equal(6, factory.ChatModel.Calls.Count);
+    }
+
+    [Fact]
+    public async Task Over_the_daily_budget_the_business_gets_a_fixed_reply()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+        await SetUsageAsync(s, tokens: 100_000_000, audioSeconds: 0);
+
+        await SendAsync(s, chatId, "Vorrei prenotare");
+        var replies = await factory.Telegram.WaitForAsync(chatId, 2);
+
+        Assert.StartsWith("L'assistente non è disponibile", replies[1].Text, StringComparison.Ordinal);
+        Assert.Empty(factory.ChatModel.Calls);
+    }
+
+    [Fact]
+    public async Task Over_the_daily_audio_budget_voice_messages_are_not_transcribed()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+        await SetUsageAsync(s, tokens: 0, audioSeconds: 60 * 60);
+        var speech = (FakeSpeechToText)factory.Services.GetRequiredService<PrenotaConMe.Shared.Chatbot.ISpeechToText>();
+        var transcribed = speech.Calls;
+
+        await SendVoiceAsync(s, chatId, "Vorrei prenotare", 5);
+        var replies = await factory.Telegram.WaitForAsync(chatId, 2);
+
+        Assert.StartsWith("In questo momento non posso ascoltare", replies[1].Text, StringComparison.Ordinal);
+        Assert.Equal(transcribed, speech.Calls);
+        Assert.Empty(factory.ChatModel.Calls);
+    }
+
+    private async Task SetUsageAsync(Setup s, long tokens, long audioSeconds)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var tenantId = (await scope.ServiceProvider.GetRequiredService<PrenotaConMe.Shared.Tenancy.ITenantDirectory>()
+            .FindBySlugAsync(s.Business.Slug))!.Id;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Rome")).DateTime);
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO chat_usage (id, tenant_id, day, messages, input_tokens, output_tokens, audio_seconds, created_at)
+            VALUES ({Guid.CreateVersion7()}, {tenantId}, {today}, 1, {tokens}, 0, {audioSeconds}, {DateTimeOffset.UtcNow})
+            """);
+    }
+
+    [Fact]
+    public async Task Answered_messages_add_their_tokens_to_the_daily_usage()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+        factory.ChatModel.Script(
+            new ChatModelReply(null, [new ToolCall("c1", "list_services", "{}")], 1000, 20),
+            new ChatModelReply("Abbiamo taglio e barba.", [], 1200, 30));
+
+        await SendAsync(s, chatId, "Che servizi avete?");
+        await factory.Telegram.WaitForAsync(chatId, 2);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var tenantId = (await scope.ServiceProvider.GetRequiredService<PrenotaConMe.Shared.Tenancy.ITenantDirectory>()
+            .FindBySlugAsync(s.Business.Slug))!.Id;
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var messages = await db.Database
+            .SqlQuery<int>($"SELECT messages AS \"Value\" FROM chat_usage WHERE tenant_id = {tenantId}").SingleAsync();
+        var input = await db.Database
+            .SqlQuery<long>($"SELECT input_tokens AS \"Value\" FROM chat_usage WHERE tenant_id = {tenantId}").SingleAsync();
+        var output = await db.Database
+            .SqlQuery<long>($"SELECT output_tokens AS \"Value\" FROM chat_usage WHERE tenant_id = {tenantId}").SingleAsync();
+
+        Assert.Equal((1, 2200L, 50L), (messages, input, output));
     }
 }

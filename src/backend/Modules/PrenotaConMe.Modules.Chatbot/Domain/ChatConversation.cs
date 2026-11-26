@@ -19,6 +19,12 @@ public sealed class ChatConversation : TenantEntity
     /// <summary>Older messages are dropped (whole exchanges, from the oldest client message).</summary>
     public const int MaxTurns = 40;
 
+    /// <summary>
+    /// F3-07: client messages kept as context (with the replies and tool results between them). The model gets
+    /// only the recent exchanges; the action waiting for confirmation is kept apart in <see cref="PendingAction"/>.
+    /// </summary>
+    public const int MaxClientMessages = 6;
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     private ChatConversation()
@@ -45,6 +51,18 @@ public sealed class ChatConversation : TenantEntity
 
     public DateTimeOffset LastMessageAt { get; private set; }
 
+    /// <summary>F3-07: start of the current one-minute window of <see cref="RateMinuteCount"/>.</summary>
+    public DateTimeOffset RateMinuteStart { get; private set; }
+
+    /// <summary>F3-07: messages received in the current minute, refused ones included.</summary>
+    public int RateMinuteCount { get; private set; }
+
+    /// <summary>F3-07: business-local day of <see cref="RateDayCount"/>.</summary>
+    public DateOnly RateDay { get; private set; }
+
+    /// <summary>F3-07: messages received on <see cref="RateDay"/>, refused ones included.</summary>
+    public int RateDayCount { get; private set; }
+
     public static ChatConversation Start(string channel, string conversationId, Guid userId) =>
         new() { Channel = channel, ConversationId = conversationId, UserId = userId };
 
@@ -67,25 +85,63 @@ public sealed class ChatConversation : TenantEntity
         MessageCount++;
         LastMessageAt = now;
         turns.Add(new ChatTurn(ChatTurnRole.User, text));
+        Trim(turns);
         return turns;
     }
 
     public void Save(IReadOnlyList<ChatTurn> turns)
     {
         var kept = turns.ToList();
-        while (kept.Count > MaxTurns)
+        Trim(kept);
+        Messages = JsonSerializer.Serialize(kept, Json);
+    }
+
+    /// <summary>
+    /// F3-07: counts a received message against the per-chat limits. Over a limit, only the first refused message
+    /// gets an answer (<see cref="ChatRate.TooFast"/> / <see cref="ChatRate.DailyLimit"/>); later ones are ignored.
+    /// </summary>
+    public ChatRate Count(DateTimeOffset now, DateOnly today, int perMinute, int perDay)
+    {
+        if (now - RateMinuteStart >= TimeSpan.FromMinutes(1))
         {
-            // Cut at the next client message so tool results never lose the call they answer.
-            var next = kept.FindIndex(1, t => t.Role == ChatTurnRole.User);
+            RateMinuteStart = now;
+            RateMinuteCount = 0;
+        }
+
+        if (RateDay != today)
+        {
+            RateDay = today;
+            RateDayCount = 0;
+        }
+
+        RateMinuteCount++;
+        RateDayCount++;
+        if (RateDayCount > perDay)
+        {
+            return RateDayCount == perDay + 1 ? ChatRate.DailyLimit : ChatRate.Ignore;
+        }
+
+        if (RateMinuteCount > perMinute)
+        {
+            return RateMinuteCount == perMinute + 1 ? ChatRate.TooFast : ChatRate.Ignore;
+        }
+
+        return ChatRate.Allowed;
+    }
+
+    /// <summary>Drops whole exchanges from the oldest, cutting at a client message so tool results keep their call.</summary>
+    private static void Trim(List<ChatTurn> turns)
+    {
+        while (turns.Count > MaxTurns || turns.Count(t => t.Role == ChatTurnRole.User) > MaxClientMessages)
+        {
+            var next = turns.FindIndex(1, t => t.Role == ChatTurnRole.User);
             if (next < 0)
             {
                 break;
             }
 
-            kept.RemoveRange(0, next);
+            turns.RemoveRange(0, next);
         }
-
-        Messages = JsonSerializer.Serialize(kept, Json);
     }
 
     /// <summary>The action proposed in an earlier message, if it is the same one (the client has answered since).</summary>
@@ -98,4 +154,13 @@ public sealed class ChatConversation : TenantEntity
     }
 
     public void ClearPending() => PendingAction = null;
+}
+
+/// <summary>F3-07: outcome of <see cref="ChatConversation.Count"/>.</summary>
+public enum ChatRate
+{
+    Allowed,
+    TooFast,
+    DailyLimit,
+    Ignore,
 }

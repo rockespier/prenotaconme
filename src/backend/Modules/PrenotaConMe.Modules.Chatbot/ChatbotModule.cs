@@ -18,6 +18,8 @@ public sealed class ChatbotModule : IModule
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<ChatbotOptions>(configuration.GetSection("OpenAI"));
+        services.Configure<ChatbotLimits>(configuration.GetSection("Chatbot"));
+        services.AddSingleton<ChatbotMetrics>();
         services.AddSingleton<IChatModel>(sp => new OpenAiChatModel(sp.GetRequiredService<IOptions<ChatbotOptions>>().Value));
         services.AddSingleton<ISpeechToText>(sp => new OpenAiSpeechToText(sp.GetRequiredService<IOptions<ChatbotOptions>>().Value));
         services.AddScoped<BookingTools>();

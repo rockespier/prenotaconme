@@ -62,8 +62,8 @@ internal sealed class TelegramUpdateHandler(
             var userId = link.UserId;
             if (update.Voice is { } voice)
             {
-                var fileId = voice.FileId;
-                jobs.Enqueue<TelegramJob>(j => j.VoiceAsync(userId, chatId, fileId, CancellationToken.None));
+                var (fileId, duration) = (voice.FileId, voice.DurationSeconds);
+                jobs.Enqueue<TelegramJob>(j => j.VoiceAsync(userId, chatId, fileId, duration, CancellationToken.None));
             }
             else
             {
