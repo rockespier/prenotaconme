@@ -72,7 +72,7 @@ public sealed class ClientBookingService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
+        catch (Exception ex) when (DbErrors.IsOverlapConflict(ex))
         {
             // Someone booked the same staff member at an overlapping time in the meantime.
             db.Entry(appointment).State = EntityState.Detached;
@@ -144,7 +144,7 @@ public sealed class ClientBookingService(
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
+        catch (Exception ex) when (DbErrors.IsOverlapConflict(ex))
         {
             appointment.Reschedule(previousStaffId, previousStart);
             db.Entry(appointment).State = EntityState.Unchanged;

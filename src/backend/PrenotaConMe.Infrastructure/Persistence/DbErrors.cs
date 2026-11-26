@@ -14,6 +14,14 @@ public static class DbErrors
 
     public static bool IsExclusionViolation(Exception ex) => Is(ex, PostgresErrorCodes.ExclusionViolation);
 
+    /// <summary>
+    /// Two writes claimed overlapping times (EXCLUDE constraint). Concurrent inserts that all see each other's
+    /// uncommitted rows wait on one another, and PostgreSQL ends that with a deadlock (40P01) instead of 23P01:
+    /// for a booking both mean "someone else took the time", never a server error.
+    /// </summary>
+    public static bool IsOverlapConflict(Exception ex) =>
+        IsExclusionViolation(ex) || Is(ex, PostgresErrorCodes.DeadlockDetected);
+
     private static bool Is(Exception ex, string sqlState) => ex switch
     {
         PostgresException pg => pg.SqlState == sqlState,
