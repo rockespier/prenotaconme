@@ -145,7 +145,7 @@ internal static class CalendarEndpoints
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
+        catch (Exception ex) when (DbErrors.IsOverlapConflict(ex))
         {
             return SchedulingEndpoints.SlotTaken("slot.taken");
         }
@@ -186,7 +186,7 @@ internal static class CalendarEndpoints
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (Exception ex) when (DbErrors.IsExclusionViolation(ex))
+        catch (Exception ex) when (DbErrors.IsOverlapConflict(ex))
         {
             return SchedulingEndpoints.SlotTaken("slot.taken");
         }
