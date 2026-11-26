@@ -27,7 +27,8 @@
     "calendar": "Calendario",
     "clients": "Clienti",
     "announcements": "Avvisi",
-    "handoffs": "Richieste di contatto"
+    "handoffs": "Richieste di contatto",
+    "finance": "Finanze"
   },
   "home": {
     "title": "Le prenotazioni del tuo salone, online",
@@ -327,7 +328,19 @@
     "close": "Chiudi",
     "cancelAppointment": "Annulla appuntamento",
     "confirmCancel": "Confermi l'annullamento?",
-    "dragHint": "Per cambiare orario trascina l'appuntamento nel calendario."
+    "dragHint": "Per cambiare orario trascina l'appuntamento nel calendario.",
+    "outcome": {
+      "title": "Com’è andata",
+      "charged": "Incassato",
+      "completed": "Completato",
+      "noShow": "Non si è presentato",
+      "undo": "Annulla",
+      "status": {
+        "Confirmed": "Non ancora segnato: nei conti vale come completato a prezzo di listino.",
+        "Completed": "Completato.",
+        "NoShow": "Il cliente non si è presentato."
+      }
+    }
   },
   "clients": {
     "search": "Cerca per nome, telefono o email",
@@ -495,6 +508,51 @@
       "connected": "Google Calendar collegato.",
       "denied": "Collegamento annullato.",
       "failed": "Non è stato possibile collegare Google Calendar. Riprova."
+    }
+  },
+  "finance": {
+    "previous": "Mese precedente",
+    "next": "Mese successivo",
+    "allLocations": "Tutte le sedi",
+    "location": "Sede",
+    "summary": "Riepilogo",
+    "vsPrevious": "rispetto al mese prima",
+    "kpi": {
+      "income": "Incassi",
+      "expenses": "Spese",
+      "net": "Utile netto",
+      "appointments": "Appuntamenti"
+    },
+    "expected": "Previsti altri {{amount}} dagli appuntamenti ancora in calendario questo mese.",
+    "unmarked": "{{count}} appuntamenti passati non sono stati segnati: contano come completati a prezzo di listino. Puoi segnarli dal calendario.",
+    "byDay": "Incassi per giorno",
+    "byStaff": "Per collaboratore",
+    "byService": "Per servizio",
+    "noShows": "Non presentati",
+    "sales": "Vendite",
+    "service": "Servizio",
+    "count": "Quantità",
+    "noAppointments": "Nessun appuntamento in questo mese.",
+    "expenses": {
+      "title": "Spese",
+      "intro": "Le spese fisse si ripetono ogni mese (affitto, bollette); le variabili capitano una volta (prodotti, commissioni).",
+      "new": "Nuova spesa",
+      "edit": "Modifica spesa",
+      "Fixed": "Fissa",
+      "Variable": "Variabile",
+      "hintFixed": "Si ripete ogni mese, dal mese di inizio fino a quello di fine.",
+      "hintVariable": "Una spesa singola, in una data.",
+      "name": "Descrizione",
+      "amount": "Importo",
+      "perMonth": "/mese",
+      "from": "Dal mese",
+      "until": "Fino al mese",
+      "untilHint": "Vuoto se continua",
+      "date": "Data",
+      "when": "Quando",
+      "since": "da {{month}}",
+      "empty": "Nessuna spesa registrata.",
+      "confirmDelete": "Eliminare la spesa \"{{name}}\"?"
     }
   }
 }

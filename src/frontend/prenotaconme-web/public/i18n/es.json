@@ -27,7 +27,8 @@
     "calendar": "Calendario",
     "clients": "Clientes",
     "announcements": "Avisos",
-    "handoffs": "Solicitudes de contacto"
+    "handoffs": "Solicitudes de contacto",
+    "finance": "Finanzas"
   },
   "home": {
     "title": "Las reservas de tu salón, online",
@@ -327,7 +328,19 @@
     "close": "Cerrar",
     "cancelAppointment": "Cancelar cita",
     "confirmCancel": "¿Confirmas la cancelación?",
-    "dragHint": "Para cambiar la hora arrastra la cita en el calendario."
+    "dragHint": "Para cambiar la hora arrastra la cita en el calendario.",
+    "outcome": {
+      "title": "Cómo fue",
+      "charged": "Cobrado",
+      "completed": "Completada",
+      "noShow": "No se presentó",
+      "undo": "Deshacer",
+      "status": {
+        "Confirmed": "Aún sin marcar: en las cuentas cuenta como completada a precio de lista.",
+        "Completed": "Completada.",
+        "NoShow": "El cliente no se presentó."
+      }
+    }
   },
   "clients": {
     "search": "Buscar por nombre, teléfono o email",
@@ -495,6 +508,51 @@
       "connected": "Google Calendar conectado.",
       "denied": "Conexión cancelada.",
       "failed": "No se pudo conectar Google Calendar. Inténtalo de nuevo."
+    }
+  },
+  "finance": {
+    "previous": "Mes anterior",
+    "next": "Mes siguiente",
+    "allLocations": "Todas las sedes",
+    "location": "Sede",
+    "summary": "Resumen",
+    "vsPrevious": "respecto al mes anterior",
+    "kpi": {
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "net": "Beneficio neto",
+      "appointments": "Citas"
+    },
+    "expected": "Se esperan otros {{amount}} de las citas que quedan este mes.",
+    "unmarked": "{{count}} citas pasadas no se han marcado: cuentan como completadas a precio de lista. Puedes marcarlas desde el calendario.",
+    "byDay": "Ingresos por día",
+    "byStaff": "Por colaborador",
+    "byService": "Por servicio",
+    "noShows": "No presentados",
+    "sales": "Ventas",
+    "service": "Servicio",
+    "count": "Cantidad",
+    "noAppointments": "No hay citas este mes.",
+    "expenses": {
+      "title": "Gastos",
+      "intro": "Los gastos fijos se repiten cada mes (alquiler, suministros); los variables ocurren una vez (productos, comisiones).",
+      "new": "Nuevo gasto",
+      "edit": "Editar gasto",
+      "Fixed": "Fijo",
+      "Variable": "Variable",
+      "hintFixed": "Se repite cada mes, desde el mes de inicio hasta el de fin.",
+      "hintVariable": "Un gasto único, en una fecha.",
+      "name": "Descripción",
+      "amount": "Importe",
+      "perMonth": "/mes",
+      "from": "Desde el mes",
+      "until": "Hasta el mes",
+      "untilHint": "Vacío si continúa",
+      "date": "Fecha",
+      "when": "Cuándo",
+      "since": "desde {{month}}",
+      "empty": "No hay gastos registrados.",
+      "confirmDelete": "¿Eliminar el gasto \"{{name}}\"?"
     }
   }
 }

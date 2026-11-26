@@ -468,6 +468,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/scheduling/calendar/appointments/{id}/outcome": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RecordAppointmentOutcome"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scheduling/clients": {
         parameters: {
             query?: never;
@@ -740,6 +756,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/finance/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListExpenses"];
+        put?: never;
+        post: operations["CreateExpense"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/finance/expenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UpdateExpense"];
+        post?: never;
+        delete: operations["DeleteExpense"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/finance/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetFinanceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/finance/report/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ExportFinanceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -793,6 +873,11 @@ export interface components {
             /** Format: date-time */
             endsAt: string;
             status: components["schemas"]["AppointmentStatus"];
+        };
+        AppointmentOutcomeRequest: {
+            outcome: components["schemas"]["AppointmentStatus"];
+            /** Format: double */
+            chargedAmount: null | number;
         };
         /** @enum {unknown} */
         AppointmentStatus: "Confirmed" | "Cancelled" | "Completed" | "NoShow";
@@ -848,6 +933,8 @@ export interface components {
             clientPhone: null | string;
             isGuest: boolean;
             clientKey: string;
+            /** Format: double */
+            chargedAmount: null | number;
         };
         CalendarDto: {
             canEdit: boolean;
@@ -921,6 +1008,76 @@ export interface components {
         };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+        ExpenseDto: {
+            /** Format: uuid */
+            id: string;
+            kind: components["schemas"]["ExpenseKind"];
+            name: string;
+            /** Format: double */
+            amount: number;
+            /** Format: uuid */
+            locationId: null | string;
+            /** Format: date */
+            date: string;
+            /** Format: date */
+            endsOn: null | string;
+        };
+        /** @enum {unknown} */
+        ExpenseKind: "Fixed" | "Variable";
+        FinanceDayDto: {
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            income: number;
+        };
+        FinanceReportDto: {
+            month: string;
+            /** Format: uuid */
+            locationId: null | string;
+            totals: components["schemas"]["FinanceTotalsDto"];
+            previous: components["schemas"]["FinanceTotalsDto"];
+            /** Format: double */
+            expectedIncome: number;
+            /** Format: int32 */
+            unmarked: number;
+            days: components["schemas"]["FinanceDayDto"][];
+            staff: components["schemas"]["FinanceStaffDto"][];
+            services: components["schemas"]["FinanceServiceLineDto"][];
+            expenses: components["schemas"]["ExpenseDto"][];
+        };
+        FinanceServiceLineDto: {
+            serviceName: string;
+            /** Format: int32 */
+            count: number;
+            /** Format: double */
+            sales: number;
+        };
+        FinanceStaffDto: {
+            /** Format: uuid */
+            staffMemberId: string;
+            name: string;
+            /** Format: int32 */
+            appointments: number;
+            /** Format: int32 */
+            noShows: number;
+            /** Format: double */
+            sales: number;
+            services: components["schemas"]["FinanceServiceLineDto"][];
+        };
+        FinanceTotalsDto: {
+            /** Format: double */
+            income: number;
+            /** Format: double */
+            fixedExpenses: number;
+            /** Format: double */
+            variableExpenses: number;
+            /** Format: double */
+            net: number;
+            /** Format: int32 */
+            appointments: number;
+            /** Format: int32 */
+            noShows: number;
+        };
         GoogleCalendarStatusDto: {
             configured: boolean;
             enabledByBusiness: boolean;
@@ -1091,6 +1248,18 @@ export interface components {
             startsAt: string;
             /** Format: uuid */
             staffId: null | string;
+        };
+        SaveExpenseRequest: {
+            kind: components["schemas"]["ExpenseKind"];
+            name: string;
+            /** Format: double */
+            amount: number;
+            /** Format: uuid */
+            locationId: null | string;
+            /** Format: date */
+            date: string;
+            /** Format: date */
+            endsOn: null | string;
         };
         SaveLocationRequest: {
             name: string;
@@ -2365,6 +2534,48 @@ export interface operations {
             };
         };
     };
+    RecordAppointmentOutcome: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppointmentOutcomeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarAppointmentDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ListClients: {
         parameters: {
             query?: {
@@ -2953,6 +3164,184 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    ListExpenses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"][];
+                };
+            };
+        };
+    };
+    CreateExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveExpenseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveExpenseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DeleteExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetFinanceReport: {
+        parameters: {
+            query?: {
+                month?: string;
+                locationId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinanceReportDto"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    ExportFinanceReport: {
+        parameters: {
+            query: {
+                month?: string;
+                locationId?: string;
+                format: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
             };
         };
     };

@@ -18,10 +18,15 @@ namespace PrenotaConMe.Modules.Scheduling;
 
 /// <param name="IsGuest">Entered by the business for a client without an account.</param>
 /// <param name="ClientKey">Key of the client card (F1-14).</param>
+/// <param name="ChargedAmount">F4-01: amount charged when it differs from the price (completed appointments).</param>
 public sealed record CalendarAppointmentDto(
     Guid Id, Guid LocationId, Guid ServiceId, string ServiceName, decimal Price, Guid StaffMemberId,
     DateTimeOffset StartsAt, DateTimeOffset EndsAt, AppointmentStatus Status,
-    string? ClientName, string? ClientEmail, string? ClientPhone, bool IsGuest, string ClientKey);
+    string? ClientName, string? ClientEmail, string? ClientPhone, bool IsGuest, string ClientKey, decimal? ChargedAmount);
+
+/// <param name="Outcome">Completed, NoShow, or Confirmed to undo.</param>
+/// <param name="ChargedAmount">Only for Completed; omit when the client paid the list price.</param>
+public sealed record AppointmentOutcomeRequest(AppointmentStatus Outcome, decimal? ChargedAmount);
 
 public sealed record CalendarStaffDto(Guid Id, string DisplayName, bool IsActive, IReadOnlyList<Guid> LocationIds, IReadOnlyList<Guid> ServiceIds);
 
@@ -37,6 +42,8 @@ public sealed record MoveCalendarAppointmentRequest(Guid StaffId, DateTimeOffset
 internal static class CalendarEndpoints
 {
     public const int MaxRangeDays = 62;
+
+    public const decimal MaxChargedAmount = 10_000m;
 
     public static void Map(IEndpointRouteBuilder group)
     {
@@ -55,6 +62,10 @@ internal static class CalendarEndpoints
         group.MapPost("/calendar/appointments/{id:guid}/cancel", CancelAsync)
             .RequireTenantRole(TenantRole.Admin)
             .WithName("CancelCalendarAppointment");
+
+        group.MapPost("/calendar/appointments/{id:guid}/outcome", OutcomeAsync)
+            .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
+            .WithName("RecordAppointmentOutcome");
     }
 
     private static async Task<Results<Ok<CalendarDto>, ValidationProblem>> GetAsync(
@@ -211,6 +222,58 @@ internal static class CalendarEndpoints
         return TypedResults.Ok(await ToDtoAsync(appointment, users, ct));
     }
 
+    /// <summary>
+    /// F4-01: completed (with the amount charged) or no-show, once the appointment has started. Admins for any
+    /// appointment, Staff for their own.
+    /// </summary>
+    private static async Task<Results<Ok<CalendarAppointmentDto>, NotFound, ValidationProblem, ProblemHttpResult>> OutcomeAsync(
+        Guid id, AppointmentOutcomeRequest request, AppDbContext db, IUserDirectory users, ICurrentUser currentUser,
+        IAuthorizationService authorization, HttpContext http, TimeProvider clock, CancellationToken ct)
+    {
+        var errors = new ValidationErrors()
+            .AddIf(request.Outcome is not (AppointmentStatus.Completed or AppointmentStatus.NoShow or AppointmentStatus.Confirmed),
+                "outcome", "outcome.invalid")
+            .AddIf(request.ChargedAmount is < 0 or > MaxChargedAmount, "chargedAmount", "price.range");
+        if (!errors.IsValid)
+        {
+            return errors.ToProblem();
+        }
+
+        var appointment = await db.Set<Appointment>().SingleOrDefaultAsync(a => a.Id == id, ct);
+        if (appointment is null || !await CanManageAsync(appointment, db, currentUser, authorization, http, ct))
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (appointment.Status == AppointmentStatus.Cancelled)
+        {
+            return TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "appointment.notConfirmed");
+        }
+
+        if (appointment.StartsAt > clock.GetUtcNow())
+        {
+            return TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "appointment.notStarted");
+        }
+
+        appointment.RecordOutcome(request.Outcome, request.ChargedAmount);
+        await db.SaveChangesAsync(ct);
+        return TypedResults.Ok(await ToDtoAsync(appointment, users, ct));
+    }
+
+    /// <summary>Admins manage every appointment; Staff only those of the staff record linked to them.</summary>
+    private static async Task<bool> CanManageAsync(
+        Appointment appointment, AppDbContext db, ICurrentUser currentUser, IAuthorizationService authorization, HttpContext http,
+        CancellationToken ct)
+    {
+        if ((await authorization.AuthorizeAsync(http.User, null, new TenantRoleRequirement([TenantRole.Admin]))).Succeeded)
+        {
+            return true;
+        }
+
+        var userId = await currentUser.GetUserIdAsync(ct);
+        return await db.Set<StaffMember>().AnyAsync(s => s.Id == appointment.StaffMemberId && s.UserId == userId, ct);
+    }
+
     /// <summary>The staff member must exist, work at the location and perform the service (working hours are not enforced: Admin override).</summary>
     private static async Task CheckStaffAsync(
         AppDbContext db, ValidationErrors errors, Guid staffId, Guid locationId, Guid serviceId, CancellationToken ct)
@@ -236,5 +299,5 @@ internal static class CalendarEndpoints
     private static CalendarAppointmentDto ToDto(Appointment a, UserSummary? client) => new(
         a.Id, a.LocationId, a.ServiceId, a.ServiceName, a.Price, a.StaffMemberId, a.StartsAt, a.EndsAt, a.Status,
         client?.DisplayName ?? a.ClientName, client?.Email, client?.PhoneNumber ?? a.ClientPhone, a.ClientUserId is null,
-        ClientsEndpoints.KeyOf(a));
+        ClientsEndpoints.KeyOf(a), a.ChargedAmount);
 }

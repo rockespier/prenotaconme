@@ -27,7 +27,8 @@
     "calendar": "Calendar",
     "clients": "Clients",
     "announcements": "Announcements",
-    "handoffs": "Contact requests"
+    "handoffs": "Contact requests",
+    "finance": "Finance"
   },
   "home": {
     "title": "Your salon's bookings, online",
@@ -327,7 +328,19 @@
     "close": "Close",
     "cancelAppointment": "Cancel appointment",
     "confirmCancel": "Confirm cancellation?",
-    "dragHint": "To change the time, drag the appointment in the calendar."
+    "dragHint": "To change the time, drag the appointment in the calendar.",
+    "outcome": {
+      "title": "How it went",
+      "charged": "Charged",
+      "completed": "Completed",
+      "noShow": "No-show",
+      "undo": "Undo",
+      "status": {
+        "Confirmed": "Not marked yet: the reports count it as completed at list price.",
+        "Completed": "Completed.",
+        "NoShow": "The client did not show up."
+      }
+    }
   },
   "clients": {
     "search": "Search by name, phone or e-mail",
@@ -495,6 +508,51 @@
       "connected": "Google Calendar connected.",
       "denied": "Connection cancelled.",
       "failed": "Google Calendar could not be connected. Please try again."
+    }
+  },
+  "finance": {
+    "previous": "Previous month",
+    "next": "Next month",
+    "allLocations": "All locations",
+    "location": "Location",
+    "summary": "Summary",
+    "vsPrevious": "vs previous month",
+    "kpi": {
+      "income": "Income",
+      "expenses": "Expenses",
+      "net": "Net profit",
+      "appointments": "Appointments"
+    },
+    "expected": "Another {{amount}} expected from the appointments still booked this month.",
+    "unmarked": "{{count}} past appointments were not marked: they count as completed at list price. You can mark them in the calendar.",
+    "byDay": "Income by day",
+    "byStaff": "By staff member",
+    "byService": "By service",
+    "noShows": "No-shows",
+    "sales": "Sales",
+    "service": "Service",
+    "count": "Count",
+    "noAppointments": "No appointments this month.",
+    "expenses": {
+      "title": "Expenses",
+      "intro": "Fixed expenses repeat every month (rent, utilities); variable ones happen once (products, commissions).",
+      "new": "New expense",
+      "edit": "Edit expense",
+      "Fixed": "Fixed",
+      "Variable": "Variable",
+      "hintFixed": "Repeats every month, from the start month to the end month.",
+      "hintVariable": "A single expense, on a date.",
+      "name": "Description",
+      "amount": "Amount",
+      "perMonth": "/month",
+      "from": "From month",
+      "until": "Until month",
+      "untilHint": "Empty if ongoing",
+      "date": "Date",
+      "when": "When",
+      "since": "since {{month}}",
+      "empty": "No expenses recorded.",
+      "confirmDelete": "Delete the expense \"{{name}}\"?"
     }
   }
 }

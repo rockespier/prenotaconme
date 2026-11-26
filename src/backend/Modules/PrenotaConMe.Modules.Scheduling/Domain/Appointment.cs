@@ -50,6 +50,27 @@ public sealed class Appointment : TenantEntity
 
     public DateTimeOffset? CancelledAt { get; private set; }
 
+    /// <summary>
+    /// F4-01: what the client actually paid, when it differs from <see cref="Price"/> (surcharge, discount).
+    /// Only for <see cref="AppointmentStatus.Completed"/>.
+    /// </summary>
+    public decimal? ChargedAmount { get; private set; }
+
+    /// <summary>
+    /// F4-01: the business records how a started appointment went: completed (optionally with the amount charged),
+    /// no-show, or back to confirmed (undo).
+    /// </summary>
+    public void RecordOutcome(AppointmentStatus outcome, decimal? chargedAmount)
+    {
+        if (outcome is not (AppointmentStatus.Completed or AppointmentStatus.NoShow or AppointmentStatus.Confirmed))
+        {
+            throw new ArgumentOutOfRangeException(nameof(outcome));
+        }
+
+        Status = outcome;
+        ChargedAmount = outcome == AppointmentStatus.Completed && chargedAmount != Price ? chargedAmount : null;
+    }
+
     public static Appointment Book(
         Guid locationId, Guid serviceId, string serviceName, decimal price, Guid staffMemberId, Guid clientUserId,
         DateTimeOffset startsAt, int durationMinutes) => new()

@@ -44,6 +44,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/announcements/announcements-page').then((m) => m.AnnouncementsPage),
       },
       {
+        path: 'finanze',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/finance/finance-page').then((m) => m.FinancePage),
+      },
+      {
         path: 'conversazioni',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/handoffs/handoffs-page').then((m) => m.HandoffsPage),

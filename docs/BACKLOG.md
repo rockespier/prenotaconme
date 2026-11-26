@@ -74,14 +74,15 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F3-07 ✅ | Control de coste | Límite de mensajes/tokens por tenant/día, métricas de uso en Seq |
 
 ## Fase 4 — Finanzas e informes
+> Estado: F4-01…F4-06 hechas. Las citas pasadas sin marcar cuentan como completadas a precio de lista (se avisa del número), para que un negocio que no marca nada tenga cifras razonables; el Admin o el propio colaborador marcan completada (con importe cobrado) o no presentado desde el calendario. Gastos fijos (mensuales con mes de inicio y fin) y variables, por sede o generales (los generales cuentan en el informe de cada sede). Informe mensual en `/admin/finanze` con comparación con el mes anterior, ingresos por día, por colaborador (con desglose por servicio) y por servicio; gráfico con barras CSS en lugar de ngx-echarts (sin dependencia extra); exportación PDF (QuestPDF) y Excel (ClosedXML).
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
-| F4-01 | Precio real de la cita | Al completar la cita se registra el importe cobrado (por defecto el precio del servicio, editable para recargos) y estado (completada / no-show) |
-| F4-02 | Gastos (A) | CRUD de gastos fijos (recurrentes mensuales: alquiler, suministros) y variables (productos, comisiones), por sede |
-| F4-03 | Balance mensual (A) | Ingresos − gastos fijos − variables = beneficio neto, filtrable por sede |
-| F4-04 | Informe por staff (A) | Mensual: nº de servicios, ventas totales, desglose por servicio |
-| F4-05 | Informe general (A) | Ingresos totales, gastos, beneficio neto, comparación con el mes anterior; gráficos ngx-echarts |
-| F4-06 | Exportación | PDF (QuestPDF) y Excel (ClosedXML) de los informes F4-03/04/05 |
+| F4-01 ✅ | Precio real de la cita | Al completar la cita se registra el importe cobrado (por defecto el precio del servicio, editable para recargos) y estado (completada / no-show) |
+| F4-02 ✅ | Gastos (A) | CRUD de gastos fijos (recurrentes mensuales: alquiler, suministros) y variables (productos, comisiones), por sede |
+| F4-03 ✅ | Balance mensual (A) | Ingresos − gastos fijos − variables = beneficio neto, filtrable por sede |
+| F4-04 ✅ | Informe por staff (A) | Mensual: nº de servicios, ventas totales, desglose por servicio |
+| F4-05 ✅ | Informe general (A) | Ingresos totales, gastos, beneficio neto, comparación con el mes anterior; gráficos ngx-echarts |
+| F4-06 ✅ | Exportación | PDF (QuestPDF) y Excel (ClosedXML) de los informes F4-03/04/05 |
 
 ## Fase 5 — SaaS y producción
 | ID | Historia | Criterios de aceptación |

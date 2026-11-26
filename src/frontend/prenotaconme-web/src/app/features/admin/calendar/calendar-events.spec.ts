@@ -17,7 +17,7 @@ describe('calendar events', () => {
         {
           id: '1', locationId: 'l', serviceId: 's', serviceName: 'Taglio', price: 20, staffMemberId: 'b',
           startsAt: '2026-12-02T08:00:00Z', endsAt: '2026-12-02T08:30:00Z', status: 'Confirmed',
-          clientName: 'Anna', clientEmail: null, clientPhone: null, isGuest: true, clientKey: 'guest:Anna',
+          clientName: 'Anna', clientEmail: null, clientPhone: null, isGuest: true, clientKey: 'guest:Anna', chargedAmount: null,
         },
       ],
       staff,
