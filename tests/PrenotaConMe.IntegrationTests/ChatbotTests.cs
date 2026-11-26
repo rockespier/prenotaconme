@@ -292,4 +292,68 @@ public sealed class ChatbotTests(ApiFactory factory) : IClassFixture<ApiFactory>
 
         Assert.Equal((1, 2200L, 50L), (messages, input, output));
     }
+
+    [Fact]
+    public async Task Asking_for_a_person_alerts_the_admin_and_pauses_the_assistant_until_resumed()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+
+        await SendAsync(s, chatId, "Voglio parlare con un operatore");
+        var handedOff = await factory.Telegram.WaitForAsync(chatId, 2);
+        var ownerEmail = $"{s.Business.OwnerUid}@test.local";
+        var alert = (await factory.Emails.WaitForAsync(e => e.To == ownerEmail && e.Subject.StartsWith("Richiesta di contatto", StringComparison.Ordinal), 1))[0];
+
+        await SendAsync(s, chatId, "Ci sei?");
+        var pending = await WaitForHandoffAsync(s, h => h.Messages.Any(m => m.Text == "Ci sei?"));
+        var repliesWhilePaused = factory.Telegram.Sent.Count(m => m.ChatId == chatId);
+
+        (await s.Business.Owner.PostAsync(new Uri($"/api/chatbot/handoffs/{pending.Id}/resume", UriKind.Relative), null))
+            .EnsureSuccessStatusCode();
+        var afterResume = await s.Business.GetAsync<List<HandoffDto>>("/api/chatbot/handoffs");
+        factory.ChatModel.Script(Say("Certo, per quale servizio?"));
+        await SendAsync(s, chatId, "Vorrei prenotare");
+        var resumed = await factory.Telegram.WaitForAsync(chatId, 3);
+
+        Assert.StartsWith("Ho avvisato Test business", handedOff[1].Text, StringComparison.Ordinal);
+        Assert.Contains("Voglio parlare con un operatore", alert.TextBody, StringComparison.Ordinal);
+        Assert.Equal("Voglio parlare con un operatore", pending.Reason);
+        Assert.StartsWith("anna-", pending.ClientName, StringComparison.Ordinal);
+        Assert.Equal(2, repliesWhilePaused);
+        Assert.Empty(afterResume);
+        Assert.Equal("Certo, per quale servizio?", resumed[2].Text);
+        Assert.Single(factory.ChatModel.Calls);
+    }
+
+    [Fact]
+    public async Task The_model_can_hand_the_chat_to_a_person()
+    {
+        var s = await CreateAsync();
+        var chatId = await LinkAnnaAsync(s);
+        factory.ChatModel.Script(Tool("handoff", new { reason = "Reclamo per il taglio di ieri" }), Say("(not sent)"));
+
+        await SendAsync(s, chatId, "Il taglio di ieri era fatto male");
+        var replies = await factory.Telegram.WaitForAsync(chatId, 2);
+        var pending = await WaitForHandoffAsync(s, _ => true);
+
+        Assert.StartsWith("Ho avvisato Test business", replies[1].Text, StringComparison.Ordinal);
+        Assert.Equal("Reclamo per il taglio di ieri", pending.Reason);
+        Assert.Single(factory.ChatModel.Calls);
+    }
+
+    private static async Task<HandoffDto> WaitForHandoffAsync(Setup s, Func<HandoffDto, bool> match)
+    {
+        for (var i = 0; i < 300; i++)
+        {
+            var found = (await s.Business.GetAsync<List<HandoffDto>>("/api/chatbot/handoffs")).FirstOrDefault(match);
+            if (found is not null)
+            {
+                return found;
+            }
+
+            await Task.Delay(50);
+        }
+
+        throw new TimeoutException("No matching handoff.");
+    }
 }

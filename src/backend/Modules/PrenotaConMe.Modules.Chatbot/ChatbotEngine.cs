@@ -10,6 +10,7 @@ using PrenotaConMe.Modules.Locations.Domain;
 using PrenotaConMe.Modules.Scheduling;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Chatbot;
+using PrenotaConMe.Shared.Notifications;
 using PrenotaConMe.Shared.Tenancy;
 
 namespace PrenotaConMe.Modules.Chatbot;
@@ -24,12 +25,15 @@ namespace PrenotaConMe.Modules.Chatbot;
 internal sealed partial class ChatbotEngine(
     AppDbContext db, IChatModel model, BookingTools tools, ClientBookingService booking, ITenantContext tenant,
     ITenantDirectory tenants, IUserDirectory users, IOptions<ChatbotOptions> options, IOptions<ChatbotLimits> limits,
-    ChatbotMetrics metrics, TimeProvider clock, ILogger<ChatbotEngine> logger) : IChatbot
+    ChatbotMetrics metrics, IStaffAlerts alerts, TimeProvider clock, ILogger<ChatbotEngine> logger) : IChatbot
 {
     /// <summary>Model calls per client message (each may run tools); stops runaway loops.</summary>
     public const int MaxRounds = 6;
 
     public const int MaxMessageLength = 1000;
+
+    /// <summary>F3-06: stored instead of a transcript while a person handles the chat.</summary>
+    public const string VoiceNote = "[voice message]";
 
     public bool IsEnabled => !string.IsNullOrWhiteSpace(options.Value.ApiKey);
 
@@ -96,7 +100,12 @@ internal sealed partial class ChatbotEngine(
         var overBudget = usage is not null && (usage.Messages >= limit.TenantMessagesPerDay || usage.Tokens >= limit.TenantTokensPerDay);
 
         var text = message.Text.Trim();
-        if (message.Voice is { } voice)
+        if (message.Voice is not null && conversation.IsHandedOff && !conversation.HandoffExpired(now))
+        {
+            // F3-06: a person will answer; the voice message is noted for them without paying for a transcript.
+            text = VoiceNote;
+        }
+        else if (message.Voice is { } voice)
         {
             // Downloaded and transcribed only within the budgets: a refused voice message costs nothing.
             if (overBudget || (usage?.AudioSeconds ?? 0) + voice.DurationSeconds > limit.TenantAudioMinutesPerDay * 60L)
@@ -114,6 +123,21 @@ internal sealed partial class ChatbotEngine(
 
         var turns = conversation.Receive(message.UserId, text.Length > MaxMessageLength ? text[..MaxMessageLength] : text, now);
         var client = (await users.GetByIdsAsync([message.UserId], ct)).GetValueOrDefault(message.UserId);
+
+        // F3-06: handed to a person: keep the message for the Admin and stay silent.
+        if (conversation.IsHandedOff)
+        {
+            conversation.Save(turns);
+            await db.SaveChangesAsync(ct);
+            metrics.Message(business.Slug, "handed_off");
+            return null;
+        }
+
+        if (QuickReplies.AsksForPerson(text))
+        {
+            conversation.Handoff(text, now);
+            return await HandOffAsync(conversation, turns, business, client, message.Channel, texts, "handoff", ct);
+        }
 
         // Bare greeting or thanks: fixed reply, no tokens. Kept in the history so the model still sees it.
         if (QuickReplies.For(text, client?.DisplayName) is { } quick)
@@ -148,9 +172,16 @@ internal sealed partial class ChatbotEngine(
                 var result = await tools.ExecuteAsync(call, conversation, business.DefaultLanguage, ct);
                 turns.Add(new ChatTurn(ChatTurnRole.Tool, result, ToolCallId: call.Id));
             }
+
+            if (conversation.IsHandedOff)
+            {
+                break;
+            }
         }
 
-        reply = await AnswerAsync(conversation, turns, reply ?? texts.NotUnderstood, business.Slug, "answered", ct);
+        reply = conversation.IsHandedOff
+            ? await HandOffAsync(conversation, turns, business, client, message.Channel, texts, "handoff_model", ct)
+            : await AnswerAsync(conversation, turns, reply ?? texts.NotUnderstood, business.Slug, "answered", ct);
         await AddUsageAsync(business, today, 1, inputTokens, outputTokens, 0, ct);
         metrics.Tokens(business.Slug, inputTokens, outputTokens);
         LogAnswered(logger, business.Slug, message.Channel, rounds, inputTokens, outputTokens);
@@ -176,6 +207,28 @@ internal sealed partial class ChatbotEngine(
         return reply;
     }
 
+    /// <summary>F3-06: fixed reply (with the business's phones), Admins alerted, assistant paused in this chat.</summary>
+    private async Task<string> HandOffAsync(
+        ChatConversation conversation, List<ChatTurn> turns, TenantSummary business, UserSummary? client, string channel,
+        ChatbotTexts texts, string outcome, CancellationToken ct)
+    {
+        var phones = await PhonesAsync(ct);
+        var reply = string.Format(CultureInfo.InvariantCulture, texts.HandedOff, business.Name)
+            + (phones.Count == 0 ? string.Empty : " " + string.Format(CultureInfo.InvariantCulture, texts.Urgent, string.Join("; ", phones)));
+        reply = await AnswerAsync(conversation, turns, reply, business.Slug, outcome, ct);
+        alerts.Handoff(new HandoffAlert(
+            business.Name, business.Slug, business.DefaultLanguage, client?.DisplayName, client?.PhoneNumber, client?.Email,
+            channel, conversation.HandoffReason ?? string.Empty));
+        LogHandedOff(logger, business.Slug, channel);
+        return reply;
+    }
+
+    private Task<List<string>> PhonesAsync(CancellationToken ct) =>
+        db.Set<Location>().AsNoTracking()
+            .Where(l => l.IsActive && l.Phone != null)
+            .Select(l => l.Name + ": " + l.Phone)
+            .ToListAsync(ct);
+
     /// <summary>Atomic upsert: parallel chats of the same business add to the same row without losing updates.</summary>
     private Task<int> AddUsageAsync(
         TenantSummary business, DateOnly day, int messages, long inputTokens, long outputTokens, long audioSeconds, CancellationToken ct)
@@ -198,10 +251,7 @@ internal sealed partial class ChatbotEngine(
     {
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById(business.TimeZone);
         var now = TimeZoneInfo.ConvertTime(clock.GetUtcNow(), timeZone);
-        var phones = await db.Set<Location>().AsNoTracking()
-            .Where(l => l.IsActive && l.Phone != null)
-            .Select(l => l.Name + ": " + l.Phone)
-            .ToListAsync(ct);
+        var phones = await PhonesAsync(ct);
         var notice = await booking.NoticeHoursAsync(ct);
 
         return string.Join("\n", new[]
@@ -218,7 +268,8 @@ internal sealed partial class ChatbotEngine(
             "Interpret relative dates (tomorrow, next Friday, afternoon = from 14:00) from today's date.",
             "Booking, moving and cancelling ask for confirmation: show the summary the tool returns, ask the client to confirm, and call the tool again with the same arguments only after a clear yes.",
             $"Clients can move or cancel up to {notice} hours before the appointment.",
-            phones.Count == 0 ? null : $"If you cannot help, suggest calling the business: {string.Join("; ", phones)}.",
+            "If the client asks for a person, complains, or needs something your tools cannot do, call handoff with a short reason.",
+            phones.Count == 0 ? null : $"The business's phones: {string.Join("; ", phones)}.",
         }.Where(l => l is not null));
     }
 
@@ -240,13 +291,17 @@ internal sealed partial class ChatbotEngine(
         Message = "Chatbot answered for {Tenant} on {Channel}: {Rounds} model calls, {InputTokens} input + {OutputTokens} output tokens")]
     private static partial void LogAnswered(ILogger logger, string tenant, string channel, int rounds, long inputTokens, long outputTokens);
 
+    [LoggerMessage(Level = LogLevel.Information, Message = "Chatbot handed a {Channel} chat of {Tenant} to a person")]
+    private static partial void LogHandedOff(ILogger logger, string tenant, string channel);
+
     [LoggerMessage(Level = LogLevel.Warning, Message = "Chatbot daily budget reached for {Tenant} on {Day}: the assistant is off until tomorrow")]
     private static partial void LogBudgetReached(ILogger logger, string tenant, DateOnly day);
 }
 
 /// <summary>Fixed replies (no model call), in the business's default language.</summary>
 internal sealed record ChatbotTexts(
-    string Error, string NotUnderstood, string TooFast, string DailyLimit, string Unavailable, string VoiceUnavailable)
+    string Error, string NotUnderstood, string TooFast, string DailyLimit, string Unavailable, string VoiceUnavailable,
+    string HandedOff, string Urgent)
 {
     private static readonly Dictionary<string, ChatbotTexts> ByLanguage = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -256,21 +311,27 @@ internal sealed record ChatbotTexts(
             "Stai scrivendo molto in fretta: aspetta un minuto e riprova.",
             "Per oggi questa chat ha raggiunto il limite di messaggi. Puoi prenotare dal sito o riscrivermi domani.",
             "L'assistente non è disponibile per il resto della giornata. Puoi prenotare dal sito.",
-            "In questo momento non posso ascoltare i messaggi vocali: scrivimi pure."),
+            "In questo momento non posso ascoltare i messaggi vocali: scrivimi pure.",
+            "Ho avvisato {0}: ti contatteranno al più presto. Nel frattempo l'assistente automatico resta in pausa in questa chat.",
+            "Per urgenze: {0}."),
         ["es"] = new(
             "Lo siento, ahora mismo no puedo responder. Inténtalo de nuevo en unos minutos.",
             "Perdona, no te he entendido. ¿Puedes decirlo de otra forma?",
             "Estás escribiendo muy rápido: espera un minuto y vuelve a intentarlo.",
             "Por hoy este chat ha llegado al límite de mensajes. Puedes reservar en la web o escribirme mañana.",
             "El asistente no está disponible el resto del día. Puedes reservar en la web.",
-            "Ahora mismo no puedo escuchar audios: escríbeme, por favor."),
+            "Ahora mismo no puedo escuchar audios: escríbeme, por favor.",
+            "He avisado a {0}: te contactarán lo antes posible. Mientras tanto, el asistente automático queda en pausa en este chat.",
+            "Para urgencias: {0}."),
         ["en"] = new(
             "Sorry, I cannot answer right now. Please try again in a few minutes.",
             "Sorry, I did not understand. Could you rephrase?",
             "You are writing very fast: wait a minute and try again.",
             "This chat has reached today's message limit. You can book on the website or write to me tomorrow.",
             "The assistant is not available for the rest of the day. You can book on the website.",
-            "I can't listen to voice messages right now: please write to me instead."),
+            "I can't listen to voice messages right now: please write to me instead.",
+            "I have let {0} know: they will contact you as soon as possible. Meanwhile the automatic assistant is paused in this chat.",
+            "For urgent matters: {0}."),
     };
 
     public static ChatbotTexts For(string language) => ByLanguage.GetValueOrDefault(language) ?? ByLanguage["it"];

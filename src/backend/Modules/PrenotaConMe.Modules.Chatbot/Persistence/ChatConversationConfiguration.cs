@@ -15,6 +15,7 @@ internal sealed class ChatConversationConfiguration : IEntityTypeConfiguration<C
         builder.Property(c => c.Messages).HasColumnType("jsonb").IsRequired();
         // Plain text, not jsonb: it is compared as written.
         builder.Property(c => c.PendingAction).HasMaxLength(ChatConversation.PendingActionMaxLength);
+        builder.Property(c => c.HandoffReason).HasMaxLength(ChatConversation.HandoffReasonMaxLength);
         builder.HasIndex(c => new { c.TenantId, c.Channel, c.ConversationId }).IsUnique();
         builder.HasOne<UserAccount>().WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
     }

@@ -89,6 +89,39 @@ public sealed class ChatbotTests
         Assert.Equal(ChatRate.Allowed, tomorrow);
     }
 
+    [Fact]
+    public void A_handoff_ends_when_resumed_or_after_24_hours_even_if_the_client_keeps_writing()
+    {
+        var user = Guid.NewGuid();
+        var conversation = ChatConversation.Start("telegram", "1", user);
+        conversation.Save(conversation.Receive(user, "operatore", Now));
+
+        var first = conversation.Handoff("operatore", Now);
+        var again = conversation.Handoff("di nuovo", Now.AddMinutes(1));
+        for (var h = 1; h <= 24; h++)
+        {
+            conversation.Save(conversation.Receive(user, "ci sei?", Now.AddHours(h)));
+        }
+
+        var stillPaused = conversation.IsHandedOff;
+        conversation.Receive(user, "allora?", Now.AddHours(24).AddMinutes(1));
+
+        Assert.True(first);
+        Assert.False(again);
+        Assert.True(stillPaused);
+        Assert.False(conversation.IsHandedOff);
+    }
+
+    [Theory]
+    [InlineData("Voglio parlare con un operatore", true)]
+    [InlineData("Posso parlare con una persona?", true)]
+    [InlineData("quiero hablar con un humano", true)]
+    [InlineData("Can I talk to someone?", true)]
+    [InlineData("Una reserva para una persona", false)]
+    [InlineData("Vorrei un taglio", false)]
+    public void Asking_for_a_person_is_recognized_without_the_model(string text, bool expected) =>
+        Assert.Equal(expected, QuickReplies.AsksForPerson(text));
+
     [Theory]
     [InlineData("Ciao!", "Ciao Anna!")]
     [InlineData("buenos días 👋", "¡Hola Anna!")]

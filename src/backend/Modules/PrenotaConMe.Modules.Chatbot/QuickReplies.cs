@@ -22,6 +22,24 @@ internal static class QuickReplies
         ["thanks"] = "en", ["thank you"] = "en", ["thx"] = "en", ["ok thanks"] = "en",
     };
 
+    /// <summary>
+    /// F3-06: phrases that ask for a person, matched as whole words in the normalized text. Kept specific on purpose
+    /// ("una persona" alone is also "a table for one"): anything vaguer is left to the model's handoff tool.
+    /// </summary>
+    private static readonly string[] HandoffPhrases =
+    [
+        "operatore", "operatrice", "un umano", "persona vera", "persona reale", "parlare con qualcuno", "parlare con una persona",
+        "humano", "asesor", "persona real", "hablar con alguien", "hablar con una persona",
+        "human", "operator", "real person", "talk to someone", "speak to someone", "talk to a person", "speak to a person",
+    ];
+
+    /// <summary>F3-06: the client asks for a person (no model call needed).</summary>
+    public static bool AsksForPerson(string text)
+    {
+        var padded = $" {Normalize(text)} ";
+        return HandoffPhrases.Any(p => padded.Contains($" {p} ", StringComparison.Ordinal));
+    }
+
     /// <summary>The fixed reply, or null when the message needs the model.</summary>
     public static string? For(string text, string? clientName)
     {

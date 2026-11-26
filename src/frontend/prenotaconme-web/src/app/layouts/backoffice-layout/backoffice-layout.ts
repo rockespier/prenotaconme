@@ -193,6 +193,7 @@ export class BackofficeLayout {
           { path: '/admin/staff', icon: 'groups', label: 'nav.staff' },
           { path: '/admin/clienti', icon: 'contacts', label: 'nav.clients' },
           { path: '/admin/avvisi', icon: 'campaign', label: 'nav.announcements' },
+          { path: '/admin/conversazioni', icon: 'support_agent', label: 'nav.handoffs' },
         ]
       : []),
   ]);

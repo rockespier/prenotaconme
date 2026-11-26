@@ -30,6 +30,7 @@ public sealed class NotificationsModule : IModule
         }
 
         services.AddScoped<IAppointmentNotifier, AppointmentNotifier>();
+        services.AddScoped<IStaffAlerts, Handoff.StaffAlerts>();
 
         // F2-02: Web Push (VAPID). Without keys, push is off and /push/config returns no public key.
         services.Configure<PushOptions>(configuration.GetSection("Push"));

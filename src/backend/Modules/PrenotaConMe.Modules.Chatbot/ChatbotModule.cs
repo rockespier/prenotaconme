@@ -26,7 +26,5 @@ public sealed class ChatbotModule : IModule
         services.AddScoped<IChatbot, ChatbotEngine>();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder endpoints)
-    {
-    }
+    public void MapEndpoints(IEndpointRouteBuilder endpoints) => HandoffEndpoints.Map(endpoints);
 }
