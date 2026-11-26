@@ -1397,6 +1397,60 @@
         }
       }
     },
+    "/api/scheduling/calendar/appointments/{id}/outcome": {
+      "post": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "RecordAppointmentOutcome",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentOutcomeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarAppointmentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/scheduling/clients": {
       "get": {
         "tags": [
@@ -2021,6 +2075,238 @@
           }
         }
       }
+    },
+    "/api/finance/expenses": {
+      "get": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "ListExpenses",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "CreateExpense",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveExpenseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/finance/expenses/{id}": {
+      "put": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "UpdateExpense",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveExpenseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "DeleteExpense",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/finance/report": {
+      "get": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "GetFinanceReport",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceReportDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/finance/report/export": {
+      "get": {
+        "tags": [
+          "finance"
+        ],
+        "operationId": "ExportFinanceReport",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2181,6 +2467,25 @@
           }
         }
       },
+      "AppointmentOutcomeRequest": {
+        "required": [
+          "outcome",
+          "chargedAmount"
+        ],
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "$ref": "#/components/schemas/AppointmentStatus"
+          },
+          "chargedAmount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
       "AppointmentStatus": {
         "enum": [
           "Confirmed",
@@ -2314,7 +2619,8 @@
           "clientEmail",
           "clientPhone",
           "isGuest",
-          "clientKey"
+          "clientKey",
+          "chargedAmount"
         ],
         "type": "object",
         "properties": {
@@ -2375,6 +2681,13 @@
           },
           "clientKey": {
             "type": "string"
+          },
+          "chargedAmount": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
           }
         }
       },
@@ -2648,6 +2961,236 @@
           "Friday",
           "Saturday"
         ]
+      },
+      "ExpenseDto": {
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "amount",
+          "locationId",
+          "date",
+          "endsOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ExpenseKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "locationId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "ExpenseKind": {
+        "enum": [
+          "Fixed",
+          "Variable"
+        ]
+      },
+      "FinanceDayDto": {
+        "required": [
+          "date",
+          "income"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "income": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "FinanceReportDto": {
+        "required": [
+          "month",
+          "locationId",
+          "totals",
+          "previous",
+          "expectedIncome",
+          "unmarked",
+          "days",
+          "staff",
+          "services",
+          "expenses"
+        ],
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/FinanceTotalsDto"
+          },
+          "previous": {
+            "$ref": "#/components/schemas/FinanceTotalsDto"
+          },
+          "expectedIncome": {
+            "type": "number",
+            "format": "double"
+          },
+          "unmarked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinanceDayDto"
+            }
+          },
+          "staff": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinanceStaffDto"
+            }
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinanceServiceLineDto"
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseDto"
+            }
+          }
+        }
+      },
+      "FinanceServiceLineDto": {
+        "required": [
+          "serviceName",
+          "count",
+          "sales"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sales": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "FinanceStaffDto": {
+        "required": [
+          "staffMemberId",
+          "name",
+          "appointments",
+          "noShows",
+          "sales",
+          "services"
+        ],
+        "type": "object",
+        "properties": {
+          "staffMemberId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "appointments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "noShows": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sales": {
+            "type": "number",
+            "format": "double"
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FinanceServiceLineDto"
+            }
+          }
+        }
+      },
+      "FinanceTotalsDto": {
+        "required": [
+          "income",
+          "fixedExpenses",
+          "variableExpenses",
+          "net",
+          "appointments",
+          "noShows"
+        ],
+        "type": "object",
+        "properties": {
+          "income": {
+            "type": "number",
+            "format": "double"
+          },
+          "fixedExpenses": {
+            "type": "number",
+            "format": "double"
+          },
+          "variableExpenses": {
+            "type": "number",
+            "format": "double"
+          },
+          "net": {
+            "type": "number",
+            "format": "double"
+          },
+          "appointments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "noShows": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "GoogleCalendarStatusDto": {
         "required": [
@@ -3317,6 +3860,47 @@
           }
         }
       },
+      "SaveExpenseRequest": {
+        "required": [
+          "kind",
+          "name",
+          "amount",
+          "locationId",
+          "date",
+          "endsOn"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ExpenseKind"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "locationId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "endsOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          }
+        }
+      },
       "SaveLocationRequest": {
         "required": [
           "name",
@@ -3899,6 +4483,9 @@
     },
     {
       "name": "calendar"
+    },
+    {
+      "name": "finance"
     }
   ]
 }

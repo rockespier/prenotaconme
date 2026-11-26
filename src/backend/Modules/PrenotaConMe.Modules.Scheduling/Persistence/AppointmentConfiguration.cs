@@ -22,6 +22,7 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
         builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(16);
         builder.Property(a => a.ServiceName).HasMaxLength(100).IsRequired();
         builder.Property(a => a.Price).HasPrecision(10, 2);
+        builder.Property(a => a.ChargedAmount).HasPrecision(10, 2);
         builder.Property(a => a.ClientName).HasMaxLength(Appointment.ClientNameMaxLength);
         builder.Property(a => a.ClientPhone).HasMaxLength(Appointment.ClientPhoneMaxLength);
 

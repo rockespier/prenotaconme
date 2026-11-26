@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { API_CLIENT, Schemas } from '../../../core/api/api-client';
@@ -17,10 +18,13 @@ export interface AppointmentDialogData {
   canEdit: boolean;
 }
 
-/** Details of one appointment; Admins can hand it to another person or cancel it. Closes with true on change. */
+/**
+ * Details of one appointment; Admins can hand it to another person or cancel it. Once it has started, the business
+ * records how it went (F4-01): completed with the amount charged, or no-show. Closes with true on change.
+ */
 @Component({
   selector: 'app-appointment-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, TranslocoPipe],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatSelectModule, TranslocoPipe],
   template: `
     <h2 mat-dialog-title>{{ a.serviceName }}</h2>
     <mat-dialog-content>
@@ -61,7 +65,30 @@ export interface AppointmentDialogData {
         </div>
       </dl>
 
-      @if (data.canEdit) {
+      @if (started()) {
+        <section class="outcome">
+          <h3>{{ 'calendar.outcome.title' | transloco }}</h3>
+          <p class="muted hint">{{ 'calendar.outcome.status.' + a.status | transloco }}</p>
+          <mat-form-field appearance="outline" class="amount" subscriptSizing="dynamic">
+            <mat-label>{{ 'calendar.outcome.charged' | transloco }}</mat-label>
+            <input matInput type="number" min="0" step="0.5" [value]="charged()" (input)="charged.set(+$any($event.target).value)" />
+            <span matTextSuffix>€</span>
+          </mat-form-field>
+          <div class="outcome-actions">
+            <button mat-stroked-button [class.selected]="a.status === 'Completed'" (click)="outcome('Completed')" [disabled]="busy()">
+              <mat-icon>check_circle</mat-icon>{{ 'calendar.outcome.completed' | transloco }}
+            </button>
+            <button mat-stroked-button [class.selected]="a.status === 'NoShow'" (click)="outcome('NoShow')" [disabled]="busy()">
+              <mat-icon>person_off</mat-icon>{{ 'calendar.outcome.noShow' | transloco }}
+            </button>
+            @if (a.status !== 'Confirmed') {
+              <button mat-button (click)="outcome('Confirmed')" [disabled]="busy()">{{ 'calendar.outcome.undo' | transloco }}</button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (data.canEdit && a.status === 'Confirmed') {
         <mat-form-field appearance="outline">
           <mat-label>{{ 'calendar.staff' | transloco }}</mat-label>
           <mat-select [value]="staffId()" (valueChange)="staffId.set($event)">
@@ -76,14 +103,14 @@ export interface AppointmentDialogData {
       }
     </mat-dialog-content>
     <mat-dialog-actions>
-      @if (data.canEdit) {
+      @if (data.canEdit && a.status === 'Confirmed') {
         <button mat-button class="danger" (click)="cancel()" [disabled]="busy()">
           {{ (confirming() ? 'calendar.confirmCancel' : 'calendar.cancelAppointment') | transloco }}
         </button>
       }
       <span class="spacer"></span>
       <button mat-button mat-dialog-close>{{ 'calendar.close' | transloco }}</button>
-      @if (data.canEdit) {
+      @if (data.canEdit && a.status === 'Confirmed') {
         <button mat-flat-button (click)="save()" [disabled]="busy() || staffId() === a.staffMemberId">
           {{ 'common.save' | transloco }}
         </button>
@@ -102,6 +129,12 @@ export interface AppointmentDialogData {
     .danger { color: var(--mat-sys-error); }
     .card-link { margin-left: calc(-1 * var(--space-3)); }
     .spacer { flex: 1; }
+    .outcome { margin: 0 0 var(--space-4); padding: var(--space-3) var(--space-4); border: 1px solid var(--mat-sys-outline-variant); border-radius: var(--radius-l); }
+    .outcome h3 { margin: 0; font: var(--mat-sys-title-small); font-weight: 600; }
+    .outcome .hint { margin: 2px 0 var(--space-3); }
+    .amount { width: 160px; }
+    .outcome-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+    .outcome-actions .selected { background: var(--mat-sys-secondary-container); }
   `,
 })
 export class AppointmentDialog {
@@ -136,7 +169,29 @@ export class AppointmentDialog {
     return `${day}, ${time(this.a.startsAt)}–${time(this.a.endsAt)}`;
   });
 
-  protected readonly price = computed(() => new Intl.NumberFormat(this.lang(), { style: 'currency', currency: 'EUR' }).format(this.a.price));
+  protected readonly price = computed(() => {
+    const money = (v: number) => new Intl.NumberFormat(this.lang(), { style: 'currency', currency: 'EUR' }).format(v);
+    return this.a.chargedAmount != null ? `${money(this.a.chargedAmount)} (${money(this.a.price)})` : money(this.a.price);
+  });
+
+  /** F4-01: the outcome can be recorded once the appointment has started. */
+  protected readonly started = computed(() => this.a.status !== 'Cancelled' && new Date(this.a.startsAt).getTime() <= Date.now());
+  protected readonly charged = signal(this.a.chargedAmount ?? this.a.price);
+
+  protected async outcome(outcome: 'Completed' | 'NoShow' | 'Confirmed'): Promise<void> {
+    this.busy.set(true);
+    const { error } = await this.api.POST('/api/scheduling/calendar/appointments/{id}/outcome', {
+      params: { path: { id: this.a.id } },
+      body: { outcome, chargedAmount: outcome === 'Completed' ? this.charged() : null },
+    });
+    this.busy.set(false);
+    if (error) {
+      this.notifier.error(error);
+      return;
+    }
+    this.notifier.saved();
+    this.ref.close(true);
+  }
 
   protected openClient(): void {
     this.ref.close(false);

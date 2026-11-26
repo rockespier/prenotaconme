@@ -392,6 +392,65 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.ToTable("chat_usage", (string)null);
                 });
 
+            modelBuilder.Entity("PrenotaConMe.Modules.Finance.Domain.Expense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<DateOnly?>("EndsOn")
+                        .HasColumnType("date")
+                        .HasColumnName("ends_on");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid?>("LocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("location_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_expenses");
+
+                    b.HasIndex("LocationId")
+                        .HasDatabaseName("ix_expenses_location_id");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_expenses_tenant_id");
+
+                    b.ToTable("expenses", (string)null);
+                });
+
             modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>
                 {
                     b.Property<Guid>("Id")
@@ -752,6 +811,11 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("CancelledAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("cancelled_at");
+
+                    b.Property<decimal?>("ChargedAmount")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("charged_amount");
 
                     b.Property<string>("ClientName")
                         .HasMaxLength(100)
@@ -1290,6 +1354,15 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_chat_conversations_users_user_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Finance.Domain.Expense", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Locations.Domain.Location", null)
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_expenses_locations_location_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Locations.Domain.Location", b =>
