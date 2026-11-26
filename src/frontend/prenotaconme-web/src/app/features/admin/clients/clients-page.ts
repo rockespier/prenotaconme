@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { PricePipe } from '../../../shared/price.pipe';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ type Client = Schemas['ClientSummaryDto'];
 /** F1-14: the business's clients (registered and entered in the calendar), with search. */
 @Component({
   selector: 'app-clients-page',
-  imports: [CurrencyPipe, ReactiveFormsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTableModule, TranslocoPipe],
+  imports: [PricePipe, ReactiveFormsModule, MatFormFieldModule, MatIconModule, MatInputModule, MatTableModule, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.clients' | transloco }}</h1>
@@ -53,7 +53,7 @@ type Client = Schemas['ClientSummaryDto'];
         </ng-container>
         <ng-container matColumnDef="spent">
           <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'clients.spent' | transloco }}</th>
-          <td mat-cell *matCellDef="let c" class="hide-sm">{{ c.spent | currency: 'EUR' }}</td>
+          <td mat-cell *matCellDef="let c" class="hide-sm">{{ c.spent | price }}</td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="columns"></tr>
         <tr mat-row *matRowDef="let row; columns: columns" class="clickable" tabindex="0"

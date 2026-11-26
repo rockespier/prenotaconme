@@ -53,17 +53,16 @@ interface SetupStep {
       <app-telegram-link />
 
       @if (session.isAdmin() && steps(); as list) {
-        <section class="setup">
-          <h2>
-            @if (allDone()) {
-              {{ 'dashboard.readyTitle' | transloco }}
-            } @else {
-              {{ 'dashboard.setupTitle' | transloco }}
-            }
-          </h2>
-          <p class="muted">
-            {{ (allDone() ? 'dashboard.readyHint' : 'dashboard.setupHint') | transloco }}
+        @if (allDone()) {
+          <!-- Once everything is set up the checklist is noise: one line is enough. -->
+          <p class="ready" role="status">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            <span><strong>{{ 'dashboard.readyTitle' | transloco }}.</strong> {{ 'dashboard.readyHint' | transloco }}</span>
           </p>
+        } @else {
+        <section class="setup">
+          <h2>{{ 'dashboard.setupTitle' | transloco }}</h2>
+          <p class="muted">{{ 'dashboard.setupHint' | transloco }}</p>
           <ol class="steps">
             @for (s of list; track s.key) {
               <li [class.done]="s.done">
@@ -81,6 +80,7 @@ interface SetupStep {
             }
           </ol>
         </section>
+        }
 
         @if (noticeHours() !== null) {
           <section class="rules">
@@ -126,6 +126,7 @@ interface SetupStep {
     h2 { margin: 0 0 var(--space-1); }
 
     .link-panel {
+      margin-bottom: var(--space-5);
       display: flex;
       flex-wrap: wrap;
       align-items: flex-end;
@@ -151,8 +152,18 @@ interface SetupStep {
     .link-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
     .setup, .rules { margin-top: var(--space-6); }
+    .ready {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin: var(--space-5) 0 0;
+      color: var(--mat-sys-on-surface-variant);
+      mat-icon { color: var(--mat-sys-tertiary); flex: none; }
+      strong { color: var(--mat-sys-on-surface); }
+    }
+    app-telegram-settings { display: block; margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
-    .rules h3 { margin: var(--space-5) 0 var(--space-1); font: var(--mat-sys-title-small); font-weight: 600; }
+    .rules h3 { margin: var(--space-6) 0 var(--space-1); font: var(--mat-sys-title-medium); font-weight: 600; }
     .reminder-fields { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }
     .reminder-fields mat-form-field { width: min(100%, 240px); }
 

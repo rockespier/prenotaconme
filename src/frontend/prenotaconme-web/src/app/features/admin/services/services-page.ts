@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { PricePipe } from '../../../shared/price.pipe';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,7 +16,7 @@ type Service = Schemas['ServiceDto'];
 /** F1-05: service catalog (duration, price, locations). */
 @Component({
   selector: 'app-services-page',
-  imports: [CurrencyPipe, MatButtonModule, MatIconModule, MatTableModule, TranslocoPipe],
+  imports: [PricePipe, MatButtonModule, MatIconModule, MatTableModule, TranslocoPipe],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.services' | transloco }}</h1>
@@ -38,7 +38,7 @@ type Service = Schemas['ServiceDto'];
       </ng-container>
       <ng-container matColumnDef="price">
         <th mat-header-cell *matHeaderCellDef>{{ 'services.price' | transloco }}</th>
-        <td mat-cell *matCellDef="let s">{{ s.price | currency: 'EUR' }}</td>
+        <td mat-cell *matCellDef="let s">{{ s.price | price }}</td>
       </ng-container>
       <ng-container matColumnDef="locations">
         <th mat-header-cell *matHeaderCellDef class="hide-sm">{{ 'nav.locations' | transloco }}</th>

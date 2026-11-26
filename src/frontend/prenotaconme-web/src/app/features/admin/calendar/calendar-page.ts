@@ -185,6 +185,8 @@ export class CalendarPage {
       snapDuration: '00:15:00',
       height: 'auto',
       expandRows: true,
+      // A 30-minute appointment is ~32 px tall: render time and client on one line so the name is never cut off.
+      eventShortHeight: 44,
       editable: isAdmin,
       eventDurationEditable: false,
       selectable: isAdmin,

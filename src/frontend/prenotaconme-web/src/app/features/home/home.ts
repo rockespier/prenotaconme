@@ -1,11 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { API_CLIENT } from '../../core/api/api-client';
-
-type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
   selector: 'app-home',
@@ -32,10 +29,6 @@ type ApiStatus = 'checking' | 'online' | 'offline';
       }
     </ul>
 
-    <p class="status muted">
-      {{ 'home.apiStatus' | transloco }}: {{ 'home.status.' + status() | transloco }}
-      @if (version()) { (v{{ version() }}) }
-    </p>
   `,
   styles: `
     :host { display: block; max-width: 720px; margin: 0 auto; }
@@ -49,27 +42,13 @@ type ApiStatus = 'checking' | 'online' | 'offline';
     .points mat-icon { color: var(--mat-sys-primary); flex: 0 0 auto; }
     .points div { display: grid; gap: 2px; }
     .points strong { font-weight: 600; }
-    .status { font: var(--mat-sys-body-small); margin-top: var(--space-6); }
   `,
 })
-export class Home implements OnInit {
-  private readonly api = inject(API_CLIENT);
-
+export class Home {
   protected readonly points = [
     { key: 'link', icon: 'link' },
     { key: 'calendar', icon: 'event_available' },
-    { key: 'mail', icon: 'mark_email_read' },
+    { key: 'reminders', icon: 'notifications_active' },
+    { key: 'chat', icon: 'chat' },
   ];
-  protected readonly status = signal<ApiStatus>('checking');
-  protected readonly version = signal<string | null>(null);
-
-  async ngOnInit(): Promise<void> {
-    try {
-      const { data } = await this.api.GET('/api/info');
-      this.version.set(data?.version ?? null);
-      this.status.set(data ? 'online' : 'offline');
-    } catch {
-      this.status.set('offline');
-    }
-  }
 }

@@ -31,12 +31,6 @@
   "home": {
     "title": "Las reservas de tu salón, online",
     "subtitle": "Tus clientes reservan solos desde tu enlace, a cualquier hora. Tú gestionas sedes, servicios y horarios también desde el móvil.",
-    "apiStatus": "Estado de la API",
-    "status": {
-      "checking": "comprobando…",
-      "online": "en línea",
-      "offline": "no disponible"
-    },
     "cta": "Registra tu negocio",
     "signIn": "Ya tengo cuenta",
     "points": {
@@ -48,9 +42,13 @@
         "title": "Sin reservas duplicadas",
         "text": "Las horas libres tienen en cuenta turnos, vacaciones y citas ya ocupadas."
       },
-      "mail": {
-        "title": "Confirmación automática",
-        "text": "Cliente y colaborador reciben un email con la cita para añadir al calendario."
+      "reminders": {
+        "title": "Confirmaciones y recordatorios automáticos",
+        "text": "Email, notificaciones y Telegram: el cliente recibe la confirmación y un recordatorio antes de la cita."
+      },
+      "chat": {
+        "title": "Reservas también por chat",
+        "text": "Tu bot de Telegram responde a los clientes y reserva, cambia o cancela por ellos, también con mensajes de voz."
       }
     }
   },
@@ -126,7 +124,9 @@
     "subtitle": "Usa tu cuenta de Google para continuar.",
     "google": "Continuar con Google",
     "error": "No se pudo iniciar sesión. Inténtalo de nuevo.",
-    "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo."
+    "errorInApp": "No se pudo iniciar sesión. Si abriste esta página desde Telegram, Instagram u otra app, ábrela en Safari o Chrome y vuelve a intentarlo.",
+    "registerTitle": "Registra tu negocio",
+    "registerSubtitle": "Entra con tu cuenta de Google: será la cuenta administradora de tu negocio."
   },
   "register": {
     "title": "Registra tu negocio",
