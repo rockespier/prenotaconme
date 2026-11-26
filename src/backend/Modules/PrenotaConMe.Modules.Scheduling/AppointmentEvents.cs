@@ -17,7 +17,7 @@ namespace PrenotaConMe.Modules.Scheduling;
 /// </summary>
 public sealed class AppointmentEvents(
     AppDbContext db, ITenantContext tenant, ITenantDirectory tenants, IUserDirectory users, IAppointmentNotifier notifier,
-    IAppointmentCalendarSync calendar, IBackgroundJobClient jobs, TimeProvider clock)
+    IAppointmentCalendarSync calendar, CalendarBroadcast broadcast, IBackgroundJobClient jobs, TimeProvider clock)
 {
     /// <param name="actorUserId">Who made the change; they get no push about it.</param>
     /// <param name="previousStaffId">When a move changed the staff member, the previous one is told it is no longer theirs.</param>
@@ -27,6 +27,7 @@ public sealed class AppointmentEvents(
         var (notice, business, staff) = await BuildAsync(appointment, previousStaffId, ct);
         notifier.Notify(change, notice, actorUserId);
         calendar.Changed(appointment.Id);
+        await broadcast.ChangedAsync(ct);
 
         if (previousStaffId is { } previousId && previousId != appointment.StaffMemberId
             && staff.TryGetValue(previousId, out var previous))

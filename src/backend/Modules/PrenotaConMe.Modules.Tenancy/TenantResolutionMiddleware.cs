@@ -14,6 +14,11 @@ internal sealed class TenantResolutionMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context, ITenantDirectory directory, ITenantContext tenantContext)
     {
         var slug = context.Request.Headers[TenantEndpointExtensions.TenantHeader].ToString();
+        if (string.IsNullOrWhiteSpace(slug)
+            && context.GetEndpoint()?.Metadata.GetMetadata<CredentialsInQueryMetadata>() is not null)
+        {
+            slug = context.Request.Query[TenantEndpointExtensions.TenantQuery].ToString();
+        }
 
         if (!string.IsNullOrWhiteSpace(slug))
         {
