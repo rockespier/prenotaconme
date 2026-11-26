@@ -4,6 +4,7 @@ using PrenotaConMe.Modules.Catalog.Domain;
 using PrenotaConMe.Modules.Locations.Domain;
 using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
+using PrenotaConMe.Shared.Calendar;
 using PrenotaConMe.Shared.Scheduling;
 
 namespace PrenotaConMe.Modules.Scheduling;
@@ -15,8 +16,11 @@ public sealed record AvailabilityQuery(
 /// <summary>Either an error code (bookable data missing) or the computed slots.</summary>
 public sealed record AvailabilityResult(string? Error, Location? Location, Service? Service, IReadOnlyList<AvailableSlot> Slots);
 
-/// <summary>Loads everything the <see cref="AvailabilityCalculator"/> needs for one location + service (current tenant).</summary>
-public sealed class AvailabilityService(AppDbContext db, TimeProvider clock)
+/// <summary>
+/// Loads everything the <see cref="AvailabilityCalculator"/> needs for one location + service (current tenant).
+/// F2-09: busy times in the staff's own calendars (Google) count like appointments.
+/// </summary>
+public sealed class AvailabilityService(AppDbContext db, IExternalBusyTimes externalBusy, TimeProvider clock)
 {
     public async Task<AvailabilityResult> GetAsync(AvailabilityQuery query, CancellationToken ct)
     {
@@ -59,6 +63,7 @@ public sealed class AvailabilityService(AppDbContext db, TimeProvider clock)
                         && a.StartsAt < rangeEnd && a.EndsAt > rangeStart)
             .Select(a => new { a.StaffMemberId, a.StartsAt, a.EndsAt })
             .ToListAsync(ct);
+        var external = await externalBusy.GetAsync(staffIds, rangeStart, rangeEnd, ct);
 
         var input = new AvailabilityInput(
             timeZone,
@@ -71,7 +76,9 @@ public sealed class AvailabilityService(AppDbContext db, TimeProvider clock)
                 s.Id,
                 s.WorkingHours.Select(h => new WeeklyInterval(h.Day, h.Start, h.End)).ToList(),
                 s.TimeOff.Select(t => (t.From, t.To)).ToList(),
-                busy.Where(b => b.StaffMemberId == s.Id).Select(b => (b.StartsAt, b.EndsAt)).ToList())).ToList());
+                busy.Where(b => b.StaffMemberId == s.Id).Select(b => (b.StartsAt, b.EndsAt))
+                    .Concat(external.GetValueOrDefault(s.Id, []).Select(b => (b.Start, b.End)))
+                    .ToList())).ToList());
 
         return new AvailabilityResult(null, location, service, AvailabilityCalculator.Calculate(input));
     }

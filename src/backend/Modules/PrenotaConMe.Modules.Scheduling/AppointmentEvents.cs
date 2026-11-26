@@ -5,6 +5,7 @@ using PrenotaConMe.Modules.Locations.Domain;
 using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
+using PrenotaConMe.Shared.Calendar;
 using PrenotaConMe.Shared.Notifications;
 using PrenotaConMe.Shared.Tenancy;
 
@@ -16,7 +17,7 @@ namespace PrenotaConMe.Modules.Scheduling;
 /// </summary>
 public sealed class AppointmentEvents(
     AppDbContext db, ITenantContext tenant, ITenantDirectory tenants, IUserDirectory users, IAppointmentNotifier notifier,
-    IBackgroundJobClient jobs, TimeProvider clock)
+    IAppointmentCalendarSync calendar, IBackgroundJobClient jobs, TimeProvider clock)
 {
     /// <param name="actorUserId">Who made the change; they get no push about it.</param>
     /// <param name="previousStaffId">When a move changed the staff member, the previous one is told it is no longer theirs.</param>
@@ -25,6 +26,7 @@ public sealed class AppointmentEvents(
     {
         var (notice, business, staff) = await BuildAsync(appointment, previousStaffId, ct);
         notifier.Notify(change, notice, actorUserId);
+        calendar.Changed(appointment.Id);
 
         if (previousStaffId is { } previousId && previousId != appointment.StaffMemberId
             && staff.TryGetValue(previousId, out var previous))

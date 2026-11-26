@@ -302,6 +302,11 @@
       "firstReminderHours": "First reminder",
       "secondReminderHours": "Second reminder",
       "none": "None"
+    },
+    "googleSync": {
+      "title": "Google Calendar",
+      "hint": "Let your staff connect their own Google Calendar: they see their appointments there and their personal events block bookable times. If you don't need it, the PrenotaConMe calendar is enough.",
+      "label": "Sync with Google Calendar"
     }
   },
   "calendar": {
@@ -479,5 +484,17 @@
     "paused": "Assistant paused",
     "resume": "Turn assistant back on",
     "empty": "No pending requests."
+  },
+  "googleCalendar": {
+    "hint": "Connect your Google Calendar: your appointments will show up there and your personal events will block bookable times.",
+    "connected": "Connected to {{email}}: your appointments go to your calendar.",
+    "revoked": "Google no longer accepts the connection: connect it again.",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "result": {
+      "connected": "Google Calendar connected.",
+      "denied": "Connection cancelled.",
+      "failed": "Google Calendar could not be connected. Please try again."
+    }
   }
 }

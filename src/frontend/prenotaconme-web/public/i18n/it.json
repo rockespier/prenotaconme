@@ -302,6 +302,11 @@
       "firstReminderHours": "Primo promemoria",
       "secondReminderHours": "Secondo promemoria",
       "none": "Nessuno"
+    },
+    "googleSync": {
+      "title": "Google Calendar",
+      "hint": "Permetti ai collaboratori di collegare il proprio Google Calendar: vedono lì i loro appuntamenti e i loro impegni personali bloccano gli orari prenotabili. Se non vi serve, basta il calendario di PrenotaConMe.",
+      "label": "Sincronizza con Google Calendar"
     }
   },
   "calendar": {
@@ -479,5 +484,17 @@
     "paused": "Assistente in pausa",
     "resume": "Riattiva assistente",
     "empty": "Nessuna richiesta in attesa."
+  },
+  "googleCalendar": {
+    "hint": "Collega il tuo Google Calendar: i tuoi appuntamenti appariranno lì e i tuoi impegni personali bloccheranno gli orari prenotabili.",
+    "connected": "Collegato a {{email}}: i tuoi appuntamenti arrivano sul tuo calendario.",
+    "revoked": "Google non accetta più il collegamento: collegalo di nuovo.",
+    "connect": "Collega",
+    "disconnect": "Scollega",
+    "result": {
+      "connected": "Google Calendar collegato.",
+      "denied": "Collegamento annullato.",
+      "failed": "Non è stato possibile collegare Google Calendar. Riprova."
+    }
   }
 }

@@ -1,9 +1,10 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -12,6 +13,7 @@ import { SessionService } from '../../core/session/session.service';
 import { Notifier } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
 import { TelegramLink } from '../../shared/telegram-link/telegram-link';
+import { GoogleCalendar } from './google-calendar';
 import { TelegramSettings } from './telegram-settings';
 
 type ReminderField = 'firstReminderHours' | 'secondReminderHours';
@@ -28,7 +30,10 @@ interface SetupStep {
  */
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, PushToggle, TelegramLink, TelegramSettings, TranslocoPipe],
+  imports: [
+    RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, MatSlideToggleModule, GoogleCalendar, PushToggle,
+    TelegramLink, TelegramSettings, TranslocoPipe,
+  ],
   template: `
     <header class="page-header">
       <h1>{{ 'nav.dashboard' | transloco }}</h1>
@@ -51,6 +56,7 @@ interface SetupStep {
 
       <app-push-toggle audience="staff" />
       <app-telegram-link />
+      <app-google-calendar [businessSync]="googleSync()" />
 
       @if (session.isAdmin() && steps(); as list) {
         @if (allDone()) {
@@ -113,6 +119,14 @@ interface SetupStep {
                 </mat-form-field>
               }
             </div>
+
+            @if (googleConfigured()) {
+              <h3>{{ 'dashboard.googleSync.title' | transloco }}</h3>
+              <p class="muted">{{ 'dashboard.googleSync.hint' | transloco }}</p>
+              <mat-slide-toggle [checked]="googleSync() ?? false" (change)="saveGoogleSync($event.checked)">
+                {{ 'dashboard.googleSync.label' | transloco }}
+              </mat-slide-toggle>
+            }
           </section>
         }
 
@@ -228,7 +242,20 @@ export class Dashboard {
   protected readonly reminderFields: ReminderField[] = ['firstReminderHours', 'secondReminderHours'];
   protected reminderOptions = [0, 1, 2, 3, 4, 6, 12, 24, 48, 72];
 
+  /** F2-07: the platform has Google configured, and whether this business lets its staff connect it. */
+  protected readonly googleConfigured = signal(false);
+  protected readonly googleSync = signal<boolean | null>(null);
+
   constructor() {
+    // F2-07: back from Google's consent page (?google=connected|denied|failed).
+    const route = inject(ActivatedRoute);
+    const router = inject(Router);
+    const google = route.snapshot.queryParamMap.get('google');
+    if (google) {
+      this.snackBar.open(this.transloco.translate('googleCalendar.result.' + google), undefined, { duration: 4000 });
+      void router.navigate([], { queryParams: { google: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    }
+
     // Reload when the selected business changes.
     effect(() => {
       const business = this.session.currentBusiness();
@@ -271,8 +298,23 @@ export class Dashboard {
     this.notifier.saved();
   }
 
+  protected async saveGoogleSync(on: boolean): Promise<void> {
+    const { data, error } = await this.api.PUT('/api/tenancy/tenants/current/settings', { body: { googleCalendarSync: on } });
+    if (error) {
+      this.notifier.error(error);
+      return;
+    }
+    this.googleSync.set(data.googleCalendarSync);
+    this.notifier.saved();
+  }
+
   private async loadSettings(): Promise<void> {
-    const { data } = await this.api.GET('/api/tenancy/tenants/current');
+    const [{ data }, google] = await Promise.all([
+      this.api.GET('/api/tenancy/tenants/current'),
+      this.api.GET('/api/calendar/google/status'),
+    ]);
+    this.googleConfigured.set(google.data?.configured ?? false);
+    this.googleSync.set(data?.googleCalendarSync ?? null);
     const hours = data?.cancellationNoticeHours ?? null;
     // Keep a non-standard value selectable.
     if (hours !== null && !this.noticeOptions.includes(hours)) {

@@ -41,6 +41,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     /// <summary>The chatbot's language model (replaced by a script the tests fill).</summary>
     public ScriptedChatModel ChatModel { get; } = new();
 
+    public FakeGoogleCalendarApi Google { get; } = new();
+
     /// <summary>E-mails sent by the app (SMTP is replaced).</summary>
     public CapturingEmailSender Emails { get; } = new();
 
@@ -76,6 +78,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Jobs:WorkerCount", "2");
         builder.UseSetting("Notifications:PublicUrl", PublicUrl);
         builder.UseSetting("OpenAI:ApiKey", "test-key");
+        builder.UseSetting("Google:ClientId", "test-client");
+        builder.UseSetting("Google:ClientSecret", "test-secret");
 
         builder.ConfigureTestServices(services =>
         {
@@ -83,6 +87,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddSingleton<IPushSender>(Pushes);
             services.AddSingleton<ITelegramApi>(Telegram);
             services.AddSingleton<IChatModel>(ChatModel);
+            services.AddSingleton<PrenotaConMe.Modules.Calendar.IGoogleCalendarApi>(Google);
             services.AddSingleton<ISpeechToText, FakeSpeechToText>();
             services.AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });

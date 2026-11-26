@@ -7,7 +7,7 @@ namespace PrenotaConMe.Shared.Tenancy;
 /// <param name="SecondReminderHours">F2-06: hours before of the second reminder (0 = off).</param>
 public sealed record TenantSummary(
     Guid Id, string Slug, string Name, bool IsActive, string DefaultLanguage, int CancellationNoticeHours, string TimeZone,
-    int FirstReminderHours, int SecondReminderHours)
+    int FirstReminderHours, int SecondReminderHours, bool GoogleCalendarSync = false)
 {
     /// <summary>The reminders that are on, distinct, earliest first (largest number of hours).</summary>
     public IReadOnlyList<int> ReminderHours =>
