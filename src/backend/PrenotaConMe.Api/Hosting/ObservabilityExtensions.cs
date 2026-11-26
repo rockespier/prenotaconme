@@ -39,7 +39,8 @@ internal static class ObservabilityExtensions
             {
                 metrics
                     .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation();
+                    .AddHttpClientInstrumentation()
+                    .AddMeter("PrenotaConMe.*");
 
                 if (!string.IsNullOrWhiteSpace(otlpEndpoint))
                 {

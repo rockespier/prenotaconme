@@ -57,10 +57,53 @@ public sealed class ChatbotTests
         var kept = conversation.ReadMessages();
 
         Assert.True(kept.Count <= ChatConversation.MaxTurns);
+        Assert.Equal(ChatConversation.MaxClientMessages, kept.Count(t => t.Role == ChatTurnRole.User));
         Assert.Equal(ChatTurnRole.User, kept[0].Role);
         Assert.Equal("m14", kept[^3].Text);
         Assert.Equal("c14", kept[^1].ToolCallId);
     }
+
+    [Fact]
+    public void A_chat_over_the_minute_limit_is_answered_once_then_ignored_until_the_next_minute()
+    {
+        var conversation = ChatConversation.Start("telegram", "1", Guid.NewGuid());
+        var today = DateOnly.FromDateTime(Now.UtcDateTime);
+
+        var results = Enumerable.Range(0, 5).Select(i => conversation.Count(Now.AddSeconds(i), today, 3, 100)).ToList();
+        var nextMinute = conversation.Count(Now.AddMinutes(1), today, 3, 100);
+
+        Assert.Equal([ChatRate.Allowed, ChatRate.Allowed, ChatRate.Allowed, ChatRate.TooFast, ChatRate.Ignore], results);
+        Assert.Equal(ChatRate.Allowed, nextMinute);
+    }
+
+    [Fact]
+    public void A_chat_over_the_daily_limit_waits_for_the_next_day()
+    {
+        var conversation = ChatConversation.Start("telegram", "1", Guid.NewGuid());
+        var today = DateOnly.FromDateTime(Now.UtcDateTime);
+
+        var results = Enumerable.Range(0, 4).Select(i => conversation.Count(Now.AddMinutes(i * 5), today, 10, 2)).ToList();
+        var tomorrow = conversation.Count(Now.AddDays(1), today.AddDays(1), 10, 2);
+
+        Assert.Equal([ChatRate.Allowed, ChatRate.Allowed, ChatRate.DailyLimit, ChatRate.Ignore], results);
+        Assert.Equal(ChatRate.Allowed, tomorrow);
+    }
+
+    [Theory]
+    [InlineData("Ciao!", "Ciao Anna!")]
+    [InlineData("buenos días 👋", "¡Hola Anna!")]
+    [InlineData("Hello", "Hi Anna!")]
+    [InlineData("grazie mille", "Prego!")]
+    public void Bare_greetings_and_thanks_get_a_fixed_reply_in_their_language(string text, string start) =>
+        Assert.StartsWith(start, QuickReplies.For(text, "Anna Rossi"), StringComparison.Ordinal);
+
+    [Theory]
+    [InlineData("Ciao, posso prenotare?")]
+    [InlineData("sì")]
+    [InlineData("ok")]
+    [InlineData("hola quiero una cita")]
+    public void Other_messages_go_to_the_model(string text) =>
+        Assert.Null(QuickReplies.For(text, "Anna"));
 
     [Theory]
     [InlineData("2026-12-02T10:30", "2026-12-02T09:30:00+00:00")]
