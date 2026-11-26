@@ -253,6 +253,10 @@
     },
     "reminder": {
       "range": "Scegli un valore tra 0 e 168 ore."
+    },
+    "image": {
+      "size": "L'immagine è troppo grande (max 1 MB).",
+      "type": "Usa un file PNG, JPG o WebP."
     }
   },
   "backoffice": {
@@ -554,5 +558,16 @@
       "empty": "Nessuna spesa registrata.",
       "confirmDelete": "Eliminare la spesa \"{{name}}\"?"
     }
+  },
+  "businessImages": {
+    "title": "Immagine dell'attività",
+    "hint": "Logo e copertina compaiono sulla pagina di prenotazione e in \"Le mie prenotazioni\". Senza immagini si usa l'iniziale del nome.",
+    "logo": "Logo",
+    "logoHint": "Quadrato, si vede in un cerchio. PNG, JPG o WebP.",
+    "cover": "Copertina",
+    "coverHint": "Larga (circa 1600 × 600), in alto nella pagina. Il centro resta visibile.",
+    "upload": "Carica",
+    "change": "Cambia",
+    "remove": "Rimuovi"
   }
 }

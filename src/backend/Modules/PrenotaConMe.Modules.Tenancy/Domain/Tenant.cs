@@ -46,6 +46,26 @@ public sealed class Tenant : Entity
 
     public void SetGoogleCalendarSync(bool enabled) => GoogleCalendarSync = enabled;
 
+    /// <summary>F5-08: version (Unix ms of the upload) of the logo, null without one. Part of the image URL.</summary>
+    public long? LogoVersion { get; private set; }
+
+    /// <summary>F5-08: version of the cover image, null without one.</summary>
+    public long? CoverVersion { get; private set; }
+
+    public long? ImageVersion(TenantImageKind kind) => kind == TenantImageKind.Logo ? LogoVersion : CoverVersion;
+
+    public void SetImageVersion(TenantImageKind kind, long? version)
+    {
+        if (kind == TenantImageKind.Logo)
+        {
+            LogoVersion = version;
+        }
+        else
+        {
+            CoverVersion = version;
+        }
+    }
+
     /// <summary>Inputs must already be validated with <see cref="TenantRules"/>.</summary>
     public static Tenant Create(string name, string normalizedSlug, string timeZone, string language) => new()
     {

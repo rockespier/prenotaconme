@@ -17,8 +17,15 @@
     </div>
   }
   @default {
-    <header class="business">
-      <span class="monogram" aria-hidden="true">{{ initials(tenant()?.name ?? '') }}</span>
+    @if (coverUrl(); as cover) {
+      <img class="cover" [src]="cover" alt="" />
+    }
+    <header class="business" [class.on-cover]="coverUrl()">
+      @if (logoUrl(); as logo) {
+        <img class="monogram logo" [src]="logo" alt="" />
+      } @else {
+        <span class="monogram" aria-hidden="true">{{ initials(tenant()?.name ?? '') }}</span>
+      }
       <div>
         <h1>{{ tenant()?.name }}</h1>
         @if (location(); as l) {

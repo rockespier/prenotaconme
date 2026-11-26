@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
-import { API_CLIENT, Schemas } from '../../core/api/api-client';
+import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
@@ -30,7 +30,7 @@ const DAYS_PER_PAGE = 14;
   selector: 'app-my-appointments',
   imports: [AnnouncementBanner, InAppBrowserNotice, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, ReminderToggle, TelegramLink, TranslocoPipe],
   templateUrl: './my-appointments.html',
-  styleUrls: ['./booking-page.scss', './my-appointments.scss'],
+  styleUrls: ['./booking-page.scss', './business-header.scss', './my-appointments.scss'],
 })
 export class MyAppointments {
   private readonly api = inject(API_CLIENT);
@@ -46,6 +46,9 @@ export class MyAppointments {
 
   protected readonly state = signal<'loading' | 'ready' | 'notFound'>('loading');
   protected readonly tenant = signal<Schemas['PublicTenantDto'] | null>(null);
+  /** F5-08: business images (absolute URLs), null without one. */
+  protected readonly logoUrl = computed(() => assetUrl(this.tenant()?.logoUrl));
+  protected readonly coverUrl = computed(() => assetUrl(this.tenant()?.coverUrl));
   protected readonly data = signal<Schemas['MyAppointmentsDto'] | null>(null);
   /** Translation key of the last error. */
   protected readonly error = signal<string | null>(null);

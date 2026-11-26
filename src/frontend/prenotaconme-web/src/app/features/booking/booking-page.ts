@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
-import { API_CLIENT, Schemas } from '../../core/api/api-client';
+import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
 import { AuthService } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { firstErrorCode } from '../../shared/api-errors';
@@ -35,7 +35,7 @@ const DAYS_PER_PAGE = 14;
     MatProgressSpinnerModule, TranslocoPipe,
   ],
   templateUrl: './booking-page.html',
-  styleUrl: './booking-page.scss',
+  styleUrls: ['./booking-page.scss', './business-header.scss'],
 })
 export class BookingPage {
   private readonly api = inject(API_CLIENT);
@@ -53,6 +53,9 @@ export class BookingPage {
 
   protected readonly state = signal<'loading' | 'ready' | 'notFound'>('loading');
   protected readonly tenant = signal<Schemas['PublicTenantDto'] | null>(null);
+  /** F5-08: business images (absolute URLs), null without one. */
+  protected readonly logoUrl = computed(() => assetUrl(this.tenant()?.logoUrl));
+  protected readonly coverUrl = computed(() => assetUrl(this.tenant()?.coverUrl));
   protected readonly options = signal<Schemas['BookingOptionsDto'] | null>(null);
   protected readonly step = signal<Step>('location');
 

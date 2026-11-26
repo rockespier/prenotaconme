@@ -1,0 +1,37 @@
+// F5-08: cover image above the header; the logo (or initial) overlaps its bottom edge.
+.cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 8 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-l);
+  background: var(--mat-sys-surface-container);
+
+  @media (max-width: 599px) {
+    width: calc(100% + 2 * var(--space-4));
+    margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-4)) 0;
+    border-radius: 0;
+  }
+}
+
+.business.on-cover {
+  // Only the logo overlaps the cover; the name starts below it so it stays readable.
+  align-items: flex-start;
+  margin-top: -32px;
+  padding-left: var(--space-4);
+
+  > div {
+    padding-top: 36px;
+  }
+
+  .monogram {
+    border: 3px solid var(--mat-sys-surface);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  }
+}
+
+.monogram.logo {
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--mat-sys-surface);
+}

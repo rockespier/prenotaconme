@@ -16,11 +16,14 @@ public sealed record RegisterTenantRequest(string Name, string Slug, string Time
 /// <param name="FirstReminderHours">Hours before the appointment of the first reminder to the client (0 = off).</param>
 /// <param name="SecondReminderHours">Hours before the appointment of the second reminder (0 = off).</param>
 /// <param name="GoogleCalendarSync">F2-07: staff may connect Google Calendar.</param>
+/// <param name="LogoUrl">F5-08: relative URL of the logo, null without one.</param>
+/// <param name="CoverUrl">F5-08: relative URL of the cover image, null without one.</param>
 public sealed record TenantDto(
     Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours,
-    int FirstReminderHours, int SecondReminderHours, bool GoogleCalendarSync);
+    int FirstReminderHours, int SecondReminderHours, bool GoogleCalendarSync, string? LogoUrl, string? CoverUrl);
 
-public sealed record PublicTenantDto(string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours);
+public sealed record PublicTenantDto(
+    string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours, string? LogoUrl, string? CoverUrl);
 
 /// <summary>Only the values sent are changed.</summary>
 public sealed record UpdateTenantSettingsRequest(
@@ -54,6 +57,8 @@ internal static class TenancyEndpoints
         group.MapPut("/tenants/current/settings", UpdateSettingsAsync)
             .RequireTenantRole(TenantRole.Admin)
             .WithName("UpdateTenantSettings");
+
+        TenantImageEndpoints.Map(group);
     }
 
     private static async Task<Results<Created<TenantDto>, ValidationProblem, ProblemHttpResult>> RegisterAsync(
@@ -121,7 +126,9 @@ internal static class TenancyEndpoints
 
         return tenant is null
             ? TypedResults.NotFound()
-            : TypedResults.Ok(new PublicTenantDto(tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage, tenant.CancellationNoticeHours));
+            : TypedResults.Ok(new PublicTenantDto(
+                tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage, tenant.CancellationNoticeHours,
+                TenantImageEndpoints.Url(tenant, TenantImageKind.Logo), TenantImageEndpoints.Url(tenant, TenantImageKind.Cover)));
     }
 
     private static async Task<Ok<SlugAvailabilityDto>> CheckSlugAsync(
@@ -188,7 +195,7 @@ internal static class TenancyEndpoints
             title: "slug.taken",
             detail: $"The slug '{slug}' is already in use.");
 
-    private static TenantDto ToDto(Tenant t) =>
+    internal static TenantDto ToDto(Tenant t) =>
         new(t.Id, t.Name, t.Slug, t.TimeZone, t.DefaultLanguage, t.CancellationNoticeHours, t.FirstReminderHours, t.SecondReminderHours,
-            t.GoogleCalendarSync);
+            t.GoogleCalendarSync, TenantImageEndpoints.Url(t, TenantImageKind.Logo), TenantImageEndpoints.Url(t, TenantImageKind.Cover));
 }

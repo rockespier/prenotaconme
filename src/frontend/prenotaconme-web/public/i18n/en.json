@@ -253,6 +253,10 @@
     },
     "reminder": {
       "range": "Choose a value between 0 and 168 hours."
+    },
+    "image": {
+      "size": "The image is too large (max 1 MB).",
+      "type": "Use a PNG, JPG or WebP file."
     }
   },
   "backoffice": {
@@ -554,5 +558,16 @@
       "empty": "No expenses recorded.",
       "confirmDelete": "Delete the expense \"{{name}}\"?"
     }
+  },
+  "businessImages": {
+    "title": "Business images",
+    "hint": "The logo and cover appear on the booking page and in \"My appointments\". Without images the initial of the name is used.",
+    "logo": "Logo",
+    "logoHint": "Square, shown in a circle. PNG, JPG or WebP.",
+    "cover": "Cover",
+    "coverHint": "Wide (about 1600 × 600), at the top of the page. The center always stays visible.",
+    "upload": "Upload",
+    "change": "Change",
+    "remove": "Remove"
   }
 }
