@@ -15,10 +15,13 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { firstValueFrom } from 'rxjs';
 import { API_CLIENT, Schemas } from '../../../core/api/api-client';
+import { AuthService } from '../../../core/auth/auth.service';
 import { SessionService } from '../../../core/session/session.service';
+import { TenantSelection } from '../../../core/session/tenant-selection';
 import { Notifier } from '../../../shared/api-errors';
 import { AppointmentDialog, AppointmentDialogData } from './appointment-dialog';
 import { staffColor, toEvents } from './calendar-events';
+import { connectCalendarLive } from './calendar-live';
 import { NewAppointmentDialog, NewAppointmentDialogData } from './new-appointment-dialog';
 
 type Appointment = Schemas['CalendarAppointmentDto'];
@@ -119,6 +122,8 @@ export class CalendarPage {
   private readonly transloco = inject(TranslocoService);
   private readonly breakpoints = inject(BreakpointObserver);
   protected readonly session = inject(SessionService);
+  private readonly auth = inject(AuthService);
+  private readonly tenant = inject(TenantSelection);
 
   private readonly host = viewChild.required<ElementRef<HTMLElement>>('calendar');
   private readonly lang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
@@ -138,6 +143,13 @@ export class CalendarPage {
     effect(() => {
       const locale = LOCALES[this.lang()] ?? 'it';
       untracked(() => this.calendar?.setOption('locale', locale));
+    });
+
+    // F2-10: someone else changed an appointment of this business (or the client booked): reload the visible range.
+    effect((onCleanup) => {
+      const slug = this.tenant.slug();
+      if (!slug) return;
+      onCleanup(connectCalendarLive(this.auth, slug, () => this.calendar?.refetchEvents()));
     });
 
     // Filters changed: reload the visible range.

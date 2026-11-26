@@ -17,6 +17,8 @@ public sealed class SchedulingModule : IModule
         services.AddScoped<AvailabilityService>();
         services.AddScoped<AppointmentEvents>();
         services.AddScoped<ClientBookingService>();
+        services.AddScoped<CalendarBroadcast>();
+        services.AddSignalR();
 
         // Replaced by the Calendar module (F2-07..09) when it is registered.
         services.TryAddScoped<IExternalBusyTimes, NoExternalCalendar>();

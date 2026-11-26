@@ -66,6 +66,11 @@ internal static class CalendarEndpoints
         group.MapPost("/calendar/appointments/{id:guid}/outcome", OutcomeAsync)
             .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
             .WithName("RecordAppointmentOutcome");
+
+        // F2-10: open calendars refetch when an appointment changes (WebSocket, so token and tenant may come in the query).
+        group.MapHub<CalendarHub>(CalendarHub.Path)
+            .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
+            .AcceptCredentialsInQuery();
     }
 
     private static async Task<Results<Ok<CalendarDto>, ValidationProblem>> GetAsync(
@@ -228,7 +233,7 @@ internal static class CalendarEndpoints
     /// </summary>
     private static async Task<Results<Ok<CalendarAppointmentDto>, NotFound, ValidationProblem, ProblemHttpResult>> OutcomeAsync(
         Guid id, AppointmentOutcomeRequest request, AppDbContext db, IUserDirectory users, ICurrentUser currentUser,
-        IAuthorizationService authorization, HttpContext http, TimeProvider clock, CancellationToken ct)
+        IAuthorizationService authorization, HttpContext http, TimeProvider clock, CalendarBroadcast broadcast, CancellationToken ct)
     {
         var errors = new ValidationErrors()
             .AddIf(request.Outcome is not (AppointmentStatus.Completed or AppointmentStatus.NoShow or AppointmentStatus.Confirmed),
@@ -257,6 +262,7 @@ internal static class CalendarEndpoints
 
         appointment.RecordOutcome(request.Outcome, request.ChargedAmount);
         await db.SaveChangesAsync(ct);
+        await broadcast.ChangedAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(appointment, users, ct));
     }
 

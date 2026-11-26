@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PrenotaConMe.Shared.Tenancy;
 
 namespace PrenotaConMe.Api.Hosting;
 
@@ -28,6 +29,22 @@ internal static class AuthExtensions
                 options.TokenValidationParameters.ValidIssuer = issuer;
                 options.TokenValidationParameters.ValidAudience = projectId;
                 options.TokenValidationParameters.NameClaimType = "name";
+                // SignalR (F2-10): WebSockets cannot carry the Authorization header, so marked endpoints take the
+                // token from the query string. Serilog's request log has no query string.
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var http = context.HttpContext;
+                        if (http.GetEndpoint()?.Metadata.GetMetadata<CredentialsInQueryMetadata>() is not null
+                            && http.Request.Query.TryGetValue(TenantEndpointExtensions.AccessTokenQuery, out var token))
+                        {
+                            context.Token = token.ToString();
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                };
             });
 
         services.AddAuthorization();
