@@ -124,6 +124,29 @@ En *Settings → Environments → `staging`*:
 
 Clave en tu PC: `ssh-keygen -t ed25519 -C github-deploy -f "$HOME\.ssh\prenotaconme_deploy"` (pulsa Enter dos veces: sin passphrase). Copiar la privada para el secret: `Get-Content "$HOME\.ssh\prenotaconme_deploy" -Raw | Set-Clipboard`. Prueba: `ssh -i $HOME\.ssh\prenotaconme_deploy deploy@TU_SERVIDOR hostname`.
 
+## 9. Seguridad (F5-05)
+
+La app añade sola las cabeceras de seguridad (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`), HSTS de 180 días sin subdominios (en `rtres.net` hay otros sitios) y redirección a HTTPS. El `web.config` del proyecto quita las cabeceras `Server` y `X-Powered-By` de IIS.
+
+- **CSP:** se envía como `Content-Security-Policy-Report-Only` mientras `Security:EnforceCsp` sea `false`. En staging abre la web con las herramientas del navegador (pestaña *Console*), entra con Google y con Microsoft, activa las notificaciones y usa el calendario: si no aparece ningún aviso `[Report Only] Refused to ...`, pon `"EnforceCsp": true` en `appsettings.Production.json` y recicla el app pool.
+- **Límites de peticiones:** 300 por minuto a `/api` por usuario (por IP sin login) y 30 por hora en las acciones que envían emails o llaman a otros servicios (registrar negocio, reservar, avisos, bot de Telegram, Google Calendar, imágenes, teléfono). Se cambian con `RateLimiting:PerMinute` / `RateLimiting:SensitivePerHour`. Al superarlos la API responde 429 con `Retry-After`. Si algún día se pone un proxy delante (Cloudflare), hay que configurar las cabeceras reenviadas o todos los usuarios anónimos compartirán la IP del proxy.
+
+### Rotación de secretos
+
+Todos viven en `C:\prenotaconme\shared\appsettings.Production.json` (y en user-secrets en local). Tras cambiar uno, recicla el app pool (`Restart-WebAppPool prenotaconme.rtres.net`).
+
+| Secreto | Cuándo | Cómo | Efecto |
+|---|---|---|---|
+| Contraseña de PostgreSQL | Anual o si se expone | `ALTER ROLE prenota PASSWORD '...'` y actualizar `ConnectionStrings:Database` | Ninguno tras reciclar |
+| `Smtp:Password` | Según el proveedor | Nueva contraseña de aplicación en el proveedor de correo | Ninguno |
+| `OpenAI:ApiKey` | Anual o si se expone | Crear clave nueva en platform.openai.com, cambiarla, revocar la vieja | Ninguno |
+| `Google:ClientSecret` | Anual o si se expone | Google Cloud Console → Credenciales → cliente OAuth → añadir secreto nuevo, cambiarlo, borrar el viejo | Las conexiones de Calendar siguen (los refresh tokens no dependen del secreto) |
+| Secreto de Microsoft (Entra) | **Antes de que caduque** (máx. 24 meses) | Entra → App registration → nuevo secreto → pegarlo en Firebase (Authentication → Microsoft) | Sin renovarlo, el login con Microsoft deja de funcionar |
+| `Push:PublicKey`/`PrivateKey` | Solo si se expone | Generar par nuevo (comando en `CLAUDE.md`) | Todos los dispositivos tienen que reactivar las notificaciones |
+| Tokens de Telegram de cada negocio | Si un negocio lo pide | El negocio genera uno nuevo en @BotFather (`/revoke`) y lo pega en el dashboard | Ninguno |
+| Claves de Data Protection | Automática (90 días, en la BD) | — | Nada que hacer; no borrar `data_protection_keys` o se pierden los tokens cifrados |
+| Clave SSH de deploy (`VPS_SSH_KEY`) | Anual o si se expone | Nueva clave, `authorized_keys` del usuario `deploy` y secret de GitHub | Ninguno |
+
 ## Despliegue y rollback
 
 Cada push a `main` con el CI en verde ejecuta `.github/workflows/deploy.yml`, que publica la API para win-x64 con Angular en `wwwroot`, sube un zip y ejecuta `deploy/windows/deploy.ps1`. Ese script descomprime en `releases\<versión>`, la copia a `D:\IISSites\prenotaconme.rtres.net` y recicla el app pool.

@@ -24,6 +24,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/services/services-page').then((m) => m.ServicesPage),
       },
       {
+        path: 'inizia',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/onboarding/onboarding-page').then((m) => m.OnboardingPage),
+      },
+      {
         path: 'staff',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/admin/staff/staff-page').then((m) => m.StaffPage),

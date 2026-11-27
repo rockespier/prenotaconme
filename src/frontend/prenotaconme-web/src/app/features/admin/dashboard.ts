@@ -70,6 +70,7 @@ interface SetupStep {
         <section class="setup">
           <h2>{{ 'dashboard.setupTitle' | transloco }}</h2>
           <p class="muted">{{ 'dashboard.setupHint' | transloco }}</p>
+          <a mat-flat-button routerLink="/admin/inizia" class="guided"><mat-icon>assistant</mat-icon>{{ 'onboarding.open' | transloco }}</a>
           <ol class="steps">
             @for (s of list; track s.key) {
               <li [class.done]="s.done">
@@ -177,6 +178,7 @@ interface SetupStep {
       mat-icon { color: var(--mat-sys-tertiary); flex: none; }
       strong { color: var(--mat-sys-on-surface); }
     }
+    .guided { margin-bottom: var(--space-4); }
     app-business-images, app-telegram-settings { display: block; margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
     .rules h3 { margin: var(--space-6) 0 var(--space-1); font: var(--mat-sys-title-medium); font-weight: 600; }

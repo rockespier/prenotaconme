@@ -7,6 +7,7 @@ using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Users.Domain;
 using System.Text.Json;
 using PrenotaConMe.Shared.Auth;
+using PrenotaConMe.Shared.Hosting;
 using PrenotaConMe.Shared.Privacy;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
@@ -29,7 +30,8 @@ internal static class UsersEndpoints
         // F1-10: asked on the first booking; needed for reminders (WhatsApp/Telegram) and to reach the client.
         group.MapPut("/me/phone", SetPhoneAsync)
             .RequireAuthorization()
-            .WithName("SetMyPhone");
+            .WithName("SetMyPhone")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapGet("/me", GetMeAsync)
             .RequireAuthorization()
@@ -38,11 +40,13 @@ internal static class UsersEndpoints
         // F5-04 (GDPR art. 15/20): everything PrenotaConMe keeps about the caller, as a JSON file.
         group.MapGet("/me/export", ExportAsync)
             .RequireAuthorization()
+            .RequireRateLimiting(RateLimits.Sensitive)
             .WithName("ExportMyData");
 
         // F5-04 (GDPR art. 17): deletes the account; appointments stay for the businesses, anonymized.
         group.MapDelete("/me", DeleteMeAsync)
             .RequireAuthorization()
+            .RequireRateLimiting(RateLimits.Sensitive)
             .WithName("DeleteMe");
     }
 

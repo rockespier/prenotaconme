@@ -262,6 +262,12 @@
     },
     "account": {
       "hasBusinessRole": "Gestisci o lavori in un'attività: prima chiedi a un altro amministratore di toglierti, poi potrai eliminare l'account."
+    },
+    "request": {
+      "tooMany": "Troppe richieste. Attendi qualche minuto e riprova."
+    },
+    "onboarding": {
+      "noLocation": "Assegna prima una sede attiva a questa persona."
     }
   },
   "backoffice": {
@@ -588,5 +594,50 @@
   "privacy": {
     "link": "Informativa privacy",
     "languageNote": ""
+  },
+  "onboarding": {
+    "open": "Configurazione guidata",
+    "title": "Configura la tua attività",
+    "intro": "Pochi passi e la tua pagina di prenotazione è pronta. Puoi cambiare tutto anche dopo.",
+    "next": "Avanti",
+    "finish": "Vai alla dashboard",
+    "location": {
+      "title": "La tua sede",
+      "hint": "Indirizzo e orari compaiono sulla pagina di prenotazione.",
+      "noAddress": "Manca l'indirizzo: aggiungilo perché i clienti ti trovino.",
+      "days": "Aperta {{count}} giorni a settimana",
+      "edit": "Modifica sede"
+    },
+    "services": {
+      "title": "I tuoi servizi",
+      "hint": "Abbiamo messo alcuni servizi di esempio: cambia prezzi e durate o aggiungine altri.",
+      "add": "Aggiungi servizio"
+    },
+    "staff": {
+      "title": "Chi lavora con te",
+      "hint": "Ogni persona ha il suo calendario. Se lavori anche tu, aggiungiti.",
+      "empty": "Ancora nessuno.",
+      "addMe": "Lavoro anch'io qui",
+      "add": "Aggiungi collaboratore"
+    },
+    "hours": {
+      "title": "Orari di lavoro",
+      "hint": "I clienti possono prenotare solo nelle ore in cui qualcuno lavora.",
+      "perWeek": "{{count}} ore a settimana",
+      "none": "Nessun orario",
+      "useOpening": "Usa gli orari di apertura",
+      "customize": "Personalizza",
+      "noStaff": "Aggiungi prima chi lavora con te."
+    },
+    "images": {
+      "title": "Logo e copertina"
+    },
+    "link": {
+      "title": "La tua pagina di prenotazione",
+      "ready": "Tutto pronto! Condividi questo link con i tuoi clienti.",
+      "notReady": "Completa i passi precedenti: senza orari di lavoro i clienti non vedono orari liberi.",
+      "share": "Condividi su WhatsApp",
+      "message": "Prenota il tuo appuntamento qui: {{url}}"
+    }
   }
 }
