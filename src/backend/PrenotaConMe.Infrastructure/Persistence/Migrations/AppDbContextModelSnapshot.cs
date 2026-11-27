@@ -1157,6 +1157,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("cancellation_notice_hours");
 
+                    b.Property<long?>("CoverVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cover_version");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -1178,6 +1182,10 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
+
+                    b.Property<long?>("LogoVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("logo_version");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1213,6 +1221,51 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_tenants_slug");
 
                     b.ToTable("tenants", (string)null);
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Tenancy.Domain.TenantImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_images");
+
+                    b.HasIndex("TenantId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_images_tenant_id_kind");
+
+                    b.ToTable("tenant_images", (string)null);
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Users.Domain.UserAccount", b =>
@@ -1520,6 +1573,16 @@ namespace PrenotaConMe.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_staff_working_hours_staff_member_staff_member_id");
+                });
+
+            modelBuilder.Entity("PrenotaConMe.Modules.Tenancy.Domain.TenantImage", b =>
+                {
+                    b.HasOne("PrenotaConMe.Modules.Tenancy.Domain.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_images_tenants_tenant_id");
                 });
 
             modelBuilder.Entity("PrenotaConMe.Modules.Users.Domain.UserMembership", b =>

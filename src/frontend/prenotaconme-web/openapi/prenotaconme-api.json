@@ -201,6 +201,129 @@
         }
       }
     },
+    "/api/tenancy/tenants/{slug}/images/{kind}": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "GetTenantImage",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/tenancy/tenants/current/images/{kind}": {
+      "put": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "UploadTenantImage",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file"
+                ],
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "DeleteTenantImage",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
     "/api/users/me/phone": {
       "put": {
         "tags": [
@@ -3356,6 +3479,10 @@
           }
         }
       },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
       "LocationDto": {
         "required": [
           "id",
@@ -3770,7 +3897,9 @@
           "slug",
           "timeZone",
           "defaultLanguage",
-          "cancellationNoticeHours"
+          "cancellationNoticeHours",
+          "logoUrl",
+          "coverUrl"
         ],
         "type": "object",
         "properties": {
@@ -3789,6 +3918,18 @@
           "cancellationNoticeHours": {
             "type": "integer",
             "format": "int32"
+          },
+          "logoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -4295,7 +4436,9 @@
           "cancellationNoticeHours",
           "firstReminderHours",
           "secondReminderHours",
-          "googleCalendarSync"
+          "googleCalendarSync",
+          "logoUrl",
+          "coverUrl"
         ],
         "type": "object",
         "properties": {
@@ -4329,6 +4472,18 @@
           },
           "googleCalendarSync": {
             "type": "boolean"
+          },
+          "logoUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "coverUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

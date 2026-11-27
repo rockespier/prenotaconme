@@ -41,3 +41,8 @@ export const API_CLIENT = new InjectionToken<ApiClient>('API_CLIENT', {
     return client;
   },
 });
+
+/** Absolute URL of a file the API serves (paths in DTOs are relative, e.g. business images); null stays null. */
+export function assetUrl(path: string | null | undefined): string | null {
+  return path ? environment.apiUrl + path : null;
+}

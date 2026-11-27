@@ -94,8 +94,8 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F5-05 | Hardening | Rate limiting, CORS, cabeceras de seguridad, rotación de secretos |
 | F5-06 | Backups y DR | pgBackRest full + WAL a S3-compatible; prueba de restore documentada |
 | F5-07 | Producción | Dominio, TLS, Uptime Kuma, alertas |
-| F5-08 | Imagen del negocio (A) | El Admin sube un logo y una imagen de portada (PNG/JPG/WebP, tamaño máximo, redimensionados); se muestran en la página de reserva `/{slug}`, en Mis citas y en el backoffice; sin imagen se usa un fallback con la inicial. Para la demo con el primer cliente |
-| F5-09 | Logo de la plataforma | Logo y favicon de PrenotaConMe (SVG optimizado para web + iconos PWA) en la home, login y backoffice. Para la demo con el primer cliente |
+| F5-08 ✅ | Imagen del negocio (A) | El Admin sube un logo y una imagen de portada desde el dashboard; el navegador los recorta y reduce (logo 512×512, portada 1600×600, WebP) y la API solo acepta PNG/JPEG/WebP de hasta 1 MB, guardados en la base de datos; se muestran en la página de reserva `/{slug}` y en Mis citas; sin imagen se usa la inicial |
+| F5-09 ✅ | Logo de la plataforma | Logo y favicon de PrenotaConMe (SVG optimizado para web + iconos PWA) en la home, login y backoffice. Para la demo con el primer cliente |
 
 ---
 

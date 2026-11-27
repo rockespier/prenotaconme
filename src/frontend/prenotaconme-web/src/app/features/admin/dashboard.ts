@@ -14,6 +14,7 @@ import { Notifier } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
 import { TelegramLink } from '../../shared/telegram-link/telegram-link';
 import { GoogleCalendar } from './google-calendar';
+import { BusinessImages } from '../../shared/business-images/business-images';
 import { TelegramSettings } from './telegram-settings';
 
 type ReminderField = 'firstReminderHours' | 'secondReminderHours';
@@ -32,7 +33,7 @@ interface SetupStep {
   selector: 'app-dashboard',
   imports: [
     RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatSelectModule, MatSlideToggleModule, GoogleCalendar, PushToggle,
-    TelegramLink, TelegramSettings, TranslocoPipe,
+    TelegramLink, TelegramSettings, BusinessImages, TranslocoPipe,
   ],
   template: `
     <header class="page-header">
@@ -130,6 +131,7 @@ interface SetupStep {
           </section>
         }
 
+        <app-business-images />
         <app-telegram-settings />
       }
     }
@@ -175,7 +177,7 @@ interface SetupStep {
       mat-icon { color: var(--mat-sys-tertiary); flex: none; }
       strong { color: var(--mat-sys-on-surface); }
     }
-    app-telegram-settings { display: block; margin-top: var(--space-6); }
+    app-business-images, app-telegram-settings { display: block; margin-top: var(--space-6); }
     .rules mat-form-field { width: min(100%, 320px); margin-top: var(--space-3); }
     .rules h3 { margin: var(--space-6) 0 var(--space-1); font: var(--mat-sys-title-medium); font-weight: 600; }
     .reminder-fields { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); }

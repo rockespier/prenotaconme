@@ -255,6 +255,10 @@
     },
     "reminder": {
       "range": "Elige un valor entre 0 y 168 horas."
+    },
+    "image": {
+      "size": "La imagen es demasiado grande (máx. 1 MB).",
+      "type": "Usa un archivo PNG, JPG o WebP."
     }
   },
   "backoffice": {
@@ -556,5 +560,16 @@
       "empty": "No hay gastos registrados.",
       "confirmDelete": "¿Eliminar el gasto \"{{name}}\"?"
     }
+  },
+  "businessImages": {
+    "title": "Imagen del negocio",
+    "hint": "El logo y la portada aparecen en la página de reserva y en \"Mis citas\". Sin imágenes se usa la inicial del nombre.",
+    "logo": "Logo",
+    "logoHint": "Cuadrado, se ve dentro de un círculo. PNG, JPG o WebP.",
+    "cover": "Portada",
+    "coverHint": "Ancha (unos 1600 × 600), arriba de la página. El centro queda siempre visible.",
+    "upload": "Subir",
+    "change": "Cambiar",
+    "remove": "Quitar"
   }
 }
