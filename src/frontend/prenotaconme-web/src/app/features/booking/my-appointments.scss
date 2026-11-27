@@ -118,3 +118,10 @@
     color: var(--mat-sys-on-surface-variant);
   }
 }
+
+.sign-in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}

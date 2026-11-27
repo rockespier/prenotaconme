@@ -74,7 +74,7 @@
     "where": "Where",
     "price": "Price",
     "payOnSite": "(paid on site)",
-    "signInToConfirm": "To confirm, sign in with your Google account so you can find and manage your bookings.",
+    "signInToConfirm": "To confirm, sign in with your Google or Microsoft account so you can find and manage your bookings.",
     "phone": "Your mobile number",
     "phoneHint": "With the country code, e.g. +44 7700 900123. Only used for reminders.",
     "confirm": "Confirm booking",
@@ -92,7 +92,7 @@
   "myAppointments": {
     "title": "My appointments",
     "link": "My appointments",
-    "signInHint": "Sign in with the same Google account you used to book.",
+    "signInHint": "Sign in with the same account (Google or Microsoft) you used to book.",
     "upcoming": "Upcoming",
     "past": "History",
     "none": "You have no upcoming appointments.",
@@ -123,12 +123,14 @@
   },
   "login": {
     "title": "Sign in",
-    "subtitle": "Use your Google account to continue.",
+    "subtitle": "Use your Google or Microsoft account to continue.",
     "google": "Continue with Google",
     "error": "Sign-in failed. Please try again.",
     "errorInApp": "Sign-in failed. If you opened this page from Telegram, Instagram or another app, open it in Safari or Chrome and try again.",
     "registerTitle": "Register your business",
-    "registerSubtitle": "Sign in with your Google account: it will be the admin account of your business."
+    "registerSubtitle": "Sign in with your Google or Microsoft account: it will be the admin account of your business.",
+    "microsoft": "Continue with Microsoft",
+    "useGoogleFirst": "This e-mail already signs in with Google. Sign in with Google once: after that Microsoft works too."
   },
   "register": {
     "title": "Register your business",

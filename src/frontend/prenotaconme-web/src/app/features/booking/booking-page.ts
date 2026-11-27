@@ -1,4 +1,3 @@
-import { signInErrorKey } from '../../core/auth/in-app-browser';
 import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
 import { Component, ElementRef, Injector, afterNextRender, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -12,8 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
-import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
-import { AuthService } from '../../core/auth/auth.service';
+import { API_CLIENT, Schemas } from '../../core/api/api-client';
+import { AuthService, signInError, SignInProvider } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { firstErrorCode } from '../../shared/api-errors';
 import { addDaysIso, dayParts, formatDay, formatDuration, formatPrice, groupByPeriod, initials, todayIso } from './booking-format';
@@ -183,13 +182,13 @@ export class BookingPage {
     await this.loadSlots(true);
   }
 
-  protected async signIn(): Promise<void> {
+  protected async signIn(provider: SignInProvider): Promise<void> {
     this.error.set(null);
     try {
-      await this.auth.signInWithGoogle();
+      await this.auth.signIn(provider);
       await this.checkPhone();
-    } catch {
-      this.error.set(signInErrorKey());
+    } catch (e) {
+      this.error.set(signInError(e));
     }
   }
 

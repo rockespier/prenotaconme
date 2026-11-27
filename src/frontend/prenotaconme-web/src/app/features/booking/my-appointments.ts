@@ -1,4 +1,3 @@
-import { signInErrorKey } from '../../core/auth/in-app-browser';
 import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -8,8 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
-import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
-import { AuthService } from '../../core/auth/auth.service';
+import { API_CLIENT, Schemas } from '../../core/api/api-client';
+import { AuthService, signInError, SignInProvider } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
 import { ReminderToggle } from '../../shared/reminder-toggle/reminder-toggle';
@@ -100,12 +99,12 @@ export class MyAppointments {
   protected place = (a: Appointment) => [a.locationAddress, a.locationCity].filter((x) => !!x).join(', ');
 
   // ---- actions ----------------------------------------------------------------------------------------------
-  protected async signIn(): Promise<void> {
+  protected async signIn(provider: SignInProvider): Promise<void> {
     this.error.set(null);
     try {
-      await this.auth.signInWithGoogle();
-    } catch {
-      this.error.set(signInErrorKey());
+      await this.auth.signIn(provider);
+    } catch (e) {
+      this.error.set(signInError(e));
     }
   }
 
