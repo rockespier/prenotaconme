@@ -77,6 +77,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/register-business').then((m) => m.RegisterBusiness),
       },
       // Legacy prefix, kept so early shared links keep working.
+      { path: 'privacy', loadComponent: () => import('./features/privacy/privacy-page').then((m) => m.PrivacyPage) },
       { path: 'b/:slug', redirectTo: '/:slug' },
       // F1-12: the client's appointments with a business.
       {

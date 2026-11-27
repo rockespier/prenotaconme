@@ -56,6 +56,7 @@ public static class JobsSetup
         if (options.Server && !string.IsNullOrWhiteSpace(connectionString))
         {
             services.AddHangfireServer(o => o.WorkerCount = options.WorkerCount);
+            services.AddHostedService<RecurringJobsRegistrar>();
         }
 
         return services;

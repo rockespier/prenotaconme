@@ -1,7 +1,10 @@
 import { PricePipe } from '../../../shared/price.pipe';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Notifier } from '../../../shared/api-errors';
+import { confirmAction } from '../../../shared/confirm-dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
@@ -70,9 +73,17 @@ import { appointmentDate, shortDate } from './client-format';
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
         </table>
       </div>
+
+      <!-- F5-04: the client asked the business to erase their data. -->
+      <section class="erase">
+        <p class="muted small">{{ 'clients.eraseHint' | transloco }}</p>
+        <button mat-button class="danger" (click)="erase()"><mat-icon>person_remove</mat-icon>{{ 'clients.erase' | transloco }}</button>
+      </section>
     }
   `,
   styles: `
+    .erase { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--mat-sys-outline-variant); }
+    .danger { color: var(--mat-sys-error); }
     .back { margin: 0 0 var(--space-3) calc(-1 * var(--space-3)); }
     h1 .pill { vertical-align: middle; margin-left: var(--space-2); }
     .contact { display: flex; flex-wrap: wrap; gap: var(--space-4); }
@@ -98,6 +109,9 @@ import { appointmentDate, shortDate } from './client-format';
 export class ClientPage {
   private readonly api = inject(API_CLIENT);
   private readonly transloco = inject(TranslocoService);
+  private readonly dialog = inject(MatDialog);
+  private readonly notifier = inject(Notifier);
+  private readonly router = inject(Router);
   private readonly lang = toSignal(this.transloco.langChanges$, { initialValue: this.transloco.getActiveLang() });
 
   /** Query param ?key= */
@@ -125,6 +139,18 @@ export class ClientPage {
   protected status(a: Schemas['ClientAppointmentDto']): string {
     if (a.status === 'Confirmed') return this.isFuture(a) ? 'clients.status.upcoming' : 'clients.status.done';
     return `myAppointments.status.${a.status}`;
+  }
+
+  protected async erase(): Promise<void> {
+    const ok = await confirmAction(this.dialog, this.transloco.translate('clients.eraseConfirm'), this.transloco.translate('clients.erase'));
+    if (!ok) return;
+    const { error } = await this.api.POST('/api/scheduling/clients/erase', { params: { query: { key: this.key() } } });
+    if (error) {
+      this.notifier.error(error);
+      return;
+    }
+    this.notifier.saved();
+    await this.router.navigateByUrl('/admin/clienti');
   }
 
   private async load(key: string): Promise<void> {

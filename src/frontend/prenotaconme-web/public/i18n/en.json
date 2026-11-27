@@ -260,6 +260,9 @@
       "size": "The image is too large (max 1 MB).",
       "type": "Use a PNG, JPG or WebP file."
     },
+    "account": {
+      "hasBusinessRole": "You manage or work at a business: first ask another admin to remove you, then you can delete the account."
+    },
     "request": {
       "tooMany": "Too many requests. Wait a few minutes and try again."
     },
@@ -371,7 +374,10 @@
     "status": {
       "upcoming": "Upcoming",
       "done": "Done"
-    }
+    },
+    "erase": "Erase the client's data",
+    "eraseHint": "If the client asks you to erase their data: their appointments keep no name or phone and future ones are cancelled.",
+    "eraseConfirm": "Erase this client's data? Future appointments are cancelled. This cannot be undone."
   },
   "days": {
     "Monday": "Monday",
@@ -577,6 +583,17 @@
     "upload": "Upload",
     "change": "Change",
     "remove": "Remove"
+  },
+  "myData": {
+    "title": "Your data",
+    "hint": "Download everything we keep about you or delete your account.",
+    "download": "Download my data",
+    "delete": "Delete account",
+    "confirm": "Delete your account? Future appointments are cancelled and past ones stay with the business without your name. This cannot be undone."
+  },
+  "privacy": {
+    "link": "Privacy notice",
+    "languageNote": "For now the text is only available in Italian."
   },
   "onboarding": {
     "open": "Guided setup",

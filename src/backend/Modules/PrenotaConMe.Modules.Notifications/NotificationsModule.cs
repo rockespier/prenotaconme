@@ -19,6 +19,7 @@ public sealed class NotificationsModule : IModule
     {
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
         services.Configure<NotificationOptions>(configuration.GetSection("Notifications"));
+        services.AddScoped<PrenotaConMe.Shared.Privacy.IPersonalData, NotificationsPersonalData>();
 
         if (string.IsNullOrWhiteSpace(configuration["Smtp:Host"]))
         {

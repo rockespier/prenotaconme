@@ -375,6 +375,30 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "operationId": "DeleteMe",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/users/me/export": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "operationId": "ExportMyData",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/api/locations": {
@@ -1632,6 +1656,32 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/scheduling/clients/erase": {
+      "post": {
+        "tags": [
+          "scheduling"
+        ],
+        "operationId": "EraseClient",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           },
           "404": {
             "description": "Not Found"

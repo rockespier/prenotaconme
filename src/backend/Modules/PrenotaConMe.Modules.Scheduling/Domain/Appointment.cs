@@ -112,6 +112,25 @@ public sealed class Appointment : TenantEntity
         CancelledAt = now;
     }
 
+    /// <summary>Name left on appointments whose client asked to be erased (F5-04); keeps ck_appointments_has_client.</summary>
+    public const string ErasedClientName = "—";
+
+    /// <summary>
+    /// F5-04 (GDPR erasure): removes who the client was, keeping the appointment for the business's history and
+    /// finance. A future confirmed appointment is cancelled, so its time becomes free again.
+    /// </summary>
+    public void EraseClient(DateTimeOffset now)
+    {
+        if (Status == AppointmentStatus.Confirmed && StartsAt > now)
+        {
+            Cancel(now);
+        }
+
+        ClientUserId = null;
+        ClientName = ErasedClientName;
+        ClientPhone = null;
+    }
+
     /// <summary>Moves the appointment to another (already validated) slot, keeping service, price and location.</summary>
     public void Reschedule(Guid staffMemberId, DateTimeOffset startsAt)
     {

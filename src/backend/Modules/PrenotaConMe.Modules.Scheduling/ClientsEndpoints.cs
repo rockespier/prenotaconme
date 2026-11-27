@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Locations.Domain;
 using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
+using PrenotaConMe.Shared.Tenancy;
 
 namespace PrenotaConMe.Modules.Scheduling;
 
@@ -40,6 +41,57 @@ internal static class ClientsEndpoints
         group.MapGet("/clients/detail", GetAsync)
             .RequireTenantRole(TenantRole.Admin)
             .WithName("GetClient");
+
+        // F5-04: a client asked the business to erase their data (GDPR art. 17).
+        group.MapPost("/clients/erase", EraseAsync)
+            .RequireTenantRole(TenantRole.Admin)
+            .WithName("EraseClient");
+    }
+
+    /// <summary>
+    /// Anonymizes the client's appointments in this business (future ones are cancelled) and removes their Client
+    /// role here. Their account and data in other businesses stay: only they can delete those.
+    /// </summary>
+    private static async Task<Results<NoContent, NotFound>> EraseAsync(
+        string key, AppDbContext db, IMembershipWriter memberships, ITenantContext tenant, TimeProvider clock, CancellationToken ct)
+    {
+        IQueryable<Appointment> query = db.Set<Appointment>();
+        Guid? userId = null;
+        if (key.StartsWith(GuestPrefix, StringComparison.Ordinal))
+        {
+            var value = key[GuestPrefix.Length..];
+            query = query.Where(a => a.ClientUserId == null
+                && (a.ClientPhone == value || (a.ClientPhone == null && a.ClientName == value)));
+        }
+        else if (Guid.TryParse(key, out var id))
+        {
+            userId = id;
+            query = query.Where(a => a.ClientUserId == id);
+        }
+        else
+        {
+            return TypedResults.NotFound();
+        }
+
+        var appointments = await query.ToListAsync(ct);
+        if (appointments.Count == 0)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var now = clock.GetUtcNow();
+        foreach (var appointment in appointments)
+        {
+            appointment.EraseClient(now);
+        }
+
+        if (userId is { } clientId)
+        {
+            await memberships.RemoveAsync(tenant.TenantId!.Value, clientId, TenantRole.Client, ct);
+        }
+
+        await db.SaveChangesAsync(ct);
+        return TypedResults.NoContent();
     }
 
     /// <summary>Key of the client of an appointment (also returned by the calendar).</summary>
