@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Users.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Users;
 
@@ -27,7 +28,8 @@ internal static class UsersEndpoints
         // F1-10: asked on the first booking; needed for reminders (WhatsApp/Telegram) and to reach the client.
         group.MapPut("/me/phone", SetPhoneAsync)
             .RequireAuthorization()
-            .WithName("SetMyPhone");
+            .WithName("SetMyPhone")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapGet("/me", GetMeAsync)
             .RequireAuthorization()

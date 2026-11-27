@@ -259,6 +259,9 @@
     "image": {
       "size": "L'immagine è troppo grande (max 1 MB).",
       "type": "Usa un file PNG, JPG o WebP."
+    },
+    "request": {
+      "tooMany": "Troppe richieste. Attendi qualche minuto e riprova."
     }
   },
   "backoffice": {

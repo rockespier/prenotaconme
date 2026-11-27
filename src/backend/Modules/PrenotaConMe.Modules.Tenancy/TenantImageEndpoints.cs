@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Tenancy.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Tenancy;
 
@@ -27,7 +28,8 @@ internal static class TenantImageEndpoints
         group.MapPut("/tenants/current/images/{kind}", UploadAsync)
             .RequireTenantRole(TenantRole.Admin)
             .DisableAntiforgery()
-            .WithName("UploadTenantImage");
+            .WithName("UploadTenantImage")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapDelete("/tenants/current/images/{kind}", DeleteAsync)
             .RequireTenantRole(TenantRole.Admin)

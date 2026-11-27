@@ -8,6 +8,7 @@ using PrenotaConMe.Modules.Tenancy.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Tenancy;
 
@@ -39,7 +40,8 @@ internal static class TenancyEndpoints
         // F1-01: a signed-in user registers a business and becomes its Admin.
         group.MapPost("/tenants", RegisterAsync)
             .RequireAuthorization()
-            .WithName("RegisterTenant");
+            .WithName("RegisterTenant")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapGet("/tenants/{slug}", GetPublicAsync)
             .AllowAnonymous()

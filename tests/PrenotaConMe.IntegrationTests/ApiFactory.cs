@@ -80,6 +80,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("OpenAI:ApiKey", "test-key");
         builder.UseSetting("Google:ClientId", "test-client");
         builder.UseSetting("Google:ClientSecret", "test-secret");
+        // Tests share one client IP and run many requests: SecurityTests checks the limits with low values.
+        builder.UseSetting("RateLimiting:PerMinute", "100000");
+        builder.UseSetting("RateLimiting:SensitivePerHour", "100000");
 
         builder.ConfigureTestServices(services =>
         {

@@ -13,6 +13,7 @@ using PrenotaConMe.Modules.Notifications.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Notifications.Telegram;
 
@@ -40,7 +41,8 @@ internal static class TelegramEndpoints
 
         group.MapPut("/telegram/bot", SaveBotAsync)
             .RequireTenantRole(TenantRole.Admin)
-            .WithName("SaveTelegramBot");
+            .WithName("SaveTelegramBot")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapDelete("/telegram/bot", DeleteBotAsync)
             .RequireTenantRole(TenantRole.Admin)
