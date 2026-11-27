@@ -259,6 +259,9 @@
     "image": {
       "size": "L'immagine è troppo grande (max 1 MB).",
       "type": "Usa un file PNG, JPG o WebP."
+    },
+    "account": {
+      "hasBusinessRole": "Gestisci o lavori in un'attività: prima chiedi a un altro amministratore di toglierti, poi potrai eliminare l'account."
     }
   },
   "backoffice": {
@@ -365,7 +368,10 @@
     "status": {
       "upcoming": "In programma",
       "done": "Svolto"
-    }
+    },
+    "erase": "Cancella i dati del cliente",
+    "eraseHint": "Se il cliente ti chiede di cancellare i suoi dati: le sue prenotazioni restano senza nome né telefono e quelle future vengono annullate.",
+    "eraseConfirm": "Cancellare i dati di questo cliente? Le prenotazioni future vengono annullate. Non si può annullare."
   },
   "days": {
     "Monday": "Lunedì",
@@ -571,5 +577,16 @@
     "upload": "Carica",
     "change": "Cambia",
     "remove": "Rimuovi"
+  },
+  "myData": {
+    "title": "I tuoi dati",
+    "hint": "Scarica tutto quello che conserviamo su di te o elimina il tuo account.",
+    "download": "Scarica i miei dati",
+    "delete": "Elimina account",
+    "confirm": "Eliminare il tuo account? Le prenotazioni future vengono annullate e quelle passate restano all'attività senza il tuo nome. Non si può annullare."
+  },
+  "privacy": {
+    "link": "Informativa privacy",
+    "languageNote": ""
   }
 }

@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
 import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
+import { MyData } from '../../shared/my-data/my-data';
 import { AuthService, signInError, SignInProvider } from '../../core/auth/auth.service';
 import { firstErrorCode } from '../../shared/api-errors';
 import { PushToggle } from '../../shared/push-toggle/push-toggle';
@@ -27,7 +28,7 @@ const DAYS_PER_PAGE = 14;
  */
 @Component({
   selector: 'app-my-appointments',
-  imports: [AnnouncementBanner, InAppBrowserNotice, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, ReminderToggle, TelegramLink, TranslocoPipe],
+  imports: [AnnouncementBanner, InAppBrowserNotice, RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, PushToggle, ReminderToggle, TelegramLink, MyData, TranslocoPipe],
   templateUrl: './my-appointments.html',
   styleUrls: ['./booking-page.scss', './business-header.scss', './my-appointments.scss'],
 })

@@ -259,6 +259,9 @@
     "image": {
       "size": "La imagen es demasiado grande (máx. 1 MB).",
       "type": "Usa un archivo PNG, JPG o WebP."
+    },
+    "account": {
+      "hasBusinessRole": "Administras o trabajas en un negocio: primero pide a otro administrador que te quite y después podrás eliminar la cuenta."
     }
   },
   "backoffice": {
@@ -365,7 +368,10 @@
     "status": {
       "upcoming": "Programada",
       "done": "Realizada"
-    }
+    },
+    "erase": "Borrar los datos del cliente",
+    "eraseHint": "Si el cliente te pide borrar sus datos: sus citas quedan sin nombre ni teléfono y las futuras se cancelan.",
+    "eraseConfirm": "¿Borrar los datos de este cliente? Las citas futuras se cancelan. No se puede deshacer."
   },
   "days": {
     "Monday": "Lunes",
@@ -571,5 +577,16 @@
     "upload": "Subir",
     "change": "Cambiar",
     "remove": "Quitar"
+  },
+  "myData": {
+    "title": "Tus datos",
+    "hint": "Descarga todo lo que guardamos sobre ti o elimina tu cuenta.",
+    "download": "Descargar mis datos",
+    "delete": "Eliminar cuenta",
+    "confirm": "¿Eliminar tu cuenta? Las citas futuras se cancelan y las pasadas quedan en el negocio sin tu nombre. No se puede deshacer."
+  },
+  "privacy": {
+    "link": "Política de privacidad",
+    "languageNote": "Por ahora el texto solo está en italiano."
   }
 }

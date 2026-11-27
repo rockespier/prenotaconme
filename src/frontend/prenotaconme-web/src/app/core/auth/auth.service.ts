@@ -10,6 +10,8 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   signOut,
+  deleteUser,
+  reauthenticateWithPopup,
   User,
 } from 'firebase/auth';
 import { firebaseConfig } from '../../../environments/firebase';
@@ -77,6 +79,23 @@ export class AuthService {
         this.pendingLink = OAuthProvider.credentialFromError(error);
       }
       throw error;
+    }
+  }
+
+  /**
+   * F5-04: removes the Firebase account (after the API deleted the local data). Firebase asks for a recent sign-in:
+   * when it does, the same provider's popup opens once more.
+   */
+  async deleteAccount(): Promise<void> {
+    const user = this.auth.currentUser;
+    if (!user) return;
+    try {
+      await deleteUser(user);
+    } catch (error) {
+      if (!(error instanceof FirebaseError) || error.code !== 'auth/requires-recent-login') throw error;
+      const provider = user.providerData.some((p) => p.providerId === 'microsoft.com') ? 'microsoft' : 'google';
+      await reauthenticateWithPopup(user, this.provider(provider));
+      await deleteUser(user);
     }
   }
 

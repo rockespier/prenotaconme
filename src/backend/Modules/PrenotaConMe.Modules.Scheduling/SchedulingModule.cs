@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PrenotaConMe.Shared.Calendar;
 using PrenotaConMe.Shared.Modules;
+using PrenotaConMe.Shared.Privacy;
 
 namespace PrenotaConMe.Modules.Scheduling;
 
@@ -18,6 +19,7 @@ public sealed class SchedulingModule : IModule
         services.AddScoped<AppointmentEvents>();
         services.AddScoped<ClientBookingService>();
         services.AddScoped<CalendarBroadcast>();
+        services.AddScoped<IPersonalData, SchedulingPersonalData>();
         services.AddSignalR();
 
         // Replaced by the Calendar module (F2-07..09) when it is registered.

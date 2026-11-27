@@ -32,6 +32,9 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
     <main>
       <router-outlet />
     </main>
+    <footer class="site-footer">
+      <a routerLink="/privacy">{{ 'privacy.link' | transloco }}</a>
+    </footer>
   `,
   styles: `
     :host { display: block; min-height: 100%; }
@@ -43,6 +46,8 @@ import { LanguageSwitcher } from '../../shared/language-switcher/language-switch
     .brand { display: inline-flex; align-items: center; }
     .brand img { display: block; height: 24px; width: auto; }
     .spacer { flex: 1; }
+    .site-footer { max-width: 960px; margin: var(--space-7) auto 0; padding: var(--space-4); font: var(--mat-sys-body-small); }
+    .site-footer a { color: var(--mat-sys-on-surface-variant); }
     main { max-width: 960px; margin: 0 auto; padding: var(--space-5) var(--space-4) 0; }
   `,
 })

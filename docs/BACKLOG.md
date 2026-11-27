@@ -90,7 +90,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F5-01 | Embedded Signup WhatsApp | Cada negocio conecta su número desde el backoffice (requiere Tech Provider + Business verificado) |
 | F5-02 | Onboarding guiado (A) | Wizard: sede → servicios → staff → horarios → WhatsApp → enlace público |
 | F5-03 | Panel de plataforma (P) | Listado de tenants, estado, uso de WhatsApp/IA, suspender tenant |
-| F5-04 | GDPR | Consentimientos, exportación y borrado de datos del cliente, política de retención, DPA con proveedores |
+| F5-04 ✅ | GDPR | Consentimientos, exportación y borrado de datos del cliente, política de retención, DPA con proveedores |
 | F5-05 | Hardening | Rate limiting, CORS, cabeceras de seguridad, rotación de secretos |
 | F5-06 | Backups y DR | pgBackRest full + WAL a S3-compatible; prueba de restore documentada |
 | F5-07 | Producción | Dominio, TLS, Uptime Kuma, alertas |

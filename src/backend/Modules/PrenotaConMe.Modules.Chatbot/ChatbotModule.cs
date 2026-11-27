@@ -24,6 +24,11 @@ public sealed class ChatbotModule : IModule
         services.AddSingleton<ISpeechToText>(sp => new OpenAiSpeechToText(sp.GetRequiredService<IOptions<ChatbotOptions>>().Value));
         services.AddScoped<BookingTools>();
         services.AddScoped<IChatbot, ChatbotEngine>();
+
+        // F5-04: export of the user's chats and daily deletion of old ones.
+        services.Configure<PrivacyOptions>(configuration.GetSection("Privacy"));
+        services.AddScoped<PrenotaConMe.Shared.Privacy.IPersonalData, ChatbotPersonalData>();
+        services.AddSingleton<PrenotaConMe.Infrastructure.Jobs.IRecurringJobRegistration, ChatRetentionRegistration>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder endpoints) => HandoffEndpoints.Map(endpoints);
