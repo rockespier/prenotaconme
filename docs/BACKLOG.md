@@ -88,7 +88,7 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
 | F5-01 | Embedded Signup WhatsApp | Cada negocio conecta su número desde el backoffice (requiere Tech Provider + Business verificado) |
-| F5-02 | Onboarding guiado (A) | Wizard: sede → servicios → staff → horarios → WhatsApp → enlace público |
+| F5-02 ✅ | Onboarding guiado (A) | Wizard: sede → servicios → staff → horarios → ~~WhatsApp~~ logo y portada → enlace público. Hecho en `/admin/inizia` (tras registrar el negocio y desde el checklist del dashboard): reutiliza los diálogos del backoffice, con atajos «Lavoro anch'io qui» (el Admin se añade como colaborador con todas las sedes y servicios) y «Usa gli orari di apertura» (horario del colaborador = apertura de su sede en horas enteras). El paso de WhatsApp llega con F5-01 |
 | F5-03 | Panel de plataforma (P) | Listado de tenants, estado, uso de WhatsApp/IA, suspender tenant |
 | F5-04 | GDPR | Consentimientos, exportación y borrado de datos del cliente, política de retención, DPA con proveedores |
 | F5-05 | Hardening | Rate limiting, CORS, cabeceras de seguridad, rotación de secretos |

@@ -259,6 +259,9 @@
     "image": {
       "size": "The image is too large (max 1 MB).",
       "type": "Use a PNG, JPG or WebP file."
+    },
+    "onboarding": {
+      "noLocation": "First assign an active location to this person."
     }
   },
   "backoffice": {
@@ -571,5 +574,50 @@
     "upload": "Upload",
     "change": "Change",
     "remove": "Remove"
+  },
+  "onboarding": {
+    "open": "Guided setup",
+    "title": "Set up your business",
+    "intro": "A few steps and your booking page is ready. You can change everything later.",
+    "next": "Next",
+    "finish": "Go to the dashboard",
+    "location": {
+      "title": "Your location",
+      "hint": "The address and opening hours appear on the booking page.",
+      "noAddress": "The address is missing: add it so clients can find you.",
+      "days": "Open {{count}} days a week",
+      "edit": "Edit location"
+    },
+    "services": {
+      "title": "Your services",
+      "hint": "We added some sample services: change prices and durations or add others.",
+      "add": "Add service"
+    },
+    "staff": {
+      "title": "Who works with you",
+      "hint": "Each person has their own calendar. If you work too, add yourself.",
+      "empty": "Nobody yet.",
+      "addMe": "I work here too",
+      "add": "Add staff member"
+    },
+    "hours": {
+      "title": "Working hours",
+      "hint": "Clients can only book the hours when someone is working.",
+      "perWeek": "{{count}} hours a week",
+      "none": "No hours",
+      "useOpening": "Use the opening hours",
+      "customize": "Customize",
+      "noStaff": "First add who works with you."
+    },
+    "images": {
+      "title": "Logo and cover"
+    },
+    "link": {
+      "title": "Your booking page",
+      "ready": "All set! Share this link with your clients.",
+      "notReady": "Finish the previous steps: without working hours clients see no free times.",
+      "share": "Share on WhatsApp",
+      "message": "Book your appointment here: {{url}}"
+    }
   }
 }
