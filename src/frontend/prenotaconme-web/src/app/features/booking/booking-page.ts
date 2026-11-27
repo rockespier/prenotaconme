@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AnnouncementBanner } from './announcement-banner';
-import { API_CLIENT, Schemas } from '../../core/api/api-client';
+import { API_CLIENT, assetUrl, Schemas } from '../../core/api/api-client';
 import { AuthService, signInError, SignInProvider } from '../../core/auth/auth.service';
 import { SessionService } from '../../core/session/session.service';
 import { firstErrorCode } from '../../shared/api-errors';
