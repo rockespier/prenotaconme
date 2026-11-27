@@ -232,6 +232,29 @@
         }
       }
     },
+    "/api/tenancy/tenants/{slug}/manifest": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "operationId": "GetTenantManifest",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
     "/api/tenancy/tenants/current/images/{kind}": {
       "put": {
         "tags": [
@@ -3949,7 +3972,8 @@
           "defaultLanguage",
           "cancellationNoticeHours",
           "logoUrl",
-          "coverUrl"
+          "coverUrl",
+          "iconUrl"
         ],
         "type": "object",
         "properties": {
@@ -3976,6 +4000,12 @@
             ]
           },
           "coverUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "iconUrl": {
             "type": [
               "null",
               "string"

@@ -1,5 +1,6 @@
+import { HomeScreen } from '../../shared/business-images/home-screen';
 import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
-import { Component, ElementRef, Injector, afterNextRender, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -43,6 +44,8 @@ export class BookingPage {
   private readonly transloco = inject(TranslocoService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly homeScreen = inject(HomeScreen);
+  private readonly resetHomeScreen = inject(DestroyRef).onDestroy(() => this.homeScreen.reset());
 
   /** Route param :slug */
   readonly slug = input.required<string>();
@@ -258,6 +261,7 @@ export class BookingPage {
     }
 
     this.tenant.set(tenant.data);
+    this.homeScreen.show(tenant.data);
     this.options.set(options.data);
     this.state.set('ready');
 

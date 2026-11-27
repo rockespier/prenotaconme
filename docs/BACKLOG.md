@@ -83,18 +83,20 @@ Roles: **A** = Admin del negocio · **S** = Staff · **C** = Cliente · **P** = 
 | F4-04 ✅ | Informe por staff (A) | Mensual: nº de servicios, ventas totales, desglose por servicio |
 | F4-05 ✅ | Informe general (A) | Ingresos totales, gastos, beneficio neto, comparación con el mes anterior; gráficos ngx-echarts |
 | F4-06 ✅ | Exportación | PDF (QuestPDF) y Excel (ClosedXML) de los informes F4-03/04/05 |
+| F4-07 | Compensación del staff (A) | Cada colaborador tiene una modalidad con fecha de inicio (los meses ya cerrados no cambian): **comisión** (% que se queda el barbero, 50–70 %; gasto variable = su facturación del mes × %), **alquiler de silla** (alquiler mensual = ingreso del negocio; sus citas se excluyen del todo de ingresos e informes) o **empleado CCNL** (coste mensual total para el negocio —sueldo bruto + aportes + tredicesima repartida en 12 meses—, con ayuda en pantalla; bono opcional definido por el dueño: importe manual por mes o % sobre lo que factura). Se refleja en el balance (F4-03) y el informe por staff (F4-04) |
 
 ## Fase 5 — SaaS y producción
 | ID | Historia | Criterios de aceptación |
 |---|---|---|
 | F5-01 | Embedded Signup WhatsApp | Cada negocio conecta su número desde el backoffice (requiere Tech Provider + Business verificado) |
 | F5-02 ✅ | Onboarding guiado (A) | Wizard: sede → servicios → staff → horarios → ~~WhatsApp~~ logo y portada → enlace público. Hecho en `/admin/inizia` (tras registrar el negocio y desde el checklist del dashboard): reutiliza los diálogos del backoffice, con atajos «Lavoro anch'io qui» (el Admin se añade como colaborador con todas las sedes y servicios) y «Usa gli orari di apertura» (horario del colaborador = apertura de su sede en horas enteras). El paso de WhatsApp llega con F5-01 |
-| F5-03 | Panel de plataforma (P) | Listado de tenants, estado, uso de WhatsApp/IA, suspender tenant |
+| F5-03 | Panel de plataforma (P) | Backoffice del superadmin (`Platform:AdminEmails`; hoy solo abre `/hangfire`): listado de negocios con estado, fecha de alta y uso de WhatsApp/IA, activar/suspender un negocio. Base para cobrar una mensualidad a cada negocio (plan, estado del pago) y para que el superadmin ayude a un negocio con configuraciones complicadas (soporte, evitar fricción). No es necesario para la demo |
 | F5-04 ✅ | GDPR | Consentimientos, exportación y borrado de datos del cliente, política de retención, DPA con proveedores |
 | F5-05 ✅ | Hardening | Rate limiting, CORS, cabeceras de seguridad, rotación de secretos |
 | F5-06 | Backups y DR | pgBackRest full + WAL a S3-compatible; prueba de restore documentada |
 | F5-07 | Producción | Dominio, TLS, Uptime Kuma, alertas |
 | F5-08 ✅ | Imagen del negocio (A) | El Admin sube un logo y una imagen de portada desde el dashboard; el navegador los recorta y reduce (logo 512×512, portada 1600×600, WebP) y la API solo acepta PNG/JPEG/WebP de hasta 1 MB, guardados en la base de datos; se muestran en la página de reserva `/{slug}` y en Mis citas; sin imagen se usa la inicial |
+| F5-10 ✅ | Icono en la pantalla de inicio | iPhone: `apple-touch-icon` 180×180 opaco + `apple-mobile-web-app-title`. En `/{slug}` y Mis citas, el nombre, el icono (generado desde el logo al subirlo, PNG 180×180 sin transparencia) y el manifest (`/api/tenancy/tenants/{slug}/manifest`, `start_url` = la página de reserva) son los del negocio; sin logo, los de PrenotaConMe |
 | F5-09 ✅ | Logo de la plataforma | Logo y favicon de PrenotaConMe (SVG optimizado para web + iconos PWA) en la home, login y backoffice. Para la demo con el primer cliente |
 
 ---

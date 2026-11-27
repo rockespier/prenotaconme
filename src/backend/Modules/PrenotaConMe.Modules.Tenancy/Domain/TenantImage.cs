@@ -10,6 +10,12 @@ public enum TenantImageKind
 
     /// <summary>Wide banner at the top of the booking page (1600×600 after the browser resizes it).</summary>
     Cover,
+
+    /// <summary>
+    /// F5-10: home-screen icon made by the browser from the logo (180×180 PNG, no transparency: iOS paints it black).
+    /// Uploaded right after the logo, shares its version and is deleted with it.
+    /// </summary>
+    Icon,
 }
 
 /// <summary>

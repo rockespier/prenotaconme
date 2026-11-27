@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using PrenotaConMe.Modules.Tenancy;
 
 namespace PrenotaConMe.IntegrationTests;
@@ -76,5 +77,43 @@ public sealed class TenantImageTests(ApiFactory factory) : IClassFixture<ApiFact
         var client = factory.CreateUserClient("client-" + business.Slug, business.Slug);
 
         Assert.Equal(HttpStatusCode.Forbidden, (await UploadAsync(client, "logo", Png)).StatusCode);
+    }
+
+    [Fact]
+    public async Task The_home_screen_icon_and_manifest_show_the_business()
+    {
+        var business = await TestBusiness.CreateAsync(factory);
+        var anonymous = factory.CreateClient();
+
+        // Without a logo the manifest uses the platform icons and opens the booking page.
+        var before = await anonymous.GetAsync(new Uri($"/api/tenancy/tenants/{business.Slug}/manifest", UriKind.Relative));
+        Assert.Equal("application/manifest+json", before.Content.Headers.ContentType?.MediaType);
+        using (var json = JsonDocument.Parse(await before.Content.ReadAsStringAsync()))
+        {
+            Assert.Equal("Test business", json.RootElement.GetProperty("name").GetString());
+            Assert.Equal($"/{business.Slug}", json.RootElement.GetProperty("start_url").GetString());
+            Assert.StartsWith("/icons/", json.RootElement.GetProperty("icons")[0].GetProperty("src").GetString(), StringComparison.Ordinal);
+        }
+
+        // A logo uploaded without an icon (before F5-10) is served as the icon.
+        await UploadAsync(business.Owner, "logo", Png);
+        var page = (await anonymous.GetFromJsonAsync<PublicTenantDto>($"/api/tenancy/tenants/{business.Slug}", TestJson.Options))!;
+        Assert.Equal(Png, await anonymous.GetByteArrayAsync(new Uri(page.IconUrl!, UriKind.Relative)));
+
+        byte[] icon = [.. Png, 9];
+        await UploadAsync(business.Owner, "icon", icon);
+        page = (await anonymous.GetFromJsonAsync<PublicTenantDto>($"/api/tenancy/tenants/{business.Slug}", TestJson.Options))!;
+        Assert.Equal(icon, await anonymous.GetByteArrayAsync(new Uri(page.IconUrl!, UriKind.Relative)));
+        using (var json = JsonDocument.Parse(await anonymous.GetStringAsync(new Uri($"/api/tenancy/tenants/{business.Slug}/manifest", UriKind.Relative))))
+        {
+            Assert.Equal(page.IconUrl, json.RootElement.GetProperty("icons")[0].GetProperty("src").GetString());
+        }
+
+        // Removing the logo removes the icon too.
+        await business.Owner.DeleteAsync(new Uri("/api/tenancy/tenants/current/images/logo", UriKind.Relative));
+        page = (await anonymous.GetFromJsonAsync<PublicTenantDto>($"/api/tenancy/tenants/{business.Slug}", TestJson.Options))!;
+        Assert.Null(page.IconUrl);
+        Assert.Equal(HttpStatusCode.NotFound,
+            (await anonymous.GetAsync(new Uri($"/api/tenancy/tenants/{business.Slug}/images/icon", UriKind.Relative))).StatusCode);
     }
 }
