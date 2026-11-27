@@ -16,6 +16,7 @@ using PrenotaConMe.Modules.Scheduling.Domain;
 using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Calendar;
 
@@ -47,7 +48,8 @@ internal static partial class GoogleCalendarEndpoints
 
         group.MapPost("/google/connect", ConnectAsync)
             .RequireTenantRole(TenantRole.Admin, TenantRole.Staff)
-            .WithName("ConnectGoogleCalendar");
+            .WithName("ConnectGoogleCalendar")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapGet("/google/callback", CallbackAsync)
             .AllowAnonymous()

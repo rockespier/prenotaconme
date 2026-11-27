@@ -260,6 +260,9 @@
       "size": "The image is too large (max 1 MB).",
       "type": "Use a PNG, JPG or WebP file."
     },
+    "request": {
+      "tooMany": "Too many requests. Wait a few minutes and try again."
+    },
     "onboarding": {
       "noLocation": "First assign an active location to this person."
     }

@@ -8,6 +8,7 @@ using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Notifications.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Notifications.Announcements;
 
@@ -45,7 +46,8 @@ internal static class AnnouncementEndpoints
 
         group.MapPost("/announcements", CreateAsync)
             .RequireTenantRole(TenantRole.Admin)
-            .WithName("CreateAnnouncement");
+            .WithName("CreateAnnouncement")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapPut("/announcements/{id:guid}", UpdateAsync)
             .RequireTenantRole(TenantRole.Admin)
@@ -53,7 +55,8 @@ internal static class AnnouncementEndpoints
 
         group.MapPost("/announcements/{id:guid}/send", SendAsync)
             .RequireTenantRole(TenantRole.Admin)
-            .WithName("SendAnnouncement");
+            .WithName("SendAnnouncement")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         group.MapDelete("/announcements/{id:guid}", DeleteAsync)
             .RequireTenantRole(TenantRole.Admin)

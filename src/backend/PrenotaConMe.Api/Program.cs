@@ -33,6 +33,7 @@ try
         o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
     });
     builder.Services.AddFirebaseAuthentication(builder.Configuration);
+    builder.Services.AddSecurity(builder.Configuration);
     builder.Services.AddJobsDashboard();
     builder.Services.AddOpenApi();
     builder.Services.AddInfrastructure(builder.Configuration);
@@ -45,7 +46,7 @@ try
     builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
         .WithOrigins(corsOrigins)
         .AllowAnyHeader()
-        .AllowAnyMethod()
+        .WithMethods("GET", "POST", "PUT", "DELETE")
         .AllowCredentials()));
 
     var app = builder.Build();
@@ -56,12 +57,21 @@ try
         await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
     }
 
+    app.UseSecurityHeaders();
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+        app.UseHttpsRedirection();
+    }
+
     app.UseExceptionHandler();
     app.UseStatusCodePages();
     app.UseSerilogRequestLogging();
     app.UseSpaStaticFiles();
     app.UseCors();
     app.UseAuthentication();
+    // After authentication: limits are per signed-in user (per IP when anonymous).
+    app.UseRateLimiter();
     app.UseTenantResolution();
     app.UseAuthorization();
 

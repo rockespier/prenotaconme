@@ -260,6 +260,9 @@
       "size": "La imagen es demasiado grande (máx. 1 MB).",
       "type": "Usa un archivo PNG, JPG o WebP."
     },
+    "request": {
+      "tooMany": "Demasiadas solicitudes. Espera unos minutos y vuelve a intentarlo."
+    },
     "onboarding": {
       "noLocation": "Primero asigna una sede activa a esta persona."
     }

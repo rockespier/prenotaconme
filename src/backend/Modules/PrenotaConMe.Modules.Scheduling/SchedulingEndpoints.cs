@@ -9,6 +9,7 @@ using PrenotaConMe.Modules.Staff.Domain;
 using PrenotaConMe.Shared.Auth;
 using PrenotaConMe.Shared.Tenancy;
 using PrenotaConMe.Shared.Validation;
+using PrenotaConMe.Shared.Hosting;
 
 namespace PrenotaConMe.Modules.Scheduling;
 
@@ -46,7 +47,8 @@ internal static class SchedulingEndpoints
         group.MapPost("/appointments", BookAsync)
             .RequireAuthorization()
             .RequireTenant()
-            .WithName("BookAppointment");
+            .WithName("BookAppointment")
+            .RequireRateLimiting(RateLimits.Sensitive);
 
         // F1-12: the client's own appointments (list, cancel, reschedule).
         MyAppointmentsEndpoints.Map(group);
