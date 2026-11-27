@@ -157,7 +157,8 @@ export class RegisterBusiness {
     if (data) {
       await this.session.load(true);
       this.session.selectBusiness(data.slug);
-      await this.router.navigateByUrl('/admin');
+      // F5-02: straight into the guided setup.
+      await this.router.navigateByUrl('/admin/inizia');
     } else {
       this.serverError.set(response.status === 409 ? 'slug.taken' : 'generic');
       if (response.status === 409) this.slugState.set('slug.taken');

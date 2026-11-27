@@ -259,6 +259,9 @@
     "image": {
       "size": "La imagen es demasiado grande (máx. 1 MB).",
       "type": "Usa un archivo PNG, JPG o WebP."
+    },
+    "onboarding": {
+      "noLocation": "Primero asigna una sede activa a esta persona."
     }
   },
   "backoffice": {
@@ -571,5 +574,50 @@
     "upload": "Subir",
     "change": "Cambiar",
     "remove": "Quitar"
+  },
+  "onboarding": {
+    "open": "Configuración guiada",
+    "title": "Configura tu negocio",
+    "intro": "Unos pocos pasos y tu página de reservas estará lista. Puedes cambiarlo todo después.",
+    "next": "Siguiente",
+    "finish": "Ir al panel",
+    "location": {
+      "title": "Tu sede",
+      "hint": "La dirección y el horario aparecen en la página de reservas.",
+      "noAddress": "Falta la dirección: añádela para que los clientes te encuentren.",
+      "days": "Abierta {{count}} días a la semana",
+      "edit": "Editar sede"
+    },
+    "services": {
+      "title": "Tus servicios",
+      "hint": "Hemos puesto algunos servicios de ejemplo: cambia precios y duraciones o añade otros.",
+      "add": "Añadir servicio"
+    },
+    "staff": {
+      "title": "Quién trabaja contigo",
+      "hint": "Cada persona tiene su propio calendario. Si tú también atiendes, añádete.",
+      "empty": "Todavía nadie.",
+      "addMe": "Yo también trabajo aquí",
+      "add": "Añadir colaborador"
+    },
+    "hours": {
+      "title": "Horario de trabajo",
+      "hint": "Los clientes solo pueden reservar en las horas en que alguien trabaja.",
+      "perWeek": "{{count}} horas a la semana",
+      "none": "Sin horario",
+      "useOpening": "Usar el horario de apertura",
+      "customize": "Personalizar",
+      "noStaff": "Primero añade a quien trabaja contigo."
+    },
+    "images": {
+      "title": "Logo y portada"
+    },
+    "link": {
+      "title": "Tu página de reservas",
+      "ready": "¡Todo listo! Comparte este enlace con tus clientes.",
+      "notReady": "Completa los pasos anteriores: sin horario de trabajo los clientes no ven horas libres.",
+      "share": "Compartir por WhatsApp",
+      "message": "Reserva tu cita aquí: {{url}}"
+    }
   }
 }
