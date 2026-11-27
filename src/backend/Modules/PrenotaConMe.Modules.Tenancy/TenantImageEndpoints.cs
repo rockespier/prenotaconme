@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using PrenotaConMe.Infrastructure.Persistence;
 using PrenotaConMe.Modules.Tenancy.Domain;
 using PrenotaConMe.Shared.Auth;
@@ -24,6 +25,11 @@ internal static class TenantImageEndpoints
             .AllowAnonymous()
             .WithName("GetTenantImage");
 
+        // F5-10: web app manifest of the booking page, so "Add to Home Screen" shows the business, not the platform.
+        group.MapGet("/tenants/{slug}/manifest", GetManifestAsync)
+            .AllowAnonymous()
+            .WithName("GetTenantManifest");
+
         // Bearer token only (no cookies), so no antiforgery token is needed for the form upload.
         group.MapPut("/tenants/current/images/{kind}", UploadAsync)
             .RequireTenantRole(TenantRole.Admin)
@@ -42,10 +48,49 @@ internal static class TenantImageEndpoints
             ? $"/api/tenancy/tenants/{tenant.Slug}/images/{kind.ToString().ToLowerInvariant()}?v={version}"
             : null;
 
-    /// <summary>Route values are "logo" and "cover" (lower case, as in <see cref="Url"/>).</summary>
+    /// <summary>Route values are "logo", "cover" and "icon" (lower case, as in <see cref="Url"/>).</summary>
     private static bool TryParse(string value, out TenantImageKind kind) =>
         Enum.TryParse(value, ignoreCase: true, out kind) && Enum.IsDefined(kind) && !int.TryParse(value, out _);
 
+    /// <summary>
+    /// F5-10: start URL is the booking page, so the home-screen icon opens the business. Without a logo it falls back
+    /// to the platform icons. Short cache: the name and logo can change.
+    /// </summary>
+    private static async Task<Results<ContentHttpResult, NotFound>> GetManifestAsync(
+        string slug, AppDbContext db, HttpContext http, CancellationToken ct)
+    {
+        var normalized = TenantRules.NormalizeSlug(slug);
+        var tenant = await db.Set<Tenant>().AsNoTracking().SingleOrDefaultAsync(t => t.Slug == normalized && t.IsActive, ct);
+        if (tenant is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        object[] icons = Url(tenant, TenantImageKind.Logo) is { } logo
+            ? [new { src = Url(tenant, TenantImageKind.Icon), sizes = "180x180" }, new { src = logo, sizes = "512x512" }]
+            : [
+                new { src = "/icons/icon-192x192.png", sizes = "192x192" },
+                new { src = "/icons/icon-512x512.png", sizes = "512x512" },
+            ];
+        var manifest = new Dictionary<string, object>
+        {
+            ["id"] = $"/{tenant.Slug}",
+            ["name"] = tenant.Name,
+            ["short_name"] = tenant.Name,
+            ["start_url"] = $"/{tenant.Slug}",
+            ["scope"] = "/",
+            ["display"] = "standalone",
+            ["background_color"] = "#ffffff",
+            ["theme_color"] = "#ffffff",
+            ["lang"] = tenant.DefaultLanguage,
+            ["icons"] = icons,
+        };
+
+        http.Response.Headers.CacheControl = "public, max-age=300";
+        return TypedResults.Content(JsonSerializer.Serialize(manifest), "application/manifest+json");
+    }
+
+    /// <summary>An icon request gets the logo when the logo was uploaded before F5-10 (no icon yet).</summary>
     private static async Task<Results<FileContentHttpResult, NotFound>> GetAsync(
         string slug, string kind, AppDbContext db, HttpContext http, CancellationToken ct)
     {
@@ -58,9 +103,11 @@ internal static class TenantImageEndpoints
         var image = await (
                 from i in db.Set<TenantImage>().AsNoTracking()
                 join t in db.Set<Tenant>() on i.TenantId equals t.Id
-                where t.Slug == normalized && t.IsActive && i.Kind == imageKind
+                where t.Slug == normalized && t.IsActive
+                      && (i.Kind == imageKind || (imageKind == TenantImageKind.Icon && i.Kind == TenantImageKind.Logo))
+                orderby i.Kind == imageKind descending
                 select new { i.ContentType, i.Data })
-            .SingleOrDefaultAsync(ct);
+            .FirstOrDefaultAsync(ct);
         if (image is null)
         {
             return TypedResults.NotFound();
@@ -119,7 +166,11 @@ internal static class TenantImageEndpoints
 
         var tenantId = tenantContext.TenantId!.Value;
         var tenant = await db.Set<Tenant>().SingleAsync(t => t.Id == tenantId, ct);
-        await db.Set<TenantImage>().Where(i => i.TenantId == tenantId && i.Kind == imageKind).ExecuteDeleteAsync(ct);
+        // The icon is made from the logo, so it goes with it.
+        await db.Set<TenantImage>()
+            .Where(i => i.TenantId == tenantId
+                        && (i.Kind == imageKind || (imageKind == TenantImageKind.Logo && i.Kind == TenantImageKind.Icon)))
+            .ExecuteDeleteAsync(ct);
         tenant.SetImageVersion(imageKind, null);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(TenancyEndpoints.ToDto(tenant));

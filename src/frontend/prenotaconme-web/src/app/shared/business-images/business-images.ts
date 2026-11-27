@@ -77,8 +77,8 @@ export class BusinessImages {
   private readonly notifier = inject(Notifier);
   private readonly session = inject(SessionService);
 
-  protected readonly kinds: BusinessImageKind[] = ['logo', 'cover'];
-  protected readonly urls = signal<Record<BusinessImageKind, string | null>>({ logo: null, cover: null });
+  protected readonly kinds: ('logo' | 'cover')[] = ['logo', 'cover'];
+  protected readonly urls = signal<Record<'logo' | 'cover', string | null>>({ logo: null, cover: null });
   protected readonly busy = signal<BusinessImageKind | null>(null);
 
   constructor() {
@@ -95,16 +95,11 @@ export class BusinessImages {
 
     this.busy.set(kind);
     try {
-      const image = await resizeImage(file, kind);
-      const form = new FormData();
-      form.append('file', image, `${kind}.${image.type.split('/')[1]}`);
-      const { data, error } = await this.api.PUT('/api/tenancy/tenants/current/images/{kind}', {
-        params: { path: { kind } },
-        body: form as never,
-        bodySerializer: (body) => body as unknown as FormData,
-      });
+      const { data, error } = await this.send(kind, await resizeImage(file, kind));
       if (error) this.notifier.error(error);
       else if (data) this.show(data);
+      // F5-10: the home-screen icon of the booking page is made from the logo. Without it the logo is used.
+      if (data && kind === 'logo') await this.send('icon', await resizeImage(file, 'icon'));
     } catch {
       // Not an image the browser can decode.
       this.notifier.error({ errors: { file: ['image.type'] } });
@@ -119,6 +114,16 @@ export class BusinessImages {
     this.busy.set(null);
     if (error) this.notifier.error(error);
     else if (data) this.show(data);
+  }
+
+  private send(kind: BusinessImageKind, image: Blob) {
+    const form = new FormData();
+    form.append('file', image, `${kind}.${image.type.split('/')[1]}`);
+    return this.api.PUT('/api/tenancy/tenants/current/images/{kind}', {
+      params: { path: { kind } },
+      body: form as never,
+      bodySerializer: (body) => body as unknown as FormData,
+    });
   }
 
   private async load(): Promise<void> {

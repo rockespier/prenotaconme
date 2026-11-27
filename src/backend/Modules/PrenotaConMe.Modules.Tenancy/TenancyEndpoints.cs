@@ -23,8 +23,10 @@ public sealed record TenantDto(
     Guid Id, string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours,
     int FirstReminderHours, int SecondReminderHours, bool GoogleCalendarSync, string? LogoUrl, string? CoverUrl);
 
+/// <param name="IconUrl">F5-10: home-screen icon (iOS), null without a logo.</param>
 public sealed record PublicTenantDto(
-    string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours, string? LogoUrl, string? CoverUrl);
+    string Name, string Slug, string TimeZone, string DefaultLanguage, int CancellationNoticeHours, string? LogoUrl, string? CoverUrl,
+    string? IconUrl);
 
 /// <summary>Only the values sent are changed.</summary>
 public sealed record UpdateTenantSettingsRequest(
@@ -130,7 +132,8 @@ internal static class TenancyEndpoints
             ? TypedResults.NotFound()
             : TypedResults.Ok(new PublicTenantDto(
                 tenant.Name, tenant.Slug, tenant.TimeZone, tenant.DefaultLanguage, tenant.CancellationNoticeHours,
-                TenantImageEndpoints.Url(tenant, TenantImageKind.Logo), TenantImageEndpoints.Url(tenant, TenantImageKind.Cover)));
+                TenantImageEndpoints.Url(tenant, TenantImageKind.Logo), TenantImageEndpoints.Url(tenant, TenantImageKind.Cover),
+                TenantImageEndpoints.Url(tenant, TenantImageKind.Icon)));
     }
 
     private static async Task<Ok<SlugAvailabilityDto>> CheckSlugAsync(

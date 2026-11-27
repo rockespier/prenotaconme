@@ -1,5 +1,6 @@
+import { HomeScreen } from '../../shared/business-images/home-screen';
 import { InAppBrowserNotice } from '../../shared/in-app-browser/in-app-browser-notice';
-import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,6 +35,8 @@ const DAYS_PER_PAGE = 14;
 })
 export class MyAppointments {
   private readonly api = inject(API_CLIENT);
+  private readonly homeScreen = inject(HomeScreen);
+  private readonly resetHomeScreen = inject(DestroyRef).onDestroy(() => this.homeScreen.reset());
   private readonly auth = inject(AuthService);
   private readonly transloco = inject(TranslocoService);
 
@@ -203,6 +206,7 @@ export class MyAppointments {
     }
 
     this.tenant.set(tenant.data);
+    this.homeScreen.show(tenant.data);
     if (signedIn) await this.reload();
     this.state.set('ready');
   }

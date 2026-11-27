@@ -2,6 +2,8 @@
 export const IMAGE_SIZES = {
   logo: { width: 512, height: 512 },
   cover: { width: 1600, height: 600 },
+  /** F5-10: home-screen icon made from the logo (iOS size, opaque). */
+  icon: { width: 180, height: 180 },
 } as const;
 
 export type BusinessImageKind = keyof typeof IMAGE_SIZES;
@@ -36,9 +38,20 @@ export async function resizeImage(file: Blob, kind: BusinessImageKind): Promise<
   canvas.height = target.height;
   const context = canvas.getContext('2d')!;
   context.imageSmoothingQuality = 'high';
+  if (kind === 'icon') {
+    // iOS paints transparent pixels black.
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, target.width, target.height);
+  }
   const { sx, sy, sw, sh } = coverCrop(bitmap, target);
   context.drawImage(bitmap, sx, sy, sw, sh, 0, 0, target.width, target.height);
   bitmap.close();
+
+  if (kind === 'icon') {
+    const png = await toBlob(canvas, 'image/png');
+    if (!png) throw new Error('encode');
+    return png;
+  }
 
   const webp = await toBlob(canvas, 'image/webp', 0.85);
   if (webp?.type === 'image/webp' && webp.size <= MAX_IMAGE_BYTES) return webp;

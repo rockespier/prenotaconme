@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenancy/tenants/{slug}/manifest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTenantManifest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tenancy/tenants/current/images/{kind}": {
         parameters: {
             query?: never;
@@ -1298,6 +1314,7 @@ export interface components {
             cancellationNoticeHours: number;
             logoUrl: null | string;
             coverUrl: null | string;
+            iconUrl: null | string;
         };
         PushConfigDto: {
             publicKey: null | string;
@@ -1661,6 +1678,26 @@ export interface operations {
             path: {
                 slug: string;
                 kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GetTenantManifest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
             };
             cookie?: never;
         };

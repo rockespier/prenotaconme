@@ -52,11 +52,12 @@ public sealed class Tenant : Entity
     /// <summary>F5-08: version of the cover image, null without one.</summary>
     public long? CoverVersion { get; private set; }
 
-    public long? ImageVersion(TenantImageKind kind) => kind == TenantImageKind.Logo ? LogoVersion : CoverVersion;
+    /// <summary>The icon goes with the logo, so it uses the logo's version.</summary>
+    public long? ImageVersion(TenantImageKind kind) => kind == TenantImageKind.Cover ? CoverVersion : LogoVersion;
 
     public void SetImageVersion(TenantImageKind kind, long? version)
     {
-        if (kind == TenantImageKind.Logo)
+        if (kind != TenantImageKind.Cover)
         {
             LogoVersion = version;
         }
